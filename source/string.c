@@ -121,13 +121,6 @@ bool CRStringIsEmpty(var self) {
 }
 
 
-bool CRStringIsFull(var self) {
-    CRStringThrowErrorIfZero();
-    CRStringThrowErrorIfNotString();
-    return that.length == that.capacity;
-}
-
-
 bool CRStringIsMutable(var self) {
     CRStringThrowErrorIfZero();
     CRStringThrowErrorIfNotString();

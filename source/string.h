@@ -46,7 +46,6 @@ CRNatural CRStringLength(var self);
 CRCharacter* CRStringCharacters(var self);
 
 bool CRStringIsEmpty(var self);
-bool CRStringIsFull(var self);
 bool CRStringIsMutable(var self);
 
 CRCharacter CRStringCharacterAt(var self, CRInteger index);

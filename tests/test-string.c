@@ -96,12 +96,6 @@ void CRTestStringIsEmpty() {
 }
 
 
-void CRTestStringIsFull() {
-    CRAssert(CRStringIsFull(CRString("")) == true, "A non-mutable string is always full, including the empty string ''");
-    CRAssert(CRStringIsFull(CRString("123")) == true, "A non-mutable string is always full, including the string '123'");
-}
-
-
 void CRTestStringIsMutable() {
     CRAssert(CRStringIsMutable(CRString("123")) == false, "A stack allocated non-mutable string should not be mutable");
     CRAssert(CRStringIsMutable(CRStringCreateWithCharacters("123")) == false, "A non-mutable string should not be mutable");
@@ -265,7 +259,6 @@ void CRTestString() {
     CRTestStringLength();
     CRTestStringCharacters();
     CRTestStringIsEmpty();
-    CRTestStringIsFull();
     CRTestStringIsMutable();
 
     CRTestStringCharacterAt();
