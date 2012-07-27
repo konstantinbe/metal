@@ -1,7 +1,7 @@
 # Metal
 
-One of my pet projects, a fast object model runtime supporting roles (traits),
-inspired by Objective-C and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
+One of my pet projects, a fast and clean object model runtime supporting roles
+(traits). Inspired by Objective-C, Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
 
 ## License
 
