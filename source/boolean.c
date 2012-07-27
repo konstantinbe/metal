@@ -35,7 +35,7 @@
 #define this ((struct CRObject*)self.pointer)
 #define that (*this)
 
-#define CRBooleanThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRBooleanThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRBooleanThrowErrorIfNotBoolean() if (that.class != CRBoolean.pointer) CRError("self is not a boolean")
 
 
@@ -85,14 +85,14 @@ struct CRCallbacks CRBooleanMetaCallbacks = {
 
 
 CRNatural64 CRBooleanHash(var self) {
-    CRBooleanThrowErrorIfZero();
+    CRBooleanThrowErrorIfNull();
     CRBooleanThrowErrorIfNotBoolean();
     return self.payload.boolean ? 1ull : 0ull;
 }
 
 
 bool CRBooleanEquals(var self, var other) {
-    CRBooleanThrowErrorIfZero();
+    CRBooleanThrowErrorIfNull();
     CRBooleanThrowErrorIfNotBoolean();
 
     const bool boolean1 = self.payload.boolean;
@@ -106,14 +106,14 @@ bool CRBooleanEquals(var self, var other) {
 
 
 var CRBooleanCopy(var self) {
-    CRBooleanThrowErrorIfZero();
+    CRBooleanThrowErrorIfNull();
     CRBooleanThrowErrorIfNotBoolean();
     return self;
 }
 
 
 var CRBooleanDescription(var self) {
-    CRBooleanThrowErrorIfZero();
+    CRBooleanThrowErrorIfNull();
     CRBooleanThrowErrorIfNotBoolean();
 
     const bool is_true = self.payload.boolean != 0;

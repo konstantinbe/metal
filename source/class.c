@@ -35,7 +35,7 @@
 #define this ((struct CRClass*)self.pointer)
 #define that (*this)
 
-#define CRClassThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRClassThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRClassThrowErrorIfNotClass() if (that.class != CRClass.pointer) CRError("self is not a class")
 
 
@@ -73,37 +73,37 @@ struct CRCallbacks CRClassCallbacks = {
 
 
 CRNatural64 CRClassHash(var self) {
-    CRClassThrowErrorIfZero();
+    CRClassThrowErrorIfNull();
     CRClassThrowErrorIfNotClass();
     return (CRNatural64)self.pointer;
 }
 
 
 bool CRClassEquals(var self, var other) {
-    CRClassThrowErrorIfZero();
+    CRClassThrowErrorIfNull();
     CRClassThrowErrorIfNotClass();
     return self.pointer == other.pointer;
 }
 
 
 var CRClassCopy(var self) {
-    CRClassThrowErrorIfZero();
+    CRClassThrowErrorIfNull();
     CRClassThrowErrorIfNotClass();
     CRError("Can't create a copy of CRClass");
-    return zero;
+    return null;
 }
 
 
 var CRClassMutableCopy(var self) {
-    CRClassThrowErrorIfZero();
+    CRClassThrowErrorIfNull();
     CRClassThrowErrorIfNotClass();
     CRError("Can't create a mutable copy of CRClass");
-    return zero;
+    return null;
 }
 
 
 void CRClassDestroy(var self) {
-    CRClassThrowErrorIfZero();
+    CRClassThrowErrorIfNull();
     CRClassThrowErrorIfNotClass();
 
     // TODO: imeplement proper destroying of CRClass instances.
@@ -112,7 +112,7 @@ void CRClassDestroy(var self) {
 
 
 var CRClassDescription(var self) {
-    CRClassThrowErrorIfZero();
+    CRClassThrowErrorIfNull();
     CRClassThrowErrorIfNotClass();
 
     // TODO: implement proper description for CRClass instances.

@@ -23,7 +23,7 @@
 
 
 static void CRTestIsInstanceOf() {
-    CRAssert(CRIsInstanceOf(zero, CRObject) == false, "zero should not be an instance of CRObject");
+    CRAssert(CRIsInstanceOf(null, CRObject) == false, "null should not be an instance of CRObject");
     CRAssert(CRIsInstanceOf(CRTrue, CRBoolean), "CRTrue should be an instance of CRBoolean");
     CRAssert(CRIsInstanceOf(CRNumber(-123.4), CRNumber), "-123.4 should be an instance of CRNumber");
     CRAssert(CRIsInstanceOf(CRWord(0xFF), CRWord), "0xFF should be an instance of CRWord");

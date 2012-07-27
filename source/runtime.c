@@ -75,7 +75,7 @@ int placeholder = 0;
 //
 //
 // var CRSend(var self, var command, var arguments) {
-//     // if (self.pointer == NULL) self = zero;
+//     // if (self.pointer == NULL) self = null;
 //     //
 //     // // TODO: lookup in cache.
 //     //
@@ -92,5 +92,5 @@ int placeholder = 0;
 //     //
 //     // return implementation(self, command, arguments);
 //
-//     return zero;
+//     return null;
 // }

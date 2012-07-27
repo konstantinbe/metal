@@ -24,7 +24,7 @@
 
 
 var CRReference(CRPointer pointer) {
-    var reference = zero;
+    var reference = null;
     reference.pointer = pointer;
     reference.payload.natural = 0;
     return reference;
@@ -55,7 +55,7 @@ CRNatural CRRetainCount(var object) {
 
 var CRRelease(var object) {
     struct CRObject* instance = object.pointer;
-    if (instance == NULL) return zero;
+    if (instance == NULL) return null;
 
     const CRNatural retain_count = instance->retain_count;
     if (retain_count >= CRRetainCountMax) return object;
@@ -65,7 +65,7 @@ var CRRelease(var object) {
     if (instance->retain_count > 0) return object;
 
     CRDestroy(object);
-    return zero;
+    return null;
 }
 
 
@@ -83,7 +83,7 @@ CRNatural64 CRHash(var object) {
     if (payload != 0) return payload;
 
     const struct CRClass* class = instance->class;
-    if (class == NULL) CRError("Can't compute hash for object because the class of object is zero");
+    if (class == NULL) CRError("Can't compute hash for object because the class of object is null");
 
     const struct CRCallbacks* callbacks = class->callbacks;
     if (!callbacks) CRError("Can't compute hash for object because callbacks are not defined for its class");
@@ -106,8 +106,8 @@ bool CREquals(var object1, var object2) {
     const struct CRClass* class1 = instance1->class;
     const struct CRClass* class2 = instance2->class;
 
-    if (class1 == NULL) CRError("Can't compare objects because the class of object1 is zero");
-    if (class2 == NULL) CRError("Can't compare objects because the class of object2 is zero");
+    if (class1 == NULL) CRError("Can't compare objects because the class of object1 is null");
+    if (class2 == NULL) CRError("Can't compare objects because the class of object2 is null");
 
     const struct CRCallbacks* callbacks = class1->callbacks;
     if (!callbacks) CRError("Can't compare objects because callbacks for class are not defined");
@@ -124,7 +124,7 @@ var CRCopy(var object) {
     if (instance == NULL) return object;
 
     const struct CRClass* class = instance->class;
-    if (class == NULL) CRError("Can't copy object because the class of object is zero");
+    if (class == NULL) CRError("Can't copy object because the class of object is null");
 
     const struct CRCallbacks* callbacks = class->callbacks;
     if (!callbacks) CRError("Can't copy object because callbacks are not defined for its class");
@@ -141,7 +141,7 @@ var CRMutableCopy(var object) {
     if (instance == NULL) return object;
 
     const struct CRClass* class = instance->class;
-    if (class == NULL) CRError("Can't mutable copy object because the class of object is zero");
+    if (class == NULL) CRError("Can't mutable copy object because the class of object is null");
 
     const struct CRCallbacks* callbacks = class->callbacks;
     if (!callbacks) CRError("Can't mutable copy object because callbacks are not defined for its class");
@@ -161,7 +161,7 @@ void CRDestroy(var object) {
     if (retain_count > 0) CRWarning("Destroying object with ratain count > 0");
 
     const struct CRClass* class = instance->class;
-    if (class == NULL) CRError("Can't destroy object because the class of object is zero");
+    if (class == NULL) CRError("Can't destroy object because the class of object is null");
 
     const struct CRCallbacks* callbacks = class->callbacks;
     if (!callbacks) CRError("Can't destroy object because callbacks are not defined for its class");
@@ -175,10 +175,10 @@ void CRDestroy(var object) {
 
 var CRDescription(var object) {
     const struct CRObject* instance = object.pointer;
-    if (instance == NULL) return CRStringCreateWithCharacters("zero");
+    if (instance == NULL) return CRStringCreateWithCharacters("null");
 
     const struct CRClass* class = instance->class;
-    if (class == NULL) CRError("Can't return description for object because the class of object is zero");
+    if (class == NULL) CRError("Can't return description for object because the class of object is null");
 
     const struct CRCallbacks* callbacks = class->callbacks;
     if (!callbacks) CRError("Can't return description for object because callbacks are not defined for its class");

@@ -40,7 +40,7 @@
 #define this ((struct CRDictionary*)self.pointer)
 #define that (*this)
 
-#define CRMutableDictionaryThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRMutableDictionaryThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRMutableDictionaryThrowErrorIfNotDictionary() if (that.class != CRMutableDictionary.pointer) CRError("self is not a mutable dictionary")
 
 
@@ -70,7 +70,7 @@ var CRDictionaryCreateMutable() {
 
 var CRDictionaryCreateMutableWithCapacity(var capacity) {
     // TODO: implement.
-    return zero;
+    return null;
 }
 
 
@@ -83,35 +83,35 @@ void CRDictionaryPut(var self, var key, var object) {
 
 
 void CRDictionaryPutMany(var self, var entries) {
-    CRMutableDictionaryThrowErrorIfZero();
+    CRMutableDictionaryThrowErrorIfNull();
     CRMutableDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
 }
 
 
 void CRDictionaryRemove(var self, var key) {
-    CRMutableDictionaryThrowErrorIfZero();
+    CRMutableDictionaryThrowErrorIfNull();
     CRMutableDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
 }
 
 
 void CRDictionaryRemoveMany(var self, var keys) {
-    CRMutableDictionaryThrowErrorIfZero();
+    CRMutableDictionaryThrowErrorIfNull();
     CRMutableDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
 }
 
 
 void CRDictionaryClear(var self) {
-    CRMutableDictionaryThrowErrorIfZero();
+    CRMutableDictionaryThrowErrorIfNull();
     CRMutableDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
 }
 
 
 void CRDictionaryIncreaseCapacityToAtLeast(var self, CRNatural capacity) {
-    CRMutableDictionaryThrowErrorIfZero();
+    CRMutableDictionaryThrowErrorIfNull();
     CRMutableDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
 }

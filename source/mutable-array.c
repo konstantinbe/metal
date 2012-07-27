@@ -41,7 +41,7 @@
 #define this ((struct CRArray*)self.pointer)
 #define that (*this)
 
-#define CRMutableArrayThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRMutableArrayThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRMutableArrayThrowErrorIfNotMutableArray() if (that.class != CRMutableArray.pointer) CRError("self is not a mutable array")
 
 
@@ -88,7 +88,7 @@ var CRArrayCreateMutableWithCArray(CRNatural count, var* objects) {
 
 
 void CRArrayAdd(var self, var object) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     const CRNatural count = CRArrayCount(self);
@@ -100,7 +100,7 @@ void CRArrayAdd(var self, var object) {
 
 
 void CRArrayAddMany(var self, var objects) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     const CRNatural count = CRArrayCount(self);
@@ -117,7 +117,7 @@ void CRArrayAddMany(var self, var objects) {
 
 
 void CRArrayInsertAt(var self, var object, CRInteger index) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     if (index < 0 || index > that.count) CRError("Can't insert object at %ld, index out of bounds", index);
@@ -131,7 +131,7 @@ void CRArrayInsertAt(var self, var object, CRInteger index) {
 
 
 void CRArrayInsertManyAt(var self, var objects, CRInteger index) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     if (index < 0 || index > that.count) CRError("Can't insert many objects at %ld, index out of bounds", index);
@@ -153,14 +153,14 @@ void CRArrayInsertManyAt(var self, var objects, CRInteger index) {
 
 
 void CRArrayRemove(var self, var object) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
     CRArrayRemoveMany(self, CRArray(object));
 }
 
 
 void CRArrayRemoveMany(var self, var objects) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     for (CRInteger index = 0; index < that.count; index += 1) {
@@ -176,7 +176,7 @@ void CRArrayRemoveMany(var self, var objects) {
 
 
 void CRArrayRemoveAt(var self, CRInteger index) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     if (index < 0 || index >= that.count) CRError("Can't remove object at %ld, index out of bounds", index);
@@ -188,7 +188,7 @@ void CRArrayRemoveAt(var self, CRInteger index) {
 
 
 void CRArrayRemoveManyAt(var self, var indexes) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     const CRInteger count = CRArrayCount(self);
@@ -209,13 +209,13 @@ void CRArrayRemoveManyAt(var self, var indexes) {
 
 
 void CRArrayClear(var self) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     const CRNatural count = CRArrayCount(self);
     for (CRInteger i = 0; i < count; i += 1) {
         CRRelease(that.objects[i]);
-        that.objects[i] = zero;
+        that.objects[i] = null;
     }
 
     that.count = 0;
@@ -226,7 +226,7 @@ void CRArrayClear(var self) {
 
 
 void CRArrayIncreaseCapacityToAtLeast(var self, CRNatural capacity) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     if (capacity <= CRArrayCapacity(self)) return;
@@ -273,7 +273,7 @@ static void* CRArrayRemovalMarking = &CRArrayRemovalMarking;
 
 
 void CRArrayExpandAt(var self, CRInteger count, CRInteger index) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     for (CRInteger i = CRArrayCount(self) - 1; i >= index; i -= 1) {
@@ -283,7 +283,7 @@ void CRArrayExpandAt(var self, CRInteger count, CRInteger index) {
 
 
 void CRArrayContractAt(var self, CRInteger count, CRInteger index) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     for (CRInteger i = index + count; i < CRArrayCount(self); i += 1) {
@@ -293,7 +293,7 @@ void CRArrayContractAt(var self, CRInteger count, CRInteger index) {
 
 
 void CRArrayMarkSlotForRemovalAt(var self, CRInteger index) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     that.objects[index].pointer = CRArrayRemovalMarking;
@@ -302,14 +302,14 @@ void CRArrayMarkSlotForRemovalAt(var self, CRInteger index) {
 
 
 bool CRArrayIsSlotMarkedForRemovalAt(var self, CRInteger index) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
     return that.objects[index].pointer == CRArrayRemovalMarking;
 }
 
 
 void CRArrayClearSlotsMarkedForRemoval(var self) {
-    CRMutableArrayThrowErrorIfZero();
+    CRMutableArrayThrowErrorIfNull();
     CRMutableArrayThrowErrorIfNotMutableArray();
 
     const CRInteger count = that.count;
@@ -324,7 +324,7 @@ void CRArrayClearSlotsMarkedForRemoval(var self) {
 
     // undefinedify empty slots
     for (CRInteger index = number_of_kept_objects; index < count; index += 1) {
-        that.objects[index] = zero;
+        that.objects[index] = null;
     }
 
     that.count = number_of_kept_objects;

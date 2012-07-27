@@ -41,7 +41,7 @@
 #define this ((struct CRArray*)self.pointer)
 #define that (*this)
 
-#define CRArrayThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRArrayThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRArrayThrowErrorIfNotArray() if (that.class != CRArray.pointer && that.class != CRMutableArray.pointer) CRError("self is not an array")
 
 
@@ -89,35 +89,35 @@ var CRArrayCreateWithCArray(CRNatural count, var* objects) {
 
 
 CRNatural CRArrayCapacity(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return that.capacity;
 }
 
 
 CRNatural CRArrayCount(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return that.count;
 }
 
 
 var* CRArrayObjects(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return that.objects;
 }
 
 
 bool CRArrayIsEmpty(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return that.count <= 0;
 }
 
 
 bool CRArrayIsMutable(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return that.class == CRMutableArray.pointer;
 }
@@ -127,7 +127,7 @@ bool CRArrayIsMutable(var self) {
 
 
 var CRArrayObjectAt(var self, CRInteger index) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     if (index < 0 || index >= that.count) CRError("Index out of bounds");
     return that.objects[index];
@@ -135,7 +135,7 @@ var CRArrayObjectAt(var self, CRInteger index) {
 
 
 CRInteger CRArrayIndexOf(var self, var object) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     const CRNatural count = that.count;
 
@@ -153,7 +153,7 @@ CRInteger CRArrayIndexOf(var self, var object) {
 
 
 bool CRArrayContains(var self, var object) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return CRArrayIndexOf(self, object) >= 0;
 }
@@ -187,14 +187,14 @@ struct CRCallbacks CRArrayMetaCallbacks = {
 
 
 CRNatural64 CRArrayHash(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return (CRNatural64)self.pointer;
 }
 
 
 bool CRArrayEquals(var self, var other) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
 
     const CRNatural count = that.count;
@@ -211,21 +211,21 @@ bool CRArrayEquals(var self, var other) {
 
 
 var CRArrayCopy(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return CRArrayIsMutable(self) ? CRArrayCreateWithCArray(that.count, that.objects) : CRRetain(self);
 }
 
 
 var CRArrayMutableCopy(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
     return CRArrayCreateMutableWithCArray(CRArrayCount(self), CRArrayObjects(self));
 }
 
 
 void CRArrayDestroy(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
 
     var* objects = that.objects;
@@ -245,7 +245,7 @@ void CRArrayDestroy(var self) {
 
 
 var CRArrayDescription(var self) {
-    CRArrayThrowErrorIfZero();
+    CRArrayThrowErrorIfNull();
     CRArrayThrowErrorIfNotArray();
 
     var description = CRStringCreateWithCharacters("[TODO: implement CRArrayDescription().]");

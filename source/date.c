@@ -39,7 +39,7 @@
 #define this ((struct CRObject*)self.pointer)
 #define that (*this)
 
-#define CRDateThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRDateThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRDateThrowErrorIfNotDate() if (that.class != CRDate.pointer) CRError("self is not a date")
 
 
@@ -53,7 +53,7 @@ const var CRDate = {&CRDateClass};
 
 
 var CRDateMake(CRDecimal seconds_since_1970) {
-    var date = zero;
+    var date = null;
     date.pointer = &CRDateProxy;
     date.payload.decimal = round(seconds_since_1970);
     return date;
@@ -68,7 +68,7 @@ var CRDateNow() {
 
 
 var CRDateParse(var string) {
-    return zero;
+    return null;
 }
 
 

@@ -38,7 +38,7 @@
 #define this ((struct CRObject*)self.pointer)
 #define that (*this)
 
-#define CRWordThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRWordThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRWordThrowErrorIfNotWord() if (that.class != CRWord.pointer) CRError("self is not a word")
 
 
@@ -52,7 +52,7 @@ const var CRWord = {&CRWordClass};
 
 
 var CRWordMake(CRNatural value) {
-    var word = zero;
+    var word = null;
     word.pointer = &CRWordProxy;
     word.payload.natural = value;
     return word;
@@ -90,28 +90,28 @@ struct CRCallbacks CRWordMetaCallbacks = {
 
 
 CRNatural64 CRWordHash(var self) {
-    CRWordThrowErrorIfZero();
+    CRWordThrowErrorIfNull();
     CRWordThrowErrorIfNotWord();
     return (CRNatural64)self.payload.natural;
 }
 
 
 bool CRWordEquals(var self, var other) {
-    CRWordThrowErrorIfZero();
+    CRWordThrowErrorIfNull();
     CRWordThrowErrorIfNotWord();
     return self.payload.natural == other.payload.natural;
 }
 
 
 var CRWordCopy(var self) {
-    CRWordThrowErrorIfZero();
+    CRWordThrowErrorIfNull();
     CRWordThrowErrorIfNotWord();
     return self;
 }
 
 
 var CRWordDescription(var self) {
-    CRWordThrowErrorIfZero();
+    CRWordThrowErrorIfNull();
     CRWordThrowErrorIfNotWord();
 
     const CRNatural characters_capacity = 1000;

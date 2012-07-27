@@ -41,7 +41,7 @@
 #define this ((struct CRDictionary*)self.pointer)
 #define that (*this)
 
-#define CRDictionaryThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRDictionaryThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRDictionaryThrowErrorIfNotDictionary() if (that.class != CRDictionary.pointer && that.class != CRMutableDictionary.pointer) CRError("self is not a dictionary")
 
 
@@ -95,7 +95,7 @@ var CRDictionaryCreateWithCArrayLinear(CRNatural count, var* entries) {
 
 var CRDictionaryCreateWithCArrayHashed(CRNatural count, var* entries) {
     // TODO: implement.
-    return zero;
+    return null;
 }
 
 
@@ -103,14 +103,14 @@ var CRDictionaryCreateWithCArrayHashed(CRNatural count, var* entries) {
 
 
 CRNatural CRDictionaryMask(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     return that.mask;
 }
 
 
 CRNatural CRDictionaryCapacity(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
 
     const CRNatural mask = that.mask;
@@ -120,35 +120,35 @@ CRNatural CRDictionaryCapacity(var self) {
 
 
 CRNatural CRDictionaryCount(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     return that.count;
 }
 
 
 var* CRDictionaryEntries(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     return that.entries;
 }
 
 
 bool CRDictionaryIsEmpty(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     return that.count <= 0;
 }
 
 
 bool CRDictionaryIsLinear(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     return that.mask == 0 && that.count > 0;
 }
 
 
 bool CRDictionaryIsHashed(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     return that.mask != 0 || that.count == 0;
 }
@@ -158,7 +158,7 @@ bool CRDictionaryIsHashed(var self) {
 
 
 var CRDictionaryKeyAt(var self, CRInteger index) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
 
     if (index < 0 || index >= CRDictionaryCapacity(self)) CRError("Index out of bounds");
@@ -167,7 +167,7 @@ var CRDictionaryKeyAt(var self, CRInteger index) {
 
 
 var CRDictionaryObjectAt(var self, CRInteger index) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
 
     if (index < 0 || index >= CRDictionaryCapacity(self)) CRError("Index out of bounds");
@@ -176,7 +176,7 @@ var CRDictionaryObjectAt(var self, CRInteger index) {
 
 
 CRInteger CRDictionaryIndexOf(var self, var key) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
     return -1;
@@ -184,18 +184,18 @@ CRInteger CRDictionaryIndexOf(var self, var key) {
 
 
 var CRDictionaryGet(var self, var key) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
-    return zero;
+    return null;
 }
 
 
 var CRDictionaryGetMany(var self, var keys) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
-    return zero;
+    return null;
 }
 
 
@@ -203,7 +203,7 @@ var CRDictionaryGetMany(var self, var keys) {
 
 
 bool CRDictionaryContains(var self, var key) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
     return false;
@@ -238,14 +238,14 @@ struct CRCallbacks CRDictionaryMetaCallbacks = {
 
 
 CRNatural64 CRDictionaryHash(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     return (CRNatural64)self.pointer;
 }
 
 
 bool CRDictionaryEquals(var self, var other) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
     return false;
@@ -253,32 +253,32 @@ bool CRDictionaryEquals(var self, var other) {
 
 
 var CRDictionaryCopy(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
-    return zero;
+    return null;
 }
 
 
 var CRDictionaryMutableCopy(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
-    return zero;
+    return null;
 }
 
 
 void CRDictionaryDestroy(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
     // TODO: implement.
 }
 
 
 var CRDictionaryDescription(var self) {
-    CRDictionaryThrowErrorIfZero();
+    CRDictionaryThrowErrorIfNull();
     CRDictionaryThrowErrorIfNotDictionary();
-    var description = zero;
+    var description = null;
     // TODO: implement.
     return CRAutorelease(description);
 }

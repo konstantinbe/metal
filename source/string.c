@@ -40,7 +40,7 @@
 #define this ((struct CRString*)self.pointer)
 #define that (*this)
 
-#define CRStringThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRStringThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRStringThrowErrorIfNotString() if (that.class != CRString.pointer && that.class != CRMutableString.pointer) CRError("self is not a string")
 
 
@@ -94,35 +94,35 @@ var CRStringCreateWithCharacters(const CRCharacter* characters) {
 
 
 CRNatural CRStringCapacity(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return that.capacity;
 }
 
 
 CRNatural CRStringLength(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return that.length;
 }
 
 
 CRCharacter* CRStringCharacters(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return that.characters;
 }
 
 
 bool CRStringIsEmpty(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return that.length == 0;
 }
 
 
 bool CRStringIsMutable(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return that.class == CRMutableString.pointer;
 }
@@ -132,7 +132,7 @@ bool CRStringIsMutable(var self) {
 
 
 CRCharacter CRStringCharacterAt(var self, CRInteger index) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     if (index < 0 || index >= that.length) CRError("Index out of bounds");
     return that.characters[index];
@@ -140,7 +140,7 @@ CRCharacter CRStringCharacterAt(var self, CRInteger index) {
 
 
 CRInteger CRStringIndexOf(var self, var string) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
 
     const CRInteger length_of_string = CRStringLength(string);
@@ -155,21 +155,21 @@ CRInteger CRStringIndexOf(var self, var string) {
 
 
 bool CRStringContains(var self, var string) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return CRStringIndexOf(self, string) >= 0;
 }
 
 
 bool CRStringBeginsWith(var self, var string) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return CRStringIndexOf(self, string) == 0;
 }
 
 
 bool CRStringEndsWith(var self, var string) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
 
     const CRInteger length_of_string = CRStringLength(string);
@@ -212,14 +212,14 @@ struct CRCallbacks CRStringMetaCallbacks = {
 
 
 CRNatural64 CRStringHash(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return self.payload.natural ? self.payload.natural : CRDigest(that.length, that.characters);
 }
 
 
 bool CRStringEquals(var self, var other) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
 
     CRCharacter* characters1 = CRStringCharacters(self);
@@ -235,21 +235,21 @@ bool CRStringEquals(var self, var other) {
 
 
 var CRStringCopy(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return CRStringIsMutable(self) ? CRStringCreateWithCharacters(that.characters) : CRRetain(self);
 }
 
 
 var CRStringMutableCopy(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return CRStringCreateMutableWithCharacters(that.characters);
 }
 
 
 void CRStringDestroy(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
 
     CRCharacter* characters = that.characters;
@@ -266,7 +266,7 @@ void CRStringDestroy(var self) {
 
 
 var CRStringDescription(var self) {
-    CRStringThrowErrorIfZero();
+    CRStringThrowErrorIfNull();
     CRStringThrowErrorIfNotString();
     return self;
 }

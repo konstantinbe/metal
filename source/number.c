@@ -40,7 +40,7 @@
 #define this ((struct CRObject*)self.pointer)
 #define that (*this)
 
-#define CRNumberThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRNumberThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRNumberThrowErrorIfNotNumber() if (that.class != CRNumber.pointer) CRError("self is not a number")
 
 
@@ -56,7 +56,7 @@ const var CRInfinity = {&CRNumberProxy, .payload.decimal = INFINITY};
 
 
 var CRNumberMake(CRDecimal value) {
-    var number = zero;
+    var number = null;
     number.pointer = &CRNumberProxy;
     number.payload.decimal = value;
     return number;
@@ -94,28 +94,28 @@ struct CRCallbacks CRNumberMetaCallbacks = {
 
 
 CRNatural64 CRNumberHash(var self) {
-    CRNumberThrowErrorIfZero();
+    CRNumberThrowErrorIfNull();
     CRNumberThrowErrorIfNotNumber();
     return (CRNatural64)self.payload.natural;
 }
 
 
 bool CRNumberEquals(var self, var other) {
-    CRNumberThrowErrorIfZero();
+    CRNumberThrowErrorIfNull();
     CRNumberThrowErrorIfNotNumber();
     return self.payload.decimal == other.payload.decimal;
 }
 
 
 var CRNumberCopy(var self) {
-    CRNumberThrowErrorIfZero();
+    CRNumberThrowErrorIfNull();
     CRNumberThrowErrorIfNotNumber();
     return self;
 }
 
 
 var CRNumberDescription(var self) {
-    CRNumberThrowErrorIfZero();
+    CRNumberThrowErrorIfNull();
     CRNumberThrowErrorIfNotNumber();
 
     const CRNatural characters_capacity = 1000;

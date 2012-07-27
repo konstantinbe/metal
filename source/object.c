@@ -35,7 +35,7 @@
 #define this ((struct CRObject*)self.pointer)
 #define that (*this)
 
-#define CRObjectThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRObjectThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRObjectThrowErrorIfNotObject() if (that.class != CRObject.pointer) CRError("self is not an object")
 
 
@@ -73,44 +73,44 @@ struct CRCallbacks CRObjectCallbacks = {
 
 
 CRNatural64 CRObjectHash(var self) {
-    CRObjectThrowErrorIfZero();
+    CRObjectThrowErrorIfNull();
     CRObjectThrowErrorIfNotObject();
     return (CRNatural64)self.pointer;
 }
 
 
 bool CRObjectEquals(var self, var other) {
-    CRObjectThrowErrorIfZero();
+    CRObjectThrowErrorIfNull();
     CRObjectThrowErrorIfNotObject();
     return self.pointer == other.pointer;
 }
 
 
 var CRObjectCopy(var self) {
-    CRObjectThrowErrorIfZero();
+    CRObjectThrowErrorIfNull();
     CRObjectThrowErrorIfNotObject();
     CRError("Can't create a copy of CRObject");
-    return zero;
+    return null;
 }
 
 
 var CRObjectMutableCopy(var self) {
-    CRObjectThrowErrorIfZero();
+    CRObjectThrowErrorIfNull();
     CRObjectThrowErrorIfNotObject();
     CRError("Can't create a mutable copy of CRObject");
-    return zero;
+    return null;
 }
 
 
 void CRObjectDestroy(var self) {
-    CRObjectThrowErrorIfZero();
+    CRObjectThrowErrorIfNull();
     CRObjectThrowErrorIfNotObject();
     if (self.pointer) CRFree(self.pointer);
 }
 
 
 var CRObjectDescription(var self) {
-    CRObjectThrowErrorIfZero();
+    CRObjectThrowErrorIfNull();
     CRObjectThrowErrorIfNotObject();
 
     const struct CRObject* instance = (struct CRObject*)self.pointer;

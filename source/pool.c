@@ -39,7 +39,7 @@
 #define this ((struct CRPool*)self.pointer)
 #define that (*this)
 
-#define CRPoolThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRPoolThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRPoolThrowErrorIfNotPool() if (that.class != CRPool.pointer) CRError("self is not an autorelease pool")
 
 
@@ -68,7 +68,7 @@ var CRPoolCreate() {
 
 
 var CRPoolObjects(var self) {
-    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNull();
     CRPoolThrowErrorIfNotPool();
     const var objects = CRCopy(that.objects);
     return CRAutorelease(objects);
@@ -79,14 +79,14 @@ var CRPoolObjects(var self) {
 
 
 void CRPoolAdd(var self, var object) {
-    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNull();
     CRPoolThrowErrorIfNotPool();
     CRArrayAdd(that.objects, object);
 }
 
 
 void CRPoolDrain(var self) {
-    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNull();
     CRPoolThrowErrorIfNotPool();
     CRArrayClear(that.objects);
 }
@@ -120,7 +120,7 @@ struct CRCallbacks CRPoolMetaCallbacks = {
 
 
 void CRPoolDestroy(var self) {
-    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNull();
     CRPoolThrowErrorIfNotPool();
 
     CRPoolDrain(self);
@@ -128,14 +128,14 @@ void CRPoolDestroy(var self) {
 
     that.class = NULL;
     that.retain_count = 0;
-    that.objects = zero;
+    that.objects = null;
 
     CRFree(this);
 }
 
 
 var CRPoolDescription(var self) {
-    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNull();
     CRPoolThrowErrorIfNotPool();
     return CRDescription(that.objects);
 }

@@ -42,7 +42,7 @@
 #define this ((struct CRString*)self.pointer)
 #define that (*this)
 
-#define CRMutableStringThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRMutableStringThrowErrorIfNull() if (this == NULL) CRError("self is null")
 #define CRMutableStringThrowErrorIfNotMutableString() if (that.class != CRMutableString.pointer) CRError("self is not a mutable string")
 
 
@@ -89,10 +89,10 @@ var CRStringCreateMutableWithCharacters(const CRCharacter* characters) {
 
 
 void CRStringPrepend(var self, var string) {
-    CRMutableStringThrowErrorIfZero();
+    CRMutableStringThrowErrorIfNull();
     CRMutableStringThrowErrorIfNotMutableString();
 
-    CRAssert(CRIsNull(string) == false, "Can't prepend string, string is zero");
+    CRAssert(CRIsNull(string) == false, "Can't prepend string, string is null");
     CRAssert(CRStringIsMutable(self), "Can't prepend string '%s' to non-mutable string '%s'", CRStringCharacters(string), CRStringCharacters(self));
 
     const CRNatural string_length = CRStringLength(string);
@@ -109,10 +109,10 @@ void CRStringPrepend(var self, var string) {
 
 
 void CRStringAppend(var self, var string) {
-    CRMutableStringThrowErrorIfZero();
+    CRMutableStringThrowErrorIfNull();
     CRMutableStringThrowErrorIfNotMutableString();
 
-    CRAssert(CRIsNull(string) == false, "Can't append string, string is zero");
+    CRAssert(CRIsNull(string) == false, "Can't append string, string is null");
 
     const CRNatural string_length = CRStringLength(string);
     if (string_length == 0) return;
@@ -124,7 +124,7 @@ void CRStringAppend(var self, var string) {
 
 
 void CRStringClear(var self) {
-    CRMutableStringThrowErrorIfZero();
+    CRMutableStringThrowErrorIfNull();
     CRMutableStringThrowErrorIfNotMutableString();
 
     if (that.length == 0) return;
@@ -138,7 +138,7 @@ void CRStringClear(var self) {
 
 
 void CRStringIncreaseCapacityToAtLeast(var self, CRNatural capacity) {
-    CRMutableStringThrowErrorIfZero();
+    CRMutableStringThrowErrorIfNull();
     CRMutableStringThrowErrorIfNotMutableString();
 
     if (capacity <= that.capacity) return;

@@ -133,8 +133,8 @@ struct CRCallbacks {
 
 // ------------------------------------------------------------ Functions ------
 
-#define CRNumberOfVariables(...) (sizeof((var[]){zero, __VA_ARGS__}) / sizeof(var) - 1)
-#define CRPointerToVariables(...) ((var[]){zero, __VA_ARGS__} + 1)
+#define CRNumberOfVariables(...) (sizeof((var[]){null, __VA_ARGS__}) / sizeof(var) - 1)
+#define CRPointerToVariables(...) ((var[]){null, __VA_ARGS__} + 1)
 
 var CRRetain(var object);
 CRNatural CRRetainCount(var object);
@@ -155,7 +155,7 @@ bool CRIsInstanceOf(var object, var class);
 
 // -----------------------------------------------------------------------------
 
-#define zero (var){0, {0}}
+#define null (var){0, {0}}
 var CRReference(CRPointer pointer);
 
 #define CRStructure(type, reference) (*((struct type*)reference.pointer))

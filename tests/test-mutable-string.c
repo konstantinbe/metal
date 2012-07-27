@@ -96,7 +96,7 @@ void CRTestMutableStringClear() {
     CRAssert(CREquals(hello_world, CRString("Hello World!")), "Before clearing, string should be 'Hello World!'");
     CRStringClear(hello_world);
     CRAssert(CREquals(hello_world, CRString("")), "After clearing, string should be an empty string ''");
-    CRAssert(CRStringCharacters(hello_world)[0] == '\0', "After clearing, first character of string should be the zero terminator '\\0'");
+    CRAssert(CRStringCharacters(hello_world)[0] == '\0', "After clearing, first character of string should be the null terminator '\\0'");
 }
 
 
