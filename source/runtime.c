@@ -65,7 +65,7 @@ int placeholder = 0;
 // }
 //
 //
-// void CRAddMethod(var class, var command, CRImplementation implementation) {
+// void CRAddMethod(var class, var command, CRCode code) {
 //     // check first character of signature if it is '+' or '-'
 //     // if '+', then its a class method
 //     // if '-' then its an instance method
@@ -81,16 +81,16 @@ int placeholder = 0;
 //     //
 //     // const struct CRObject* that = self.pointer;
 //     // const struct CRBehavior* class = that->class;
-//     // const CRImplementation lookup = class->lookup;
+//     // const CRCode lookup = class->lookup;
 //     // const var method = lookup(self, command, arguments);
-//     // const CRImplementation implementation = method.payload.implementation;
+//     // const CRCode code = method.payload.code;
 //     //
 //     // // TODO: send message resolve* if not found.
 //     // // TODO: store found method in cache if found or resolved.
 //     // // TODO: send method_not_found* if not found and not resolved.
-//     // assert(implementation);
+//     // assert(code);
 //     //
-//     // return implementation(self, command, arguments);
+//     // return code(self, command, arguments);
 //
 //     return null;
 // }

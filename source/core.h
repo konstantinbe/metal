@@ -61,7 +61,7 @@ typedef union CRPayload CRPayload;
 typedef struct CRVariable CRVariable;
 typedef CRVariable var;
 
-typedef var (*CRImplementation)(var self, var command, var arguments);
+typedef var (*CRCode)(var self, var command, var arguments);
 
 typedef CRNatural64 (*CRHashCallback)(var object);
 typedef bool (*CREqualsCallback)(var object1, var object2);
@@ -78,7 +78,7 @@ union CRPayload {
     CRBool boolean;
     CRDecimal decimal;
     CRNatural64 natural;
-    CRImplementation implementation;
+    CRCode code;
     CRPointer pointer;
 };
 

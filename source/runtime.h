@@ -25,7 +25,7 @@
 #include "core.h"
 
 void CRInitClass(var class, var name, var superclass);
-void CRAddMethod(var class, var command, CRImplementation implementation);
+void CRAddMethod(var class, var command, CRCode code);
 
 var CRSend(var self, var command, var arguments);
 
