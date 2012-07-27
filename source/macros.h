@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2010 Konstantin Bender.
+// Copyright (c) 2012 Konstantin Bender.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
 // THE SOFTWARE.
 //
 // Many thanks to Mike Ash for his excellent article: C Macro Tips and Tricks
-// http://www.mikeash.com/pyblog/friday-qa-2010-12-31-c-macro-tips-and-tricks.html
+// http://www.mikeash.com/pyblog/friday-qa-2012-12-31-c-macro-tips-and-tricks.html
 
 #ifndef CR_MACROS_H
 #define CR_MACROS_H
