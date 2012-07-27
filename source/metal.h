@@ -31,7 +31,6 @@
 #include "object.h"
 #include "class.h"
 
-#include "null.h"
 #include "boolean.h"
 #include "number.h"
 #include "word.h"
