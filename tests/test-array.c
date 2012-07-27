@@ -118,12 +118,6 @@ void CRTestArrayIsEmpty() {
 }
 
 
-void CRTestArrayIsFull() {
-    var array = CRArray();
-    assert(CRArrayIsFull(array) == true);
-}
-
-
 void CRTestArrayIsMutable() {
     var array = CRArrayCreate();
     assert(!CRArrayIsMutable(array));
@@ -237,7 +231,6 @@ void CRTestArray() {
     CRTestArrayCapacity();
     CRTestArrayContains();
     CRTestArrayIsEmpty();
-    CRTestArrayIsFull();
 
     CRTestArrayObjectAt();
     CRTestArrayIndexOf();

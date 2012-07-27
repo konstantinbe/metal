@@ -116,13 +116,6 @@ bool CRArrayIsEmpty(var self) {
 }
 
 
-bool CRArrayIsFull(var self) {
-    CRArrayThrowErrorIfZero();
-    CRArrayThrowErrorIfNotArray();
-    return that.count >= that.capacity;
-}
-
-
 bool CRArrayIsMutable(var self) {
     CRArrayThrowErrorIfZero();
     CRArrayThrowErrorIfNotArray();

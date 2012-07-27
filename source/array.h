@@ -46,7 +46,6 @@ CRNatural CRArrayCount(var self);
 var* CRArrayObjects(var self);
 
 bool CRArrayIsEmpty(var self);
-bool CRArrayIsFull(var self);
 bool CRArrayIsMutable(var self);
 
 var CRArrayObjectAt(var self, CRInteger index);
