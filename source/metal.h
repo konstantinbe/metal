@@ -45,7 +45,7 @@
 #include "mutable-array.h"
 #include "mutable-dictionary.h"
 
-#include "autorelease-pool.h"
+#include "pool.h"
 #include "runtime.h"
 
 #endif

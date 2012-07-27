@@ -22,26 +22,26 @@
 #include "test.h"
 
 
-void CRTestAutoreleasePoolCreate() {
-    var autorelease_pool = CRAutoreleasePoolCreate();
+void CRTestPoolCreate() {
+    var autorelease_pool = CRPoolCreate();
     CRAssert(CRRetainCount(autorelease_pool) == 1, "Retain count of a newly created autorelease pool should be 1");
-    CRAssert(CREquals(CRAutoreleasePoolObjects(autorelease_pool), CRArray()), "Objects of a newly created autorelease-pool should be an empty array");
+    CRAssert(CREquals(CRPoolObjects(autorelease_pool), CRArray()), "Objects of a newly created pool should be an empty array");
     CRRelease(autorelease_pool);
 }
 
 
-void CRTestAutoreleasePoolAdd() {
-    var autorelease_pool = CRAutoreleasePoolCreate();
+void CRTestPoolAdd() {
+    var autorelease_pool = CRPoolCreate();
     var string1 = CRStringCreate();
     var string2 = CRStringCreate();
 
     CRRetain(string1);
     CRRetain(string2);
 
-    CRAutoreleasePoolAdd(autorelease_pool, string1);
-    CRAutoreleasePoolAdd(autorelease_pool, string2);
+    CRPoolAdd(autorelease_pool, string1);
+    CRPoolAdd(autorelease_pool, string2);
 
-    CRAssert(CREquals(CRAutoreleasePoolObjects(autorelease_pool), CRArray(string1, string2)), "Adding objects to the autorelease pool should add to the objects array");
+    CRAssert(CREquals(CRPoolObjects(autorelease_pool), CRArray(string1, string2)), "Adding objects to the autorelease pool should add to the objects array");
     CRRelease(autorelease_pool);
 
     CRRelease(string1);
@@ -49,24 +49,24 @@ void CRTestAutoreleasePoolAdd() {
 }
 
 
-void CRTestAutoreleasePoolDrain() {
-    var autorelease_pool = CRAutoreleasePoolCreate();
+void CRTestPoolDrain() {
+    var autorelease_pool = CRPoolCreate();
     var string1 = CRStringCreate();
     var string2 = CRStringCreate();
 
     CRRetain(string1);
     CRRetain(string2);
 
-    CRAutoreleasePoolAdd(autorelease_pool, string1);
-    CRAutoreleasePoolAdd(autorelease_pool, string2);
+    CRPoolAdd(autorelease_pool, string1);
+    CRPoolAdd(autorelease_pool, string2);
 
     const CRNatural retain_count1 = CRRetainCount(string1);
     const CRNatural retain_count2 = CRRetainCount(string2);
 
-    CRAutoreleasePoolDrain(autorelease_pool);
+    CRPoolDrain(autorelease_pool);
     CRAssert(CRRetainCount(string1) == retain_count1 - 1, "Draining a releasepool should release its objects");
     CRAssert(CRRetainCount(string2) == retain_count2 - 1, "Draining a releasepool should release its objects");
-    CRAssert(CREquals(CRAutoreleasePoolObjects(autorelease_pool), CRArray()), "Draining a releasepool should remove all objects");
+    CRAssert(CREquals(CRPoolObjects(autorelease_pool), CRArray()), "Draining a releasepool should remove all objects");
 
     CRRelease(autorelease_pool);
     CRRelease(string1);
@@ -77,16 +77,16 @@ void CRTestAutoreleasePoolDrain() {
 // -----------------------------------------------------------------------------
 
 
-void CRTestAutoreleasePoolDestroy() {
-    var autorelease_pool = CRAutoreleasePoolCreate();
+void CRTestPoolDestroy() {
+    var autorelease_pool = CRPoolCreate();
     var string1 = CRStringCreate();
     var string2 = CRStringCreate();
 
     CRRetain(string1);
     CRRetain(string2);
 
-    CRAutoreleasePoolAdd(autorelease_pool, string1);
-    CRAutoreleasePoolAdd(autorelease_pool, string2);
+    CRPoolAdd(autorelease_pool, string1);
+    CRPoolAdd(autorelease_pool, string2);
 
     const CRNatural retain_count1 = CRRetainCount(string1);
     const CRNatural retain_count2 = CRRetainCount(string2);
@@ -100,16 +100,16 @@ void CRTestAutoreleasePoolDestroy() {
 }
 
 
-void CRTestAutoreleasePoolDescription() {
-    var autorelease_pool = CRAutoreleasePoolCreate();
+void CRTestPoolDescription() {
+    var autorelease_pool = CRPoolCreate();
     var string1 = CRStringCreateWithCharacters("String 1");
     var string2 = CRStringCreateWithCharacters("String 2");
 
-    CRAutoreleasePoolAdd(autorelease_pool, string1);
-    CRAutoreleasePoolAdd(autorelease_pool, string2);
+    CRPoolAdd(autorelease_pool, string1);
+    CRPoolAdd(autorelease_pool, string2);
 
     var description = CRDescription(autorelease_pool);
-    var description_of_contained_objects = CRDescription(CRAutoreleasePoolObjects(autorelease_pool));
+    var description_of_contained_objects = CRDescription(CRPoolObjects(autorelease_pool));
 
     CRAssertEquals(description, description_of_contained_objects, "Description of an autorelease pool should equal the description of the contained objects array");
     CRRelease(autorelease_pool);
@@ -119,11 +119,11 @@ void CRTestAutoreleasePoolDescription() {
 // -----------------------------------------------------------------------------
 
 
-void CRTestAutoreleasePool() {
-    CRTestAutoreleasePoolCreate();
-    CRTestAutoreleasePoolAdd();
-    CRTestAutoreleasePoolDrain();
+void CRTestPool() {
+    CRTestPoolCreate();
+    CRTestPoolAdd();
+    CRTestPoolDrain();
 
-    CRTestAutoreleasePoolDestroy();
-    CRTestAutoreleasePoolDescription();
+    CRTestPoolDestroy();
+    CRTestPoolDescription();
 }

@@ -19,22 +19,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_AUTORELEASE_POOL_PRIVATE_H
-#define CR_AUTORELEASE_POOL_PRIVATE_H
+#ifndef CR_POOL_PRIVATE_H
+#define CR_POOL_PRIVATE_H
 
 #include "array.h"
 
-extern struct CRClass CRAutoreleasePoolClass;
-extern struct CRClass CRAutoreleasePoolMetaClass;
+extern struct CRClass CRPoolClass;
+extern struct CRClass CRPoolMetaClass;
 
-extern struct CRCallbacks CRAutoreleasePoolCallbacks;
-extern struct CRCallbacks CRAutoreleasePoolMetaCallbacks;
+extern struct CRCallbacks CRPoolCallbacks;
+extern struct CRCallbacks CRPoolMetaCallbacks;
 
-CRNatural64 CRAutoreleasePoolHash(var self);
-bool CRAutoreleasePoolEquals(var self, var other);
-var CRAutoreleasePoolCopy(var self);
-var CRAutoreleasePoolMutableCopy(var self);
-void CRAutoreleasePoolDestroy(var self);
-var CRAutoreleasePoolDescription(var self);
+CRNatural64 CRPoolHash(var self);
+bool CRPoolEquals(var self, var other);
+var CRPoolCopy(var self);
+var CRPoolMutableCopy(var self);
+void CRPoolDestroy(var self);
+var CRPoolDescription(var self);
 
 #endif

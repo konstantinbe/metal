@@ -44,7 +44,7 @@ int main(int arguments_count, char const* arguments[]) {
     CRTestMutableArray();
     CRTestMutableDictionary();
 
-    CRTestAutoreleasePool();
+    CRTestPool();
     CRTestRuntime();
 
     return 0;

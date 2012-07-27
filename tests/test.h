@@ -69,7 +69,7 @@ void CRTestMutableString();
 void CRTestMutableArray();
 void CRTestMutableDictionary();
 
-void CRTestAutoreleasePool();
+void CRTestPool();
 void CRTestRuntime();
 
 #endif

@@ -19,26 +19,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_AUTORELEASE_POOL_H
-#define CR_AUTORELEASE_POOL_H
+#ifndef CR_POOL_H
+#define CR_POOL_H
 
 #include "core.h"
 #include "object.h"
 
-#define CRAutoreleasePoolMinCapacity 1000
-extern const var CRAutoreleasePool;
+#define CRPoolMinCapacity 1000
+extern const var CRPool;
 
-struct CRAutoreleasePool {
+struct CRPool {
     struct CRClass* class;
     CRNatural retain_count;
     var objects;
 };
 
-var CRAutoreleasePoolCreate();
+var CRPoolCreate();
 
-var CRAutoreleasePoolObjects(var self);
+var CRPoolObjects(var self);
 
-void CRAutoreleasePoolAdd(var self, var object);
-void CRAutoreleasePoolDrain(var self);
+void CRPoolAdd(var self, var object);
+void CRPoolDrain(var self);
 
 #endif

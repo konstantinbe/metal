@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "autorelease-pool.h"
-#include "autorelease-pool-private.h"
+#include "pool.h"
+#include "pool-private.h"
 
 #include "class.h"
 #include "class-private.h"
@@ -36,29 +36,29 @@
 // --------------------------------------------------------------- Macros ------
 
 
-#define this ((struct CRAutoreleasePool*)self.pointer)
+#define this ((struct CRPool*)self.pointer)
 #define that (*this)
 
-#define CRAutoreleasePoolThrowErrorIfZero() if (this == NULL) CRError("self is zero")
-#define CRAutoreleasePoolThrowErrorIfNotAutoreleasePool() if (that.class != CRAutoreleasePool.pointer) CRError("self is not an autorelease pool")
+#define CRPoolThrowErrorIfZero() if (this == NULL) CRError("self is zero")
+#define CRPoolThrowErrorIfNotPool() if (that.class != CRPool.pointer) CRError("self is not an autorelease pool")
 
 
 // -------------------------------------------------- Constants & Globals ------
 
 
-const var CRAutoreleasePool = {&CRAutoreleasePoolClass};
+const var CRPool = {&CRPoolClass};
 
 
 // ------------------------------------------- Creating Autorelease Pools ------
 
 
-var CRAutoreleasePoolCreate() {
-    struct CRAutoreleasePool* autoreleasePool = CRAllocateAndClear(sizeof(struct CRAutoreleasePool));
-    var self = CRReference(autoreleasePool);
+var CRPoolCreate() {
+    struct CRPool* pool = CRAllocateAndClear(sizeof(struct CRPool));
+    var self = CRReference(pool);
 
-    that.class = &CRAutoreleasePoolClass;
+    that.class = &CRPoolClass;
     that.retain_count = 1;
-    that.objects = CRArrayCreateMutableWithCapacity(CRAutoreleasePoolMinCapacity);
+    that.objects = CRArrayCreateMutableWithCapacity(CRPoolMinCapacity);
 
     return self;
 }
@@ -67,9 +67,9 @@ var CRAutoreleasePoolCreate() {
 // ----------------------------------------------------------- Properties ------
 
 
-var CRAutoreleasePoolObjects(var self) {
-    CRAutoreleasePoolThrowErrorIfZero();
-    CRAutoreleasePoolThrowErrorIfNotAutoreleasePool();
+var CRPoolObjects(var self) {
+    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNotPool();
     const var objects = CRCopy(that.objects);
     return CRAutorelease(objects);
 }
@@ -78,16 +78,16 @@ var CRAutoreleasePoolObjects(var self) {
 // ---------------------------------------------------------------- Other ------
 
 
-void CRAutoreleasePoolAdd(var self, var object) {
-    CRAutoreleasePoolThrowErrorIfZero();
-    CRAutoreleasePoolThrowErrorIfNotAutoreleasePool();
+void CRPoolAdd(var self, var object) {
+    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNotPool();
     CRArrayAdd(that.objects, object);
 }
 
 
-void CRAutoreleasePoolDrain(var self) {
-    CRAutoreleasePoolThrowErrorIfZero();
-    CRAutoreleasePoolThrowErrorIfNotAutoreleasePool();
+void CRPoolDrain(var self) {
+    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNotPool();
     CRArrayClear(that.objects);
 }
 
@@ -95,21 +95,21 @@ void CRAutoreleasePoolDrain(var self) {
 // -------------------------------------------------------------- Private ------
 
 
-struct CRClass CRAutoreleasePoolClass = {.class = &CRAutoreleasePoolMetaClass, .callbacks = &CRAutoreleasePoolCallbacks};
-struct CRClass CRAutoreleasePoolMetaClass = {.class = &CRAutoreleasePoolMetaClass, .callbacks = &CRAutoreleasePoolMetaCallbacks};
+struct CRClass CRPoolClass = {.class = &CRPoolMetaClass, .callbacks = &CRPoolCallbacks};
+struct CRClass CRPoolMetaClass = {.class = &CRPoolMetaClass, .callbacks = &CRPoolMetaCallbacks};
 
 
-struct CRCallbacks CRAutoreleasePoolCallbacks = {
+struct CRCallbacks CRPoolCallbacks = {
     NULL,
     NULL,
     NULL,
     NULL,
-    &CRAutoreleasePoolDestroy,
-    &CRAutoreleasePoolDescription
+    &CRPoolDestroy,
+    &CRPoolDescription
 };
 
 
-struct CRCallbacks CRAutoreleasePoolMetaCallbacks = {
+struct CRCallbacks CRPoolMetaCallbacks = {
     &CRClassHash,
     &CRClassEquals,
     &CRClassCopy,
@@ -119,11 +119,11 @@ struct CRCallbacks CRAutoreleasePoolMetaCallbacks = {
 };
 
 
-void CRAutoreleasePoolDestroy(var self) {
-    CRAutoreleasePoolThrowErrorIfZero();
-    CRAutoreleasePoolThrowErrorIfNotAutoreleasePool();
+void CRPoolDestroy(var self) {
+    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNotPool();
 
-    CRAutoreleasePoolDrain(self);
+    CRPoolDrain(self);
     CRRelease(that.objects);
 
     that.class = NULL;
@@ -134,8 +134,8 @@ void CRAutoreleasePoolDestroy(var self) {
 }
 
 
-var CRAutoreleasePoolDescription(var self) {
-    CRAutoreleasePoolThrowErrorIfZero();
-    CRAutoreleasePoolThrowErrorIfNotAutoreleasePool();
+var CRPoolDescription(var self) {
+    CRPoolThrowErrorIfZero();
+    CRPoolThrowErrorIfNotPool();
     return CRDescription(that.objects);
 }
