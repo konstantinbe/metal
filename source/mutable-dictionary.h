@@ -34,9 +34,6 @@ var CRDictionaryCreateMutableWithCapacity(var capacity);
 void CRDictionaryPut(var self, var key, var object);
 void CRDictionaryPutMany(var self, var entries);
 
-void CRDictionaryUpdate(var self, var key, var object);
-void CRDictionaryUpdateMany(var self, var entries);
-
 void CRDictionaryRemove(var self, var key);
 void CRDictionaryRemoveMany(var self, var keys);
 
