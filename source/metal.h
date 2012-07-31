@@ -19,32 +19,228 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_METAL_H
-#define CR_METAL_H
+#ifndef ML_METAL_H
+#define ML_METAL_H
 
-#include "macros.h"
-#include "core.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <alloca.h>
+#include <string.h>
+#include <assert.h>
+#include <math.h>
 
-#include "digest.h"
-#include "math.h"
+#include "commands.h"
 
-#include "object.h"
-#include "class.h"
+#define MLIntegerMin –9223372036854775808ll
+#define MLIntegerMax 9223372036854775807ll
 
-#include "boolean.h"
-#include "number.h"
-#include "word.h"
-#include "date.h"
+#define MLNaturalMin 0
+#define MLNaturalMax 18446744073709551615ull
 
-#include "string.h"
-#include "array.h"
-#include "dictionary.h"
+#define MLRetainCountMax 0x00ffffffull
 
-#include "mutable-string.h"
-#include "mutable-array.h"
-#include "mutable-dictionary.h"
+#define MLDebug(message, ...) printf("[DEBUG] " message "\n", ## __VA_ARGS__)
+#define MLInfo(message, ...) printf("[INFO] " message "\n", ## __VA_ARGS__)
+#define MLWarning(message, ...) printf("[WARNING] " message "\n", ## __VA_ARGS__)
+#define MLError(message, ...) { printf("[ERROR] %s:%d | %s() | " message "\n", __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__); exit(1); }
+#define MLAssert(condition, message, ...) if (!(condition)) { MLError(message, ## __VA_ARGS__); }
 
-#include "pool.h"
-#include "runtime.h"
+#define MLInline(number_of_bytes) alloca(number_of_bytes)
+#define MLInlineAndClear(number_of_bytes) memset(alloca(number_of_bytes), 0, number_of_bytes)
+#define MLAllocate(number_of_bytes) malloc(number_of_bytes)
+#define MLAllocateAndClear(number_of_bytes) calloc(1, number_of_bytes)
+#define MLResize(pointer, number_of_bytes) realloc(pointer, number_of_bytes)
+#define MLFree(pointer) free(pointer)
+
+#define MLNumberOfVariables(...) (sizeof((var[]){null, __VA_ARGS__}) / MLVariableSize - 1)
+#define MLPointerToVariables(...) ((var[]){null, __VA_ARGS__} + 1)
+#define MLArgument(number) (MLIsNull(arguments) ? null : ((struct MLArray*)arguments.pointer)->objects[number])
+
+#define B(value) MLBooleanMake(value)
+#define N(value) MLNumberMake(value)
+#define W(value) MLWordMake(value)
+
+#define A(...) MLAutorelease(MLCopy(IA(__VA_ARGS__)))
+#define S(string) MLAutorelease(MLCopy(IS(string)))
+#define D(...) MLAutorelease(MLCopy(ID(__VA_ARGS__)))
+
+#define IA(...) MLArrayMake(MLInline(MLArraySize), MLInlineArray, MLRetainCountMax, MLNumberOfVariables(__VA_ARGS__), MLNumberOfVariables(__VA_ARGS__), MLPointerToVariables(__VA_ARGS__))
+#define IS(string) MLStringMake(MLInline(MLStringSize), MLInlineString, MLRetainCountMax, sizeof(string) - 1, sizeof(string) - 1, string)
+#define ID(...) MLDictionaryMake(MLInline(MLDictionarySize), MLRetainCountMax, 0, MLNumberOfVariables(__VA_ARGS__) / 2, MLPointerToVariables(__VA_ARGS__))
+
+#define MA(...) MLAutorelease(MLMutableCopy(IA(__VA_ARGS__)))
+#define MS(string) MLAutorelease(MLMutableCopy(IS(string)))
+#define MD(...) MLAutorelease(MLMutableCopy(ID(__VA_ARGS__)))
+
+#define MLObjectStructure(variable) (*(struct MLObject*)(variable.pointer))
+#define MLClassStructure(variable) (*(struct MLClass*)(variable.pointer))
+#define MLDataStructure(variable) (*(struct MLData*)(variable.pointer))
+#define MLArrayStructure(variable) (*(struct MLArray*)(variable.pointer))
+#define MLStringStructure(variable) (*(struct MLString*)(variable.pointer))
+#define MLDictionaryStructure(variable) (*(struct MLDictionary*)(variable.pointer))
+#define MLPoolStructure(variable) (*(struct MLPool*)(variable.pointer))
+
+#define MLVariableSize sizeof(struct MLVariable)
+#define MLObjectSize sizeof(struct MLObject)
+#define MLClassSize sizeof(struct MLClass)
+#define MLDataSize sizeof(struct MLData)
+#define MLArraySize sizeof(struct MLArray)
+#define MLStringSize sizeof(struct MLString)
+#define MLDictionarySize sizeof(struct MLDictionary)
+#define MLPoolSize sizeof(struct MLPool)
+
+#define MLLoadWithPriority(priority) __attribute__((constructor(priority))) void
+#define MLLoad MLLoadWithPriority(1000000)
+
+#define MLSend(self, command, arguments, options) MLDispatch(null, self, command, arguments, options)
+#define MLSuper(command, arguments, options) MLDispatch(MLClassStructure(class).superclass, self, command, arguments, options)
+
+#define when(expression) if (MLIsTrue(expression))
+#define unless(expression) if (!MLIsTrue(expression))
+
+#define each(object, index, array) for (var object = null, index = N(0), _count = MLCount(array); index.payload.decimal < _count.payload.decimal && (object = MLAt(array, index)).pointer != MLReference; index.payload.decimal += 1)
+#define every(key, value, dictionary) // TODO: define.
+
+#define whilst(expression) while (MLIsTrue(exression))
+#define until(expression) while (!MLIsTrue(expression))
+
+#define send(self, command, ...) MLSend(self, IS(command), IA(__VA_ARGS__), null)
+
+typedef double MLDecimal;
+typedef long long MLInteger;
+typedef unsigned long long MLNatural;
+typedef bool MLBool;
+typedef unsigned char MLByte;
+typedef char MLCharacter;
+typedef void* MLPointer;
+
+typedef union MLPayload MLPayload;
+typedef struct MLVariable MLVariable;
+typedef MLVariable var;
+
+typedef var (*MLCode)(var class, var self, var command, var arguments, var options);
+
+union MLPayload {
+    MLBool boolean;
+    MLDecimal decimal;
+    MLNatural natural;
+    MLCode code;
+    MLPointer pointer;
+};
+
+struct MLVariable {
+    MLPointer pointer;
+    MLPayload payload;
+};
+
+struct MLObject {
+    struct MLClass* class;
+    MLInteger retainCount;
+};
+
+struct MLClass {
+    struct MLClass* class;
+    MLInteger retainCount;
+    var name;
+    var superclass;
+    var subclasses;
+    var methods;
+};
+
+struct MLData {
+    struct MLClass* class;
+    MLInteger retainCount;
+    MLNatural capacity;
+    MLNatural count;
+    MLByte* bytes;
+};
+
+struct MLArray {
+    struct MLClass* class;
+    MLInteger retainCount;
+    MLNatural capacity;
+    MLNatural count;
+    var* objects;
+};
+
+struct MLString {
+    struct MLClass* class;
+    MLInteger retainCount;
+    MLNatural capacity;
+    MLNatural count;
+    MLCharacter* characters;
+};
+
+struct MLDictionary {
+    struct MLClass* class;
+    MLInteger retainCount;
+    MLNatural mask;
+    MLNatural count;
+    var* entries;
+};
+
+struct MLPool {
+    struct MLClass* class;
+    MLInteger retainCount;
+    var previousPool;
+    var objects;
+};
+
+extern const var MLObject;
+extern const var MLBlock;
+extern const var MLBoolean;
+extern const var MLNumber;
+extern const var MLWord;
+extern const var MLDate;
+extern const var MLData;
+extern const var MLArray;
+extern const var MLString;
+extern const var MLDictionary;
+extern const var MLInlineData;
+extern const var MLInlineArray;
+extern const var MLInlineString;
+extern const var MLInlineDictionary;
+extern const var MLMutableData;
+extern const var MLMutableArray;
+extern const var MLMutableString;
+extern const var MLMutableDictionary;
+extern const var MLPool;
+
+extern const var null;
+extern const var yes;
+extern const var no;
+
+var MLReference(MLPointer pointer);
+
+MLBool MLIsNull(var object);
+MLBool MLIsNotNull(var object);
+MLBool MLIsTrue(var object);
+MLBool MLIsFalse(var object);
+
+MLInteger MLIntegerFrom(var number);
+MLNatural MLNaturalFrom(var number);
+MLDecimal MLDecimalFrom(var number);
+
+var MLBlockMake(MLCode code);
+var MLBooleanMake(MLBool boolean);
+var MLNumberMake(MLDecimal value);
+var MLWordMake(MLNatural value);
+var MLDateMake(MLDecimal seconds);
+var MLDataMake(struct MLData* data, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, MLByte* bytes);
+var MLArrayMake(struct MLArray* array, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, var* objects);
+var MLStringMake(struct MLString* string, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, MLCharacter* characters);
+var MLDictionaryMake(struct MLDictionary* dictionary, var class, MLInteger retainCount, MLInteger mask, MLInteger count, var* entries);
+var MLPoolMake(struct MLPool* pool, var class, MLInteger retainCount, var previousPool, var objects);
+
+var MLRequire(const MLCharacter* name);
+var MLModule(const MLCharacter* name);
+var MLImport(var module, const MLCharacter* name);
+var MLExport(var module, const MLCharacter* name, MLCode code);
+var MLDefine(const MLCharacter* name);
+var MLExtends(var class, var superclass);
+var MLResponds(var class, const MLCharacter* command, MLCode code);
+var MLLookup(var class, var command, var* foundInClass);
+var MLDispatch(var class, var self, var command, var arguments, var options);
 
 #endif

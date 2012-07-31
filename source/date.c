@@ -20,115 +20,92 @@
 // THE SOFTWARE.
 
 #include "date.h"
-#include "date-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "macros.h"
-#include "string.h"
-
-#include <time.h>
-#include <math.h>
-#include <stdio.h>
 
 
-// --------------------------------------------------------------- Macros ------
+#define meta MLClassStructure(self)
+#define that MLObjectStructure(self)
 
 
-#define this ((struct CRObject*)self.pointer)
-#define that (*this)
-
-#define CRDateThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRDateThrowErrorIfNotDate() if (that.class != CRDate.pointer) CRError("self is not a date")
-
-
-// -------------------------------------------------- Constants & Globals ------
-
-
-const var CRDate = {&CRDateClass};
-
-
-// ------------------------------------------------------- Creating Dates ------
-
-
-var CRDateMake(CRDecimal seconds_since_1970) {
-    var date = null;
-    date.pointer = &CRDateProxy;
-    date.payload.decimal = round(seconds_since_1970);
-    return date;
+static var MLDateMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLDateMake(0);
 }
 
 
-var CRDateNow() {
-    time_t seconds = 0;
-    time(&seconds);
-    return CRDateMake(round((CRDecimal)seconds));
-}
-
-
-var CRDateParse(var string) {
-    return null;
-}
-
-
-// ----------------------------------------------------------- Properties ------
-
-
-CRDecimal CRDateSecondsSince1970(var self) {
-    return self.payload.decimal;
-}
-
-
-// -------------------------------------------------------------- Private ------
-
-
-struct CRObject CRDateProxy = {&CRDateClass, 0};
-
-
-struct CRClass CRDateClass = {.class = &CRDateMetaClass, .callbacks = &CRDateCallbacks};
-struct CRClass CRDateMetaClass = {.class = &CRDateMetaClass, .callbacks = &CRDateMetaCallbacks};
-
-
-struct CRCallbacks CRDateCallbacks = {
-    &CRDateHash,
-    &CRDateEquals,
-    &CRDateCopy,
-    NULL,
-    NULL,
-    &CRDateDescription
+MLPointer MLDateMetaDefaultMethods[] = {
+    "create", MLDateMetaCreate,
+    NULL
 };
 
 
-struct CRCallbacks CRDateMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
-};
-
-
-CRNatural64 CRDateHash(var self) {
-    return (CRNatural64)self.payload.natural;
-}
-
-
-bool CRDateEquals(var self, var other) {
-    return self.payload.decimal == other.payload.decimal;
-}
-
-
-var CRDateCopy(var self) {
+static var MLDateInit(var class, var self, var command, var arguments, var options) {
     return self;
 }
 
 
-var CRDateDescription(var self) {
-    // TODO: implement proper description for dates.
-    time_t time = (time_t)self.payload.decimal;
-    const char* characters = asctime(gmtime(&time));
-    const var description = CRStringCreateWithCharacters(characters);
-    return CRAutorelease(description);
+static var MLDateInitWithSecondsSince1970(var class, var self, var command, var arguments, var options) {
+    var secondsSince1970 = MLArgument(0);
+    unless (secondsSince1970) return null;
+    return MLDateMake(MLDecimalFrom(secondsSince1970));
 }
+
+
+static var MLDateDestroy(var class, var self, var command, var arguments, var options) {
+    return null;
+}
+
+
+static var MLDateParse(var class, var self, var command, var arguments, var options) {
+    var string = MLArgument(0);
+    // TODO: implement.
+    return null;
+}
+
+
+static var MLDateIsDate(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+static var MLDateDescription(var class, var self, var command, var arguments, var options) {
+    MLWarning("TODO: implement method -description for dates");
+    return null;
+}
+
+
+static var MLDateEquals(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDateHash(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDateCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDateMutableCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+MLPointer MLDateDefaultMethods[] = {
+    "init", MLDateInit,
+    "init_with_seconds_since_1970*", MLDateInitWithSecondsSince1970,
+    "destroy", MLDateDestroy,
+    "is_date?", MLDateIsDate,
+
+    "description", MLDateDescription,
+    "equals*?", MLDateEquals,
+    "hash", MLDateHash,
+    "copy", MLDateCopy,
+    "mutable_copy", MLDateMutableCopy,
+     NULL
+};

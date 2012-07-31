@@ -19,37 +19,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_ARRAY_H
-#define CR_ARRAY_H
+#ifndef ML_ARRAY_H
+#define ML_ARRAY_H
 
-#include "core.h"
-#include "object.h"
+#include "metal.h"
 
-extern const var CRArray;
+extern MLPointer MLArrayMetaDefaultMethods[];
+extern MLPointer MLArrayDefaultMethods[];
 
-struct CRArray {
-    struct CRClass* class;
-    CRNatural retain_count;
-    CRNatural capacity;
-    CRNatural count;
-    var* objects;
-};
+extern MLPointer MLInlineArrayMetaDefaultMethods[];
+extern MLPointer MLInlineArrayDefaultMethods[];
 
-#define CRArray(...) CRArrayMake(CRInline(sizeof(struct CRArray)), CRNumberOfVariables(__VA_ARGS__), CRPointerToVariables(__VA_ARGS__))
-var CRArrayMake(struct CRArray* array, CRNatural count, var* objects);
-
-var CRArrayCreate();
-var CRArrayCreateWithCArray(CRNatural count, var* objects);
-
-CRNatural CRArrayCapacity(var self);
-CRNatural CRArrayCount(var self);
-var* CRArrayObjects(var self);
-
-bool CRArrayIsEmpty(var self);
-bool CRArrayIsMutable(var self);
-
-var CRArrayObjectAt(var self, CRInteger index);
-CRInteger CRArrayIndexOf(var self, var object);
-bool CRArrayContains(var self, var object);
+extern MLPointer MLMutableArrayMetaDefaultMethods[];
+extern MLPointer MLMutableArrayDefaultMethods[];
 
 #endif

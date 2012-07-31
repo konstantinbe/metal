@@ -20,105 +20,70 @@
 // THE SOFTWARE.
 
 #include "boolean.h"
-#include "boolean-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "macros.h"
-#include "string.h"
 
 
-// --------------------------------------------------------------- Macros ------
+#define meta MLClassStructure(self)
+#define that MLBoolean(self)
 
 
-#define this ((struct CRObject*)self.pointer)
-#define that (*this)
-
-#define CRBooleanThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRBooleanThrowErrorIfNotBoolean() if (that.class != CRBoolean.pointer) CRError("self is not a boolean")
-
-
-// -------------------------------------------------- Constants & Globals ------
-
-
-const var CRBoolean = {&CRBooleanClass};
-const var CRTrue = {&CRBooleanProxy, {true}};
-const var CRFalse = {&CRBooleanProxy, {false}};
-
-
-// ---------------------------------------------------- Creating Booleans ------
-
-
-var CRBooleanMake(bool boolean) {
-    return boolean ? CRTrue : CRFalse;
+static var MLBooleanMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLBooleanMake(false);
 }
 
-// -------------------------------------------------------------- Private ------
 
-
-struct CRObject CRBooleanProxy = {&CRBooleanClass, 0};
-
-
-struct CRClass CRBooleanClass = {.class = &CRBooleanMetaClass, .callbacks = &CRBooleanCallbacks};
-struct CRClass CRBooleanMetaClass = {.class = &CRBooleanMetaClass, .callbacks = &CRBooleanMetaCallbacks};
-
-
-struct CRCallbacks CRBooleanCallbacks = {
-    &CRBooleanHash,
-    &CRBooleanEquals,
-    &CRBooleanCopy,
-    NULL,
-    NULL,
-    &CRBooleanDescription
+MLPointer MLBooleanMetaDefaultMethods[] = {
+    "create", MLBooleanMetaCreate,
+    NULL
 };
 
 
-struct CRCallbacks CRBooleanMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
+static var MLBooleanDestroy(var class, var self, var command, var arguments, var options) {
+    return null;
+}
+
+
+static var MLBooleanIsBoolean(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+static var MLBooleanDescription(var class, var self, var command, var arguments, var options) {
+    MLWarning("TODO: implement method -description for booleans");
+    return null;
+}
+
+
+static var MLBooleanEquals(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLBooleanHash(var class, var self, var command, var arguments, var options) {
+    return W((MLNatural)self.payload.boolean);
+}
+
+
+static var MLBooleanCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLBooleanMutableCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+MLPointer MLBooleanDefaultMethods[] = {
+    "destroy", MLBooleanDestroy,
+    "is_boolean?", MLBooleanIsBoolean,
+
+    "description", MLBooleanDescription,
+    "equals*?", MLBooleanEquals,
+    "hash", MLBooleanHash,
+    "copy", MLBooleanCopy,
+    "mutable_copy", MLBooleanMutableCopy,
+    NULL
 };
-
-
-CRNatural64 CRBooleanHash(var self) {
-    CRBooleanThrowErrorIfNull();
-    CRBooleanThrowErrorIfNotBoolean();
-    return self.payload.boolean ? 1ull : 0ull;
-}
-
-
-bool CRBooleanEquals(var self, var other) {
-    CRBooleanThrowErrorIfNull();
-    CRBooleanThrowErrorIfNotBoolean();
-
-    const bool boolean1 = self.payload.boolean;
-    const bool boolean2 = other.payload.boolean;
-
-    if (boolean1 && boolean2) return true;
-    if (!boolean1 && !boolean2) return true;
-
-    return false;
-}
-
-
-var CRBooleanCopy(var self) {
-    CRBooleanThrowErrorIfNull();
-    CRBooleanThrowErrorIfNotBoolean();
-    return self;
-}
-
-
-var CRBooleanDescription(var self) {
-    CRBooleanThrowErrorIfNull();
-    CRBooleanThrowErrorIfNotBoolean();
-
-    const bool is_true = self.payload.boolean != 0;
-    const char* characters = is_true ? "true" : "false";
-    const var description = CRStringCreateWithCharacters(characters);
-
-    return CRAutorelease(description);
-}

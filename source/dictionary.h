@@ -19,49 +19,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_DICTIONARY_H
-#define CR_DICTIONARY_H
+#ifndef ML_DICTIONARY_H
+#define ML_DICTIONARY_H
 
-#include "core.h"
-#include "object.h"
+#include "metal.h"
 
-extern const var CRDictionary;
+extern MLPointer MLDictionaryMetaDefaultMethods[];
+extern MLPointer MLDictionaryDefaultMethods[];
 
-struct CRDictionary {
-    struct CRClass* class;
-    CRNatural retain_count;
-    CRNatural mask;
-    CRNatural count;
-    var* entries;
-};
+extern MLPointer MLInlineDictionaryMetaDefaultMethods[];
+extern MLPointer MLInlineDictionaryDefaultMethods[];
 
-#define CRDictionary(...) CRDictionaryMake(CRInline(sizeof(struct CRDictionary)), CRNumberOfVariables(__VA_ARGS__) / 2, CRPointerToVariables(__VA_ARGS__))
-var CRDictionaryMake(struct CRDictionary* dictionary, CRNatural count, var* entries);
-
-var CRDictionaryCreate();
-var CRDictionaryCreateWithCArray(CRNatural count, var* entries);
-
-var CRDictionaryCreateWithCArrayLinear(CRNatural count, var* entries);
-var CRDictionaryCreateWithCArrayHashed(CRNatural count, var* entries);
-
-CRNatural CRDictionaryMask(var self);
-CRNatural CRDictionaryCapacity(var self);
-CRNatural CRDictionaryCount(var self);
-var* CRDictionaryEntries(var self);
-
-bool CRDictionaryIsEmpty(var self);
-bool CRDictionaryIsMutable(var self);
-bool CRDictionaryIsLinear(var self);
-bool CRDictionaryIsHashed(var self);
-
-var CRDictionaryKeyAt(var self, CRInteger index);
-var CRDictionaryObjectAt(var self, CRInteger index);
-
-CRInteger CRDictionaryIndexOf(var self, var key);
-
-var CRDictionaryGet(var self, var key);
-var CRDictionaryGetMany(var self, var keys);
-
-bool CRDictionaryContains(var self, var key);
+extern MLPointer MLMutableDictionaryMetaDefaultMethods[];
+extern MLPointer MLMutableDictionaryDefaultMethods[];
 
 #endif

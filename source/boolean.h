@@ -19,18 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_BOOLEAN_H
-#define CR_BOOLEAN_H
+#ifndef ML_BOOLEAN_H
+#define ML_BOOLEAN_H
 
-#include "core.h"
-#include "object.h"
+#include "metal.h"
 
-#define CRBoolean(value) CRBooleanMake(value)
-
-extern const var CRBoolean;
-extern const var CRTrue;
-extern const var CRFalse;
-
-var CRBooleanMake(bool boolean);
+extern MLPointer MLBooleanMetaDefaultMethods[];
+extern MLPointer MLBooleanDefaultMethods[];
 
 #endif

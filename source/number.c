@@ -20,108 +20,92 @@
 // THE SOFTWARE.
 
 #include "number.h"
-#include "number-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "object.h"
-#include "object-private.h"
-
-#include "macros.h"
-#include "string.h"
-
-#include <math.h>
 
 
-// --------------------------------------------------------------- Macros ------
+#define meta MLClassStructure(self)
+#define that MLObjectStructure(self)
 
 
-#define this ((struct CRObject*)self.pointer)
-#define that (*this)
-
-#define CRNumberThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRNumberThrowErrorIfNotNumber() if (that.class != CRNumber.pointer) CRError("self is not a number")
-
-
-// -------------------------------------------------- Constants & Globals ------
-
-
-const var CRNumber = {&CRNumberClass};
-const var CRUndefined = {&CRNumberProxy, .payload.decimal = NAN};
-const var CRInfinity = {&CRNumberProxy, .payload.decimal = INFINITY};
-
-
-// ----------------------------------------------------- Creating Numbers ------
-
-
-var CRNumberMake(CRDecimal value) {
-    var number = null;
-    number.pointer = &CRNumberProxy;
-    number.payload.decimal = value;
-    return number;
+static var MLNumberMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLNumberMake(0);
 }
 
 
-// -------------------------------------------------------------- Private ------
-
-
-struct CRObject CRNumberProxy = {&CRNumberClass, 0};
-
-
-struct CRClass CRNumberClass = {.class = &CRNumberMetaClass, .callbacks = &CRNumberCallbacks};
-struct CRClass CRNumberMetaClass = {.class = &CRNumberMetaClass, .callbacks = &CRNumberMetaCallbacks};
-
-
-struct CRCallbacks CRNumberCallbacks = {
-    &CRNumberHash,
-    &CRNumberEquals,
-    &CRNumberCopy,
-    NULL,
-    NULL,
-    &CRNumberDescription
+MLPointer MLNumberMetaDefaultMethods[] = {
+    "create", MLNumberMetaCreate,
+    NULL
 };
 
 
-struct CRCallbacks CRNumberMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
+static var MLNumberDestroy(var class, var self, var command, var arguments, var options) {
+    return null;
+}
+
+
+static var MLNumberIsNaN(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement this.");
+    return null;
+}
+
+
+static var MLNumberIsFinite(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement this.");
+    return null;
+}
+
+
+static var MLNumberIsInfinite(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement this.");
+    return null;
+}
+
+
+static var MLNumberIsNumber(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+static var MLNumberDescription(var class, var self, var command, var arguments, var options) {
+    MLWarning("TODO: implement method -description for numbers");
+    return null;
+}
+
+
+static var MLNumberEquals(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLNumberHash(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLNumberCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLNumberMutableCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+MLPointer MLNumberDefaultMethods[] = {
+    "destroy", MLNumberDestroy,
+    "is_nan?", MLNumberIsNaN,
+    "is_finite?", MLNumberIsFinite,
+    "is_infinite?", MLNumberIsInfinite,
+    "is_number?", MLNumberIsNumber,
+
+    "description", MLNumberDescription,
+    "equals*?", MLNumberEquals,
+    "hash", MLNumberHash,
+    "copy", MLNumberCopy,
+    "mutable_copy", MLNumberMutableCopy,
+    NULL
 };
-
-
-CRNatural64 CRNumberHash(var self) {
-    CRNumberThrowErrorIfNull();
-    CRNumberThrowErrorIfNotNumber();
-    return (CRNatural64)self.payload.natural;
-}
-
-
-bool CRNumberEquals(var self, var other) {
-    CRNumberThrowErrorIfNull();
-    CRNumberThrowErrorIfNotNumber();
-    return self.payload.decimal == other.payload.decimal;
-}
-
-
-var CRNumberCopy(var self) {
-    CRNumberThrowErrorIfNull();
-    CRNumberThrowErrorIfNotNumber();
-    return self;
-}
-
-
-var CRNumberDescription(var self) {
-    CRNumberThrowErrorIfNull();
-    CRNumberThrowErrorIfNotNumber();
-
-    const CRNatural characters_capacity = 1000;
-    CRCharacter characters[characters_capacity];
-    snprintf(characters, characters_capacity, "%g", self.payload.decimal);
-
-    var description = CRStringCreateWithCharacters(characters);
-    return CRAutorelease(description);
-}

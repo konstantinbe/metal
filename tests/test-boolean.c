@@ -22,45 +22,6 @@
 #include "test.h"
 
 
-void CRTestBooleanMake() {
-    CRAssert(CRBooleanMake(true).payload.boolean == true, "Makes true from native C constant 'true'");
-    CRAssert(CRBooleanMake(false).payload.boolean == false, "Makes false from native C constant 'false'");
-    CRAssert(CRBooleanMake(123).payload.boolean == true, "Makes true from native C number literal '123'");
-    CRAssert(CRBooleanMake(0).payload.boolean == false, "Makes true from native C number literal '0'");
-}
-
-
-void CRTestBooleanHash() {
-    CRAssert(CRHash(CRBoolean(true)) == 1, "Hash of true should be 1");
-    CRAssert(CRHash(CRBoolean(false)) == 0, "Hash of false should be 0");
-}
-
-
-void CRTestBooleanEquals() {
-    CRAssert(CREquals(CRBoolean(true), CRBoolean(true)), "true should equal true");
-    CRAssert(CREquals(CRBoolean(false), CRBoolean(false)), "false should equal false");
-    CRAssert(!CREquals(CRBoolean(false), CRBoolean(true)), "false should not equal true");
-    CRAssert(!CREquals(CRBoolean(true), CRBoolean(false)), "true should not equal false");
-}
-
-
-void CRTestBooleanCopy() {
-    CRAssert(CRCopy(CRBoolean(true)).payload.boolean == true, "Copying true should return true");
-    CRAssert(CRCopy(CRBoolean(false)).payload.boolean == false, "Copying false should return false");
-}
-
-
-void CRTestBooleanDescription() {
-    CRAssert(CREquals(CRDescription(CRTrue), CRString("true")), "Description of true should be 'true'");
-    CRAssert(CREquals(CRDescription(CRFalse), CRString("false")), "Description of false should be 'false'");
-}
-
-
-void CRTestBoolean() {
-    CRTestBooleanMake();
-
-    CRTestBooleanHash();
-    CRTestBooleanEquals();
-    CRTestBooleanCopy();
-    CRTestBooleanDescription();
+void MLTestBoolean() {
+    // TODO: implement.
 }

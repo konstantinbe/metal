@@ -19,19 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_NUMBER_H
-#define CR_NUMBER_H
+#ifndef ML_NUMBER_H
+#define ML_NUMBER_H
 
-#include "core.h"
-#include "object.h"
+#include "metal.h"
 
-#define CRNumber(value) CRNumberMake(value)
-
-extern const var CRNumber;
-
-extern const var CRUndefined;
-extern const var CRInfinity;
-
-var CRNumberMake(CRDecimal value);
+extern MLPointer MLNumberMetaDefaultMethods[];
+extern MLPointer MLNumberDefaultMethods[];
 
 #endif

@@ -19,40 +19,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_STRING_H
-#define CR_STRING_H
+#ifndef ML_STRING_H
+#define ML_STRING_H
 
-#include "core.h"
-#include "object.h"
+#include "metal.h"
 
-extern const var CRString;
+extern MLPointer MLStringMetaDefaultMethods[];
+extern MLPointer MLStringDefaultMethods[];
 
-struct CRString {
-    struct CRClass* class;
-    CRNatural retain_count;
-    CRNatural capacity;
-    CRNatural length;
-    char* characters;
-};
+extern MLPointer MLInlineStringMetaDefaultMethods[];
+extern MLPointer MLInlineStringDefaultMethods[];
 
-#define CRString(string) CRStringMake(CRInline(sizeof(struct CRString)), string)
-var CRStringMake(struct CRString* string, const CRCharacter* characters);
-
-var CRStringCreate();
-var CRStringCreateWithCharacters(const CRCharacter* characters);
-
-CRNatural CRStringCapacity(var self);
-CRNatural CRStringLength(var self);
-CRCharacter* CRStringCharacters(var self);
-
-bool CRStringIsEmpty(var self);
-bool CRStringIsMutable(var self);
-
-CRCharacter CRStringCharacterAt(var self, CRInteger index);
-CRInteger CRStringIndexOf(var self, var string);
-
-bool CRStringContains(var self, var string);
-bool CRStringBeginsWith(var self, var string);
-bool CRStringEndsWith(var self, var string);
+extern MLPointer MLMutableStringMetaDefaultMethods[];
+extern MLPointer MLMutableStringDefaultMethods[];
 
 #endif

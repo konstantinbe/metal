@@ -19,57 +19,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_TEST_H
-#define CR_TEST_H
+#ifndef ML_TEST_H
+#define ML_TEST_H
 
 #include <assert.h>
 #include <stdio.h>
+
 #include <metal/metal.h>
+#include <metal/helper.h>
 
-// ----------------------------------------------------------- Assertions ------
+void MLTestHelper();
+void MLTestMetal();
 
-#define CRAssertEquals(object1, object2, ...) CRAssert(CREquals(object1, object2), __VA_ARGS__)
-
-// ------------------------------------------------------ General Matcher ------
-
-#define CRExpectObjectToBeIdenticalTo(object1, object2) CRAssert(object1.pointer == object2.pointer, "%s should be identical to %s", CRStringCharacters(CRDescription(object1)), CRStringCharacters(CRDescription(object2)))
-#define CRExpectObjectNotToBeIdenticalTo(object1, object2) CRAssert(object1.pointer != object2.pointer, "%s should not be identical to %s", CRStringCharacters(CRDescription(object1)), CRStringCharacters(CRDescription(object2)))
-
-#define CRExpectObjectToBeEqualTo(object1, object2) CRAssert(CREquals(object1, object2), "%s should be equal to %s", CRStringCharacters(CRDescription(object1)), CRStringCharacters(CRDescription(object2)))
-#define CRExpectObjectNotToBeEqualTo(object1, object2) CRAssert(!CREquals(object1, object2), "%s should not be equal to %s", CRStringCharacters(CRDescription(object1)), CRStringCharacters(CRDescription(object2)))
-
-// -------------------------------------------------------- Array Matcher ------
-
-#define CRExpectArrayToHaveCount(array, count) CRAssert(CRArrayCount(array) == count, "%s should have count %lu", CRStringCharacters(CRDescription(array)), CRArrayCount(array))
-#define CRExpectArrayNotToHaveCount(array, count) CRAssert(CRArrayCount(array) != count, "%s should not have count %lu", CRStringCharacters(CRDescription(array)), CRArrayCount(array))
-
-#define CRExpectArrayToContain(array, object) CRAssert(CRArrayContains(array, object), "%s should contain %s", CRStringCharacters(CRDescription(array)), CRStringCharacters(CRDescription(object)))
-#define CRExpectArrayNotToContain(array, object) CRAssert(CRArrayContains(array, object), "%s should not contain %s", CRStringCharacters(CRDescription(array)), CRStringCharacters(CRDescription(object)))
-
-// ---------------------------------------------------------------- Tests ------
-
-void CRTestCore();
-void CRTestDigest();
-void CRTestMath();
-
-void CRTestObject();
-void CRTestClass();
-
-void CRTestBoolean();
-void CRTestNumber();
-void CRTestWord();
-void CRTestMethod();
-void CRTestDate();
-
-void CRTestString();
-void CRTestArray();
-void CRTestDictionary();
-
-void CRTestMutableString();
-void CRTestMutableArray();
-void CRTestMutableDictionary();
-
-void CRTestPool();
-void CRTestRuntime();
+void MLTestObject();
+void MLTestBlock();
+void MLTestBoolean();
+void MLTestNumber();
+void MLTestWord();
+void MLTestDate();
+void MLTestData();
+void MLTestArray();
+void MLTestString();
+void MLTestDictionary();
+void MLTestMutableData();
+void MLTestMutableArray();
+void MLTestMutableString();
+void MLTestMutableDictionary();
+void MLTestPool();
 
 #endif

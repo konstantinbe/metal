@@ -19,266 +19,274 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "dictionary.h"
-#include "dictionary-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "object.h"
-#include "object-private.h"
-
-#include "mutable-dictionary.h"
-#include "mutable-dictionary-private.h"
-
-#include "macros.h"
-#include <string.h>
+#include "metal.h"
 
 
-// --------------------------------------------------------------- Macros ------
+#define MLMutableDictionaryMinCapacity 16
 
 
-#define this ((struct CRDictionary*)self.pointer)
-#define that (*this)
-
-#define CRDictionaryThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRDictionaryThrowErrorIfNotDictionary() if (that.class != CRDictionary.pointer && that.class != CRMutableDictionary.pointer) CRError("self is not a dictionary")
+#define meta MLClassStructure(self)
+#define that MLDictionaryStructure(self)
 
 
-// -------------------------------------------------- Constants & Globals ------
+static var MLDictionaryMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLDictionaryMake(MLAllocate(MLDictionarySize), MLDictionary, 1, 0, 0, NULL);
+}
 
 
-const var CRDictionary = {&CRDictionaryClass};
+MLPointer MLDictionaryMetaDefaultMethods[] = {
+    "create", MLDictionaryMetaCreate,
+    NULL
+};
 
 
-// ------------------------------------------------ Creating Dictionaries ------
-
-
-var CRDictionaryMake(struct CRDictionary* dictionary, CRNatural count, var* entries) {
-    var self = CRReference(dictionary);
-
-    that.class = &CRDictionaryClass;
-    that.retain_count = CRRetainCountMax;
-    that.mask = 0;
-    that.count = count;
-    that.entries = entries;
-
+static var MLDictionaryInit(var class, var self, var command, var arguments, var options) {
+    self = MLSuper(command, arguments, options);
+    when (self) {
+        // TODO: implement.
+    }
     return self;
 }
 
 
-var CRDictionaryCreate() {
-    return CRDictionaryCreateWithCArray(0, NULL);
-}
-
-
-var CRDictionaryCreateWithCArray(CRNatural count, var* entries) {
-    return count < CRDictionaryLinearVsHashedThreshold ? CRDictionaryCreateWithCArrayLinear(count, entries) : CRDictionaryCreateWithCArrayHashed(count, entries);
-}
-
-
-var CRDictionaryCreateWithCArrayLinear(CRNatural count, var* entries) {
-    var self = CRReference(CRAllocate(sizeof(struct CRDictionary)));
-
-    that.class = &CRDictionaryClass;
-    that.retain_count = 1;
-    that.mask = 0;
-    that.count = count;
-    that.entries = CRAllocate(sizeof(var) * count * 2);
-
-    memcpy(that.entries, entries, sizeof(var) * count * 2);
-    for (CRInteger i = 0; i < count * 2; i += 1) CRRetain(entries[i]);
-
-    return self;
-}
-
-
-var CRDictionaryCreateWithCArrayHashed(CRNatural count, var* entries) {
-    // TODO: implement.
+static var MLDictionaryDestroy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
     return null;
 }
 
 
-// ----------------------------------------------------------- Properties ------
-
-
-CRNatural CRDictionaryMask(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    return that.mask;
-}
-
-
-CRNatural CRDictionaryCapacity(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-
-    const CRNatural mask = that.mask;
-    const CRNatural count = that.count;
-    return mask > 0 ? mask + 1 : count;
-}
-
-
-CRNatural CRDictionaryCount(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    return that.count;
-}
-
-
-var* CRDictionaryEntries(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    return that.entries;
-}
-
-
-bool CRDictionaryIsEmpty(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    return that.count <= 0;
-}
-
-
-bool CRDictionaryIsLinear(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    return that.mask == 0 && that.count > 0;
-}
-
-
-bool CRDictionaryIsHashed(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    return that.mask != 0 || that.count == 0;
-}
-
-
-// --------------------------------------------------- Accessing Elements ------
-
-
-var CRDictionaryKeyAt(var self, CRInteger index) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-
-    if (index < 0 || index >= CRDictionaryCapacity(self)) CRError("Index out of bounds");
-    return that.entries[index * 2];
-}
-
-
-var CRDictionaryObjectAt(var self, CRInteger index) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-
-    if (index < 0 || index >= CRDictionaryCapacity(self)) CRError("Index out of bounds");
-    return that.entries[index * 2 + 1];
-}
-
-
-CRInteger CRDictionaryIndexOf(var self, var key) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    // TODO: implement.
-    return -1;
-}
-
-
-var CRDictionaryGet(var self, var key) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    // TODO: implement.
+static var MLDictionaryCount(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
     return null;
 }
 
 
-var CRDictionaryGetMany(var self, var keys) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    // TODO: implement.
+static var MLDictionaryContains(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
     return null;
 }
 
 
-// ---------------------------------------------------------------- Other ------
-
-
-bool CRDictionaryContains(var self, var key) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    // TODO: implement.
-    return false;
+static var MLDictionaryContainsAll(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
 }
 
 
-// -------------------------------------------------------------- Private ------
+static var MLDictionaryContainsAny(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
 
 
-struct CRClass CRDictionaryClass = {.class = &CRDictionaryMetaClass, .callbacks = &CRDictionaryCallbacks};
-struct CRClass CRDictionaryMetaClass = {.class = &CRDictionaryMetaClass, .callbacks = &CRDictionaryMetaCallbacks};
+static var MLDictionaryIsEmpty(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
 
 
-struct CRCallbacks CRDictionaryCallbacks = {
-    &CRDictionaryHash,
-    &CRDictionaryEquals,
-    &CRDictionaryCopy,
-    &CRDictionaryMutableCopy,
-    &CRDictionaryDestroy,
-    &CRDictionaryDescription
+static var MLDictionaryIsInline(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryIsMutable(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryKeys(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryValues(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryGet(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryGetMany(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryWithValue(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryWithMany(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryWithout(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryWithoutMany(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryIsDictionary(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+static var MLDictionaryDescription(var class, var self, var command, var arguments, var options) {
+    MLWarning("TODO: implement method -description for dictionaries");
+    return null;
+}
+
+
+static var MLDictionaryEquals(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryHash(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLDictionaryMutableCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+MLPointer MLDictionaryDefaultMethods[] = {
+    "init", MLDictionaryInit,
+    "destroy", MLDictionaryDestroy,
+
+    "count", MLDictionaryCount,
+    "contains*?", MLDictionaryContains,
+    "contains_all*?", MLDictionaryContainsAll,
+    "contains_any*?", MLDictionaryContainsAny,
+
+    "is_empty?", MLDictionaryIsEmpty,
+    "is_inline?", MLDictionaryIsInline,
+    "is_mutable?", MLDictionaryIsMutable,
+
+    "keys", MLDictionaryKeys,
+    "values", MLDictionaryValues,
+
+    "get", MLDictionaryGet,
+    "get_many", MLDictionaryGetMany,
+
+    "with*value*", MLDictionaryWithValue,
+    "with_many*", MLDictionaryWithMany,
+
+    "without*", MLDictionaryWithout,
+    "without_many*", MLDictionaryWithoutMany,
+
+    "is_dictionary?", MLDictionaryIsDictionary,
+
+    "description", MLDictionaryDescription,
+    "equals*?", MLDictionaryEquals,
+    "hash", MLDictionaryHash,
+    "copy", MLDictionaryCopy,
+    "mutable_copy", MLDictionaryMutableCopy,
+    NULL
 };
 
 
-struct CRCallbacks CRDictionaryMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
+MLPointer MLInlineDictionaryMetaDefaultMethods[] = {
+    NULL
 };
 
 
-CRNatural64 CRDictionaryHash(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    return (CRNatural64)self.pointer;
-}
-
-
-bool CRDictionaryEquals(var self, var other) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    // TODO: implement.
-    return false;
-}
-
-
-var CRDictionaryCopy(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    // TODO: implement.
+static var MLInlineDictionaryRetain(var class, var self, var command, var arguments, var options) {
+    MLError("Can't retain an inline dictionary, you have to copy it");
     return null;
 }
 
 
-var CRDictionaryMutableCopy(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    // TODO: implement.
+static var MLInlineDictionaryRetainCount(var class, var self, var command, var arguments, var options) {
+    return N(-1);
+}
+
+
+static var MLInlineDictionaryRelease(var class, var self, var command, var arguments, var options) {
+    MLError("Can't release an inline dictionary because it can't be retained in the first place");
     return null;
 }
 
 
-void CRDictionaryDestroy(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    // TODO: implement.
+static var MLInlineDictionaryAutorelease(var class, var self, var command, var arguments, var options) {
+    MLError("Can't autorelease an inline dictionary because it can't be retained in the first place");
+    return null;
 }
 
 
-var CRDictionaryDescription(var self) {
-    CRDictionaryThrowErrorIfNull();
-    CRDictionaryThrowErrorIfNotDictionary();
-    var description = null;
-    // TODO: implement.
-    return CRAutorelease(description);
+MLPointer MLInlineDictionaryDefaultMethods[] = {
+    "retain", MLInlineDictionaryRetain,
+    "retainCount", MLInlineDictionaryRetainCount,
+    "release", MLInlineDictionaryRelease,
+    "autorelease", MLInlineDictionaryAutorelease,
+};
+
+
+MLPointer MLMutableDictionaryMetaDefaultMethods[] = {
+    NULL
+};
+
+
+static var MLMutableDictionaryPutValue(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
 }
+
+
+static var MLMutableDictionaryPutMany(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableDictionaryRemove(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableDictionaryRemoveMany(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+MLPointer MLMutableDictionaryDefaultMethods[] = {
+    "put*value*", MLMutableDictionaryPutValue,
+    "put_many*", MLMutableDictionaryPutMany,
+
+    "remove*", MLMutableDictionaryRemove,
+    "remove_many*", MLMutableDictionaryRemoveMany,
+
+    NULL
+};

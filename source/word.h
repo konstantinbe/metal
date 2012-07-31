@@ -19,16 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_WORD_H
-#define CR_WORD_H
+#ifndef ML_WORD_H
+#define ML_WORD_H
 
-#include "core.h"
-#include "object.h"
+#include "metal.h"
 
-#define CRWord(value) CRWordMake(value)
-
-extern const var CRWord;
-
-var CRWordMake(CRNatural value);
+extern MLPointer MLWordMetaDefaultMethods[];
+extern MLPointer MLWordDefaultMethods[];
 
 #endif

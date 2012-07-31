@@ -11,7 +11,7 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVvarED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -20,234 +20,731 @@
 // THE SOFTWARE.
 
 #include "array.h"
-#include "array-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "object.h"
-#include "object-private.h"
-
-#include "macros.h"
-#include "mutable-array.h"
-
-#include "string.h"
-#include <string.h>
+#include "helper.h"
 
 
-// --------------------------------------------------------------- Macros ------
+#define MLMutableArrayMinCapacity 16
 
 
-#define this ((struct CRArray*)self.pointer)
-#define that (*this)
-
-#define CRArrayThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRArrayThrowErrorIfNotArray() if (that.class != CRArray.pointer && that.class != CRMutableArray.pointer) CRError("self is not an array")
+#define meta MLClassStructure(self)
+#define that MLArrayStructure(self)
 
 
-// -------------------------------------------------- Constants & Globals ------
+static var MLArrayMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLArrayMake(MLAllocate(MLArraySize), MLArray, 1, 0, 0, NULL);
+}
 
 
-const var CRArray = {&CRArrayClass};
+MLPointer MLArrayMetaDefaultMethods[] = {
+    "create", MLArrayMetaCreate,
+    NULL
+};
 
 
-// ------------------------------------------------------ Creating Arrays ------
-
-
-var CRArrayMake(struct CRArray* array, CRNatural count, var* objects) {
-    var self = CRReference(array);
-    that.class = &CRArrayClass;
-    that.retain_count = CRRetainCountMax;
-    that.capacity = count;
-    that.count = count;
-    that.objects = objects;
+static var MLArrayInit(var class, var self, var command, var arguments, var options) {
+    self = MLSuper(command, arguments, options);
+    when (self) {
+        that.count = 0;
+        that.capacity = 0;
+        that.objects = NULL;
+    }
     return self;
 }
 
 
-var CRArrayCreate() {
-    return CRArrayCreateWithCArray(0, NULL);
-}
+static var MLArrayInitWithArray(var class, var self, var command, var arguments, var options) {
+    var array = MLArgument(0);
+    self = MLSuper(IS("init"), null, null);
+    when (self) {
+        const MLInteger count = MLIntegerFrom(MLCount(array));
+        const MLInteger capacity = count;
 
-
-var CRArrayCreateWithCArray(CRNatural count, var* objects) {
-    var self = CRReference(CRAllocate(sizeof(struct CRArray)));
-    that.class = &CRArrayClass;
-    that.retain_count = 1;
-    that.capacity = count;
-    that.count = count;
-    that.objects = CRAllocate(sizeof(var) * count);
-
-    memcpy(that.objects, objects, sizeof(var) * count);
-    for (CRInteger i = 0; i < count; i += 1) CRRetain(objects[i]);
-
-    return self;
-}
-
-
-// ----------------------------------------------------- Array Properties ------
-
-
-CRNatural CRArrayCapacity(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return that.capacity;
-}
-
-
-CRNatural CRArrayCount(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return that.count;
-}
-
-
-var* CRArrayObjects(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return that.objects;
-}
-
-
-bool CRArrayIsEmpty(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return that.count <= 0;
-}
-
-
-bool CRArrayIsMutable(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return that.class == CRMutableArray.pointer;
-}
-
-
-// ------------------------------------------------------ Querying Arrays ------
-
-
-var CRArrayObjectAt(var self, CRInteger index) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    if (index < 0 || index >= that.count) CRError("Index out of bounds");
-    return that.objects[index];
-}
-
-
-CRInteger CRArrayIndexOf(var self, var object) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    const CRNatural count = that.count;
-
-    CRInteger index = -1;
-    for (CRInteger i = 0; i < count; i += 1) {
-        var objectAtIndex = CRArrayObjectAt(self, i);
-        if (CREquals(objectAtIndex, object)) {
-            index = i;
-            break;
+        var *objects = MLAllocateAndClear(MLVariableSize * capacity);
+        for (MLInteger index = 0; index < count; index += 1) {
+            var object = MLArrayStructure(array).objects[index];
+            objects[index] = object;
+            MLRetain(object);
         }
+
+        that.count = count;
+        that.capacity = capacity;
+        that.objects = objects;
     }
-
-    return index;
+    return self;
 }
 
 
-bool CRArrayContains(var self, var object) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return CRArrayIndexOf(self, object) >= 0;
+static var MLArrayDestroy(var class, var self, var command, var arguments, var options) {
+    for (MLInteger index = 0; index < that.count; index += 1) {
+        MLRelease(that.objects[index]);
+    }
+    MLFree(that.objects);
+    MLFree(&that);
+    return null;
 }
 
 
-// -------------------------------------------------------------- Private ------
+static var MLArrayCount(var class, var self, var command, var arguments, var options) {
+    return N(that.count);
+}
 
 
-struct CRClass CRArrayClass = {.class = &CRArrayMetaClass, .callbacks = &CRArrayCallbacks};
-struct CRClass CRArrayMetaClass = {.class = &CRArrayMetaClass, .callbacks = &CRArrayMetaCallbacks};
+static var MLArrayContains(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var index = MLIndexOf(self, object);
+    return MLIsGreaterThanOrEquals(index, N(0));
+}
 
 
-struct CRCallbacks CRArrayCallbacks = {
-    &CRArrayHash,
-    &CRArrayEquals,
-    &CRArrayCopy,
-    &CRArrayMutableCopy,
-    &CRArrayDestroy,
-    &CRArrayDescription
+static var MLArrayContainsAny(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    each (object, index, self) {
+        when (MLContains(self, object)) return yes;
+    }
+    return no;
+}
+
+
+static var MLArrayContainsAll(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    each (object, index, self) {
+        unless (MLContains(self, object)) return no;
+    }
+    return yes;
+}
+
+
+static var MLArrayIsEmpty(var class, var self, var command, var arguments, var options) {
+    return B(that.count == 0);
+}
+
+
+static var MLArrayIsInline(var class, var self, var command, var arguments, var options) {
+    return B(that.class == MLInlineArray.pointer);
+}
+
+
+static var MLArrayIsMutable(var class, var self, var command, var arguments, var options) {
+    return B(that.class == MLMutableArray.pointer);
+}
+
+
+static var MLArrayAt(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    MLInteger integerIndex = MLIntegerFrom(index);
+    return that.objects[integerIndex];
+}
+
+
+static var MLArrayAtMany(var class, var self, var command, var arguments, var options) {
+    var indexes = MLArgument(0);
+    var objects = MLCreate(MLMutableArray);
+    MLInitWithCapacity(objects, MLCount(indexes));
+    each (index, indexOfIndex, indexes) {
+        var object = MLAt(self, index);
+        MLAdd(objects, object);
+    }
+    var copy = MLCopy(objects);
+    MLRelease(objects);
+    return MLAutorelease(copy);
+}
+
+
+static var MLArrayIndexOf(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    for (MLInteger index = 0; index < that.count; index += 1) {
+        var equals = MLEquals(that.objects[index], object);
+        when (equals) return N(index);
+    }
+    return N(-1);
+}
+
+
+static var MLArrayLastIndexOf(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    for (MLInteger index = that.count - 1; index >= 0; index -= 1) {
+        var equals = MLEquals(that.objects[index], object);
+        when (equals) return N(index);
+    }
+    return N(-1);
+}
+
+
+static var MLArrayIndexesOf(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var indexes = MLCreate(MLMutableArray);
+    return null;
+}
+
+
+static var MLArrayFirst(var class, var self, var command, var arguments, var options) {
+    if (that.count == 0) return null;
+    return that.objects[0];
+}
+
+
+static var MLArrayFirstCount(var class, var self, var command, var arguments, var options) {
+    var count = MLArgument(0);
+    if (MLDecimalFrom(count) <= that.count) return MLAutorelease(MLCopy(self));
+    var index = N(0);
+    return MLSliceAtCount(self, index, count);
+}
+
+
+static var MLArrayLast(var class, var self, var command, var arguments, var options) {
+    if (that.count == 0) return null;
+    return that.objects[that.count - 1];
+}
+
+
+static var MLArrayLastCount(var class, var self, var command, var arguments, var options) {
+    var count = MLArgument(0);
+    const MLDecimal decimalCount = MLDecimalFrom(count);
+    if (decimalCount <= that.count) return MLAutorelease(MLCopy(self));
+    var index = N(that.count - decimalCount);
+    return MLSliceAtCount(self, index, count);
+}
+
+
+static var MLArraySecond(var class, var self, var command, var arguments, var options) {
+    if (that.count < 2) return null;
+    return that.objects[1];
+}
+
+
+static var MLArrayThird(var class, var self, var command, var arguments, var options) {
+    if (that.count < 3) return null;
+    return that.objects[2];
+}
+
+
+static var MLArrayRest(var class, var self, var command, var arguments, var options) {
+    return MLWithoutAt(self, N(0));
+}
+
+
+static var MLArraySliceAtCount(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWith(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    return MLWithMany(self, IA(object));
+}
+
+
+static var MLArrayWithMany(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    MLError("TODO: implement.");
+    // struct MLArray* array = MLAllocateAndClear(MLArraySize);
+    // const MLInteger count = that.count + 1;
+    // array->class = MLArray.pointer;
+    // array->retainCount = 1;
+    // array->capacity = count;
+    // array->count = count;
+    // array->objects = MLAllocate(MLVariableSize * count);
+    // memcpy(array->objects, that.objects, that.count);
+    // array->objects[that.count] = object;
+    // return MLAutorelease(MLReference(array));
+    return null;
+}
+
+
+static var MLArrayWithAt(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var index = MLArgument(1);
+    return MLWithManyAt(self, IA(object), index);
+}
+
+
+static var MLArrayWithManyAt(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    var index = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithBefore(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var before = MLArgument(1);
+    return MLWithManyBefore(self, IA(object), before);
+}
+
+
+static var MLArrayWithManyBefore(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    var beforeObject = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithAfter(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var before = MLArgument(1);
+    return MLWithManyAfter(self, IA(object), before);
+}
+
+
+static var MLArrayWithManyAfter(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    var afterObject = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithout(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    return MLWithoutMany(self, IA(object));
+}
+
+
+static var MLArrayWithoutMany(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithoutAt(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    return MLWithoutAtMany(self, IA(index));
+}
+
+
+static var MLArrayWithoutAtMany(var class, var self, var command, var arguments, var options) {
+    var indexes = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayReversed(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArraySorted(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayPluck(var class, var self, var command, var arguments, var options) {
+    var key = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayMin(var class, var self, var command, var arguments, var options) {
+    var min = MLFirst(self);
+    each (object, index, self) {
+        when (MLIsLessThan(object, min)) min = object;
+    }
+    return min;
+}
+
+
+static var MLArrayMax(var class, var self, var command, var arguments, var options) {
+    var max = MLFirst(self);
+    each (object, index, self) {
+        when (MLIsGreaterThan(object, max)) max = object;
+    }
+    return max;
+}
+
+
+static var MLArrayIsArray(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+static var MLArrayDescription(var class, var self, var command, var arguments, var options) {
+    MLWarning("TODO: implement method -description for arrays");
+    return null;
+}
+
+
+static var MLArrayEquals(var class, var self, var command, var arguments, var options) {
+    var array = MLArgument(0);
+    unless (MLIsArray(array)) return no;
+
+    const MLInteger count = MLArrayStructure(array).count;
+    if (count != that.count) return no;
+
+    for (MLInteger index = 0; index < count; index += 1) {
+        var object1 = that.objects[index];
+        var object2 = MLArrayStructure(array).objects[index];
+
+        const bool isNull1 = MLIsNull(object1);
+        const bool isNull2 = MLIsNull(object2);
+        if (isNull1 != isNull2) return no;
+
+        unless (MLEquals(object1, object2)) return no;
+    }
+    return yes;
+}
+
+
+static var MLArrayCopy(var class, var self, var command, var arguments, var options) {
+    return MLRetain(self);
+}
+
+
+static var MLArrayMutableCopy(var class, var self, var command, var arguments, var options) {
+    var mutableCopy = MLCreate(MLMutableArray);
+    return MLInitWithArray(mutableCopy, self);
+}
+
+
+MLPointer MLArrayDefaultMethods[] = {
+    "init", MLArrayInit,
+    "init_with_array*", MLArrayInitWithArray,
+    "destroy", MLArrayDestroy,
+
+    "count", MLArrayCount,
+
+    "contains*?", MLArrayContains,
+    "contains_all*?", MLArrayContainsAll,
+    "contains_any*?", MLArrayContainsAny,
+
+    "is_empty?", MLArrayIsEmpty,
+    "is_inline?", MLArrayIsInline,
+    "is_mutable?", MLArrayIsMutable,
+
+    "at*", MLArrayAt,
+    "at_many*", MLArrayAtMany,
+
+    "index_of*", MLArrayIndexOf,
+    "last_index_of*", MLArrayLastIndexOf,
+    "indexes_of*", MLArrayIndexesOf,
+
+    "first", MLArrayFirst,
+    "first*", MLArrayFirstCount,
+
+    "last", MLArrayLast,
+    "last*", MLArrayLastCount,
+
+    "second", MLArraySecond,
+    "third", MLArrayThird,
+
+    "rest", MLArrayRest,
+    "slice_at*count*", MLArraySliceAtCount,
+
+    "with*", MLArrayWith,
+    "with_many*", MLArrayWithMany,
+
+    "with*at*", MLArrayWithAt,
+    "with_many*at*", MLArrayWithManyAt,
+
+    "with*before*", MLArrayWithBefore,
+    "with_many*before*", MLArrayWithManyBefore,
+
+    "with*after*", MLArrayWithAfter,
+    "with_many*after*", MLArrayWithManyAfter,
+
+    "without*", MLArrayWithout,
+    "without_many*", MLArrayWithoutMany,
+
+    "without_at*", MLArrayWithoutAt,
+    "without_at_many*", MLArrayWithoutAtMany,
+
+    "reversed", MLArrayReversed,
+    "sorted", MLArraySorted,
+
+    "pluck*", MLArrayPluck,
+
+    "min", MLArrayMin,
+    "max", MLArrayMax,
+
+    "is_array?", MLArrayIsArray,
+
+    "description", MLArrayDescription,
+    "equals*?", MLArrayEquals,
+
+    "copy", MLArrayCopy,
+    "mutable_copy", MLArrayMutableCopy,
+
+    NULL
 };
 
 
-struct CRCallbacks CRArrayMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
+static var MLInlineArrayMetaCreate(var class, var self, var command, var arguments, var options) {
+    MLError("Can't create inline array, inline arrays can only be inlined");
+    return null;
+}
+
+
+MLPointer MLInlineArrayMetaDefaultMethods[] = {
+    "create", MLInlineArrayMetaCreate,
+    NULL
 };
 
 
-CRNatural64 CRArrayHash(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return (CRNatural64)self.pointer;
+static var MLInlineArrayCopy(var class, var self, var command, var arguments, var options) {
+    MLWarning("TODO: implement -copy for inline arrays");
+    return null;
 }
 
 
-bool CRArrayEquals(var self, var other) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
+static var MLInlineArrayMutableCopy(var class, var self, var command, var arguments, var options) {
+    MLWarning("TODO: implement -copy for inline arrays");
+    return null;
+}
 
-    const CRNatural count = that.count;
-    if (count != CRArrayCount(other)) return false;
 
-    for (CRInteger index = 0; index < count; index += 1) {
-        const var object = that.objects[index];
-        const var other_object = CRArrayObjectAt(other, index);
-        if (CREquals(object, other_object) == false) return false;
+static var MLInlineArrayRetain(var class, var self, var command, var arguments, var options) {
+    MLError("Can't retain an inline array, you have to copy it");
+    return null;
+}
+
+
+static var MLInlineArrayRetainCount(var class, var self, var command, var arguments, var options) {
+    return N(-1);
+}
+
+
+static var MLInlineArrayRelease(var class, var self, var command, var arguments, var options) {
+    MLError("Can't release an inline array because it can't be retained in the first place");
+    return null;
+}
+
+
+static var MLInlineArrayAutorelease(var class, var self, var command, var arguments, var options) {
+    MLError("Can't autorelease an inline array because it can't be retained in the first place");
+    return null;
+}
+
+
+MLPointer MLInlineArrayDefaultMethods[] = {
+    "copy", MLInlineArrayCopy,
+    "mutable_copy", MLInlineArrayMutableCopy,
+    "retain", MLInlineArrayRetain,
+    "retainCount", MLInlineArrayRetainCount,
+    "release", MLInlineArrayRelease,
+    "autorelease", MLInlineArrayAutorelease,
+};
+
+
+static var MLMutableArrayMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLArrayMake(MLAllocate(MLArraySize), MLMutableArray, 1, 0, 0, NULL);
+}
+
+
+static var MLMutableArrayMetaNewWithCapacity(var class, var self, var command, var arguments, var options) {
+    var capacity = MLArgument(0);
+    var array = MLCreate(self);
+    return MLInitWithCapacity(array, capacity);
+}
+
+
+MLPointer MLMutableArrayMetaDefaultMethods[] = {
+    "create", MLMutableArrayMetaCreate,
+    "new_with_capacity*", MLMutableArrayMetaNewWithCapacity,
+    NULL
+};
+
+
+static var MLMutableArrayInitWithCapacity(var class, var self, var command, var arguments, var options) {
+    var capacity = MLArgument(0);
+    self = MLSuper(IS("init"), null, null);
+    when (self) {
+        MLIncreaseCapacity(self, capacity);
     }
-
-    return true;
+    return self;
 }
 
 
-var CRArrayCopy(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return CRArrayIsMutable(self) ? CRArrayCreateWithCArray(that.count, that.objects) : CRRetain(self);
+static var MLMutableArrayCapacity(var class, var self, var command, var arguments, var options) {
+    return N(that.capacity);
 }
 
 
-var CRArrayMutableCopy(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-    return CRArrayCreateMutableWithCArray(CRArrayCount(self), CRArrayObjects(self));
+static var MLMutableArrayIncreaseCapacity(var class, var self, var command, var arguments, var options) {
+    var capacity = MLArgument(0);
+
+    MLInteger integerCapacity = MLIntegerFrom(capacity);
+    if (integerCapacity < that.capacity) return self;
+    if (integerCapacity < MLMutableArrayMinCapacity) integerCapacity = MLMutableArrayMinCapacity;
+
+    integerCapacity = MLHelperRoundUpToPowerOfTwo(integerCapacity);
+
+    that.capacity = integerCapacity;
+    that.objects = MLResize(that.objects, MLVariableSize * integerCapacity);
+
+    return self;
 }
 
 
-void CRArrayDestroy(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-
-    var* objects = that.objects;
-    for (CRInteger i = 0; i < CRArrayCount(self); i += 1) {
-        CRRelease(CRArrayObjectAt(self, i));
-    }
-
-    that.class = NULL;
-    that.retain_count = 0;
-    that.capacity = 0;
-    that.count = 0;
-    that.objects = NULL;
-
-    CRFree(objects);
-    CRFree(this);
+static var MLMutableArrayAdd(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    if (that.capacity <= that.count) MLIncreaseCapacity(self, N(that.count + 1));
+    that.objects[that.count] = MLRetain(object);
+    that.count += 1;
+    return self;
 }
 
 
-var CRArrayDescription(var self) {
-    CRArrayThrowErrorIfNull();
-    CRArrayThrowErrorIfNotArray();
-
-    var description = CRStringCreateWithCharacters("[TODO: implement CRArrayDescription().]");
-    return CRAutorelease(description);
+static var MLMutableArrayAddMany(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
 }
+
+
+static var MLMutableArrayRemove(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayRemoveMany(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayRemoveAt(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayRemoveAtMany(var class, var self, var command, var arguments, var options) {
+    var indexes = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayRemoveAll(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayInsertAt(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var index = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayInsertManyAt(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    var index = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayInsertBefore(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var beforeObject = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayInsertManyBefore(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    var beforeObject = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayInsertAfter(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var afterObject = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayInsertManyAfter(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    var afterObject = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayReplaceWith(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var replacement = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayReplaceWithMany(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var replacements = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayReplaceAtWith(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var replacement = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayReplaceAtWithMany(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var replacements = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+MLPointer MLMutableArrayDefaultMethods[] = {
+    "init_with_capacity*", MLMutableArrayInitWithCapacity,
+
+    "capacity", MLMutableArrayCapacity,
+    "increase_capacity*", MLMutableArrayIncreaseCapacity,
+
+    "add*", MLMutableArrayAdd,
+    "add_many*", MLMutableArrayAddMany,
+
+    "remove*", MLMutableArrayRemove,
+    "remove_many*", MLMutableArrayRemoveMany,
+
+    "remove_at*", MLMutableArrayRemoveAt,
+    "remove_at_many*", MLMutableArrayRemoveAtMany,
+
+    "remove_all", MLMutableArrayRemoveAll,
+
+    "insert*at*", MLMutableArrayInsertAt,
+    "insert_many*at*", MLMutableArrayInsertManyAt,
+
+    "insert*before*", MLMutableArrayInsertBefore,
+    "insert_many*before*", MLMutableArrayInsertManyBefore,
+
+    "insert*after*", MLMutableArrayInsertAfter,
+    "insert_many*after*", MLMutableArrayInsertManyAfter,
+
+    "replace*with*", MLMutableArrayReplaceWith,
+    "replace*with_many*", MLMutableArrayReplaceWithMany,
+
+    "replace_at*with*", MLMutableArrayReplaceAtWith,
+    "replace_at*with_many*", MLMutableArrayReplaceAtWithMany,
+
+    NULL
+};

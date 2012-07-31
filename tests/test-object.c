@@ -22,6 +22,6 @@
 #include "test.h"
 
 
-void CRTestObject() {
+void MLTestObject() {
     // TODO: implement.
 }

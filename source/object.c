@@ -20,107 +20,298 @@
 // THE SOFTWARE.
 
 #include "object.h"
-#include "object-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "macros.h"
-#include "string.h"
+#include "pool.h"
 
 
-// --------------------------------------------------------------- Macros ------
+#define meta MLClassStructure(self)
+#define that MLObjectStructure(self)
 
 
-#define this ((struct CRObject*)self.pointer)
-#define that (*this)
-
-#define CRObjectThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRObjectThrowErrorIfNotObject() if (that.class != CRObject.pointer) CRError("self is not an object")
-
-
-// -------------------------------------------------- Constants & Globals ------
-
-
-const var CRObject = {&CRObjectClass};
-
-
-// -------------------------------------------------------------- Private ------
-
-
-struct CRClass CRObjectMetaClass = {.class = &CRObjectMetaClass, .callbacks = &CRObjectMetaCallbacks};
-struct CRClass CRObjectClass = {.class = &CRObjectMetaClass, .callbacks = &CRObjectCallbacks};
-
-
-struct CRCallbacks CRObjectMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
-};
-
-
-struct CRCallbacks CRObjectCallbacks = {
-    &CRObjectHash,
-    &CRObjectEquals,
-    &CRObjectCopy,
-    &CRObjectMutableCopy,
-    &CRObjectDestroy,
-    &CRObjectDescription
-};
-
-
-CRNatural64 CRObjectHash(var self) {
-    CRObjectThrowErrorIfNull();
-    CRObjectThrowErrorIfNotObject();
-    return (CRNatural64)self.pointer;
+static var MLObjectMetaCreate(var class, var self, var command, var arguments, var options) {
+    MLError("Can't create an instance of Object, object is either abstract or doesn't implement -create");
 }
 
 
-bool CRObjectEquals(var self, var other) {
-    CRObjectThrowErrorIfNull();
-    CRObjectThrowErrorIfNotObject();
-    return self.pointer == other.pointer;
+static var MLObjectMetaNew(var class, var self, var command, var arguments, var options) {
+    var object = MLCreate(self);
+    return MLInit(object);
 }
 
 
-var CRObjectCopy(var self) {
-    CRObjectThrowErrorIfNull();
-    CRObjectThrowErrorIfNotObject();
-    CRError("Can't create a copy of CRObject");
+static var MLObjectMetaName(var class, var self, var command, var arguments, var options) {
+    return meta.name;
+}
+
+
+static var MLObjectMetaSuperclass(var class, var self, var command, var arguments, var options) {
+    return meta.superclass;
+}
+
+
+static var MLObjectMetaSubclasses(var class, var self, var command, var arguments, var options) {
+    return meta.subclasses;
+}
+
+
+static var MLObjectMetaMethods(var class, var self, var command, var arguments, var options) {
+    return meta.methods;
+}
+
+
+static var MLObjectMetaIsClass(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+MLPointer MLObjectMetaDefaultMethods[] = {
+    "create", MLObjectMetaCreate,
+    "new", MLObjectMetaNew,
+
+    "name", MLObjectMetaName,
+    "superclass", MLObjectMetaSuperclass,
+    "subclasses", MLObjectMetaSubclasses,
+    "methods", MLObjectMetaMethods,
+
+    "is_class?", MLObjectMetaIsClass,
+
+    NULL
+};
+
+
+static var MLObjectInit(var class, var self, var command, var arguments, var options) {
+    that.retainCount = 1;
+    return self;
+}
+
+
+static var MLObjectDestroy(var class, var self, var command, var arguments, var options) {
+    if (that.retainCount > 0) MLWarning("Destroying object with retain count > 0");
+    MLFree(self.pointer);
     return null;
 }
 
 
-var CRObjectMutableCopy(var self) {
-    CRObjectThrowErrorIfNull();
-    CRObjectThrowErrorIfNotObject();
-    CRError("Can't create a mutable copy of CRObject");
+static var MLObjectClass(var class, var self, var command, var arguments, var options) {
+    return MLReference(that.class);
+}
+
+
+static var MLObjectDescription(var class, var self, var command, var arguments, var options) {
+    MLWarning("TODO: implement method -description for objects");
     return null;
 }
 
 
-void CRObjectDestroy(var self) {
-    CRObjectThrowErrorIfNull();
-    CRObjectThrowErrorIfNotObject();
-    if (self.pointer) CRFree(self.pointer);
+static var MLObjectEquals(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    return B(self.pointer == object.pointer);
 }
 
 
-var CRObjectDescription(var self) {
-    CRObjectThrowErrorIfNull();
-    CRObjectThrowErrorIfNotObject();
-
-    const struct CRObject* instance = (struct CRObject*)self.pointer;
-    const struct CRClass* class = instance->class;
-    const CRNatural retain_count = instance->retain_count;
-
-    const CRNatural characters_capacity = 1000;
-    CRCharacter characters[characters_capacity];
-    snprintf(characters, characters_capacity, "<CRObject %p, class: %p, retain_count: %lu>", instance, class, retain_count);
-
-    var description = CRStringCreate(characters);
-    return CRAutorelease(description);
+static var MLObjectHash(var class, var self, var command, var arguments, var options) {
+    return W((MLNatural)self.pointer);
 }
+
+
+static var MLObjectCopy(var class, var self, var command, var arguments, var options) {
+    MLError("Object doesn't support copying");
+    return null;
+}
+
+
+static var MLObjectMutableCopy(var class, var self, var command, var arguments, var options) {
+    MLError("Object doesn't support mutable copying");
+    return null;
+}
+
+
+var MLObjectCompareTo(var class, var self, var command, var arguments, var options) {
+    MLError("Can't compare, object doesn't support comparing");
+    return no;
+}
+
+
+var MLObjectIsLessThan(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var result = MLCompareTo(self, object);
+    if (MLDecimalFrom(result) < 0) return yes;
+    return no;
+}
+
+
+var MLObjectIsLessThanOrEquals(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var result = MLCompareTo(self, object);
+    if (MLDecimalFrom(result) <= 0) return yes;
+    return no;
+}
+
+
+var MLObjectIsGreaterThan(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var result = MLCompareTo(self, object);
+    if (MLDecimalFrom(result) > 0) return yes;
+    return no;
+}
+
+
+var MLObjectIsGreaterThanOrEquals(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    var result = MLCompareTo(self, object);
+    if (MLDecimalFrom(result) >= 0) return yes;
+    return no;
+}
+
+
+static var MLObjectIsClass(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsBlock(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsBoolean(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsNumber(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsWord(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsDate(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsData(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsArray(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsString(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsDictionary(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsKindOf(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLObjectIsInstanceOf(var class, var self, var command, var arguments, var options) {
+    return MLEquals(MLClass(self), MLArgument(0));
+}
+
+
+static var MLObjectRetain(var class, var self, var command, var arguments, var options) {
+    that.retainCount += 1;
+    if (that.retainCount > MLRetainCountMax) that.retainCount = MLRetainCountMax;
+    return self;
+}
+
+
+static var MLObjectRetainCount(var class, var self, var command, var arguments, var options) {
+    return N(that.retainCount);
+}
+
+
+static var MLObjectRelease(var class, var self, var command, var arguments, var options) {
+    if (that.retainCount >= MLRetainCountMax) return self;
+    if (that.retainCount <= 0) MLWarning("Releasing an object whose retain count is already 0");
+    that.retainCount -= 1;
+    if (that.retainCount <= 0) self = MLDestroy(self);
+    return self;
+}
+
+
+static var MLObjectAutorelease(var class, var self, var command, var arguments, var options) {
+    return MLAdd(MLCurrentPool, self);
+}
+
+
+static var MLObjectPerformArgumentsOptionsBlock(var class, var self, var command, var arguments, var options) {
+    var commandToPerform = MLArgument(0);
+    var argumentsToPass = MLArgument(1);
+    var optionsToPass = MLArgument(2);
+    var klass = MLClass(self);
+    var klassName = MLName(klass);
+    MLError("Can't perform command, %s doesn't respond to \"%s\"", MLStringStructure(klassName).characters, MLStringStructure(commandToPerform).characters);
+    return null;
+}
+
+
+static var MLObjectSendArgumentsOptionsBlock(var class, var self, var command, var arguments, var options) {
+    return null;
+}
+
+
+static var MLObjectRespondsTo(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+MLPointer MLObjectDefaultMethods[] = {
+    "init", MLObjectInit,
+    "destroy", MLObjectDestroy,
+
+    "class", MLObjectClass,
+    "description", MLObjectDescription,
+    "equals*?", MLObjectEquals,
+    "hash", MLObjectHash,
+
+    "copy", MLObjectCopy,
+    "mutable_copy", MLObjectMutableCopy,
+
+    "compare_to*", MLObjectCompareTo,
+    "is_less_than*?", MLObjectIsLessThan,
+    "is_less_than_or_equals*?", MLObjectIsLessThanOrEquals,
+    "is_greater_than*?", MLObjectIsGreaterThan,
+    "is_greater_than_or_equals*?", MLObjectIsGreaterThanOrEquals,
+
+    "is_class?", MLObjectIsClass,
+    "is_block?", MLObjectIsBlock,
+    "is_boolean?", MLObjectIsBoolean,
+    "is_number?", MLObjectIsNumber,
+    "is_word?", MLObjectIsWord,
+    "is_date?", MLObjectIsDate,
+    "is_data?", MLObjectIsData,
+    "is_array?", MLObjectIsArray,
+    "is_string?", MLObjectIsString,
+    "is_dictionary?", MLObjectIsDictionary,
+
+    "is_kind_of*?", MLObjectIsKindOf,
+    "is_instance_of*?", MLObjectIsInstanceOf,
+
+    "retain", MLObjectRetain,
+    "retain_count", MLObjectRetainCount,
+    "release", MLObjectRelease,
+    "autorelease", MLObjectAutorelease,
+
+    "perform*arguments*options*", MLObjectPerformArgumentsOptionsBlock,
+    "send*arguments*options*", MLObjectSendArgumentsOptionsBlock,
+    "responds_to*?", MLObjectRespondsTo,
+
+    NULL
+};

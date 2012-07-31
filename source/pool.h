@@ -19,26 +19,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_POOL_H
-#define CR_POOL_H
+#ifndef ML_POOL_H
+#define ML_POOL_H
 
-#include "core.h"
-#include "object.h"
+#include "metal.h"
 
-#define CRPoolMinCapacity 1000
-extern const var CRPool;
+extern var MLCurrentPool;
 
-struct CRPool {
-    struct CRClass* class;
-    CRNatural retain_count;
-    var objects;
-};
-
-var CRPoolCreate();
-
-var CRPoolObjects(var self);
-
-void CRPoolAdd(var self, var object);
-void CRPoolDrain(var self);
+extern MLPointer MLPoolMetaDefaultMethods[];
+extern MLPointer MLPoolDefaultMethods[];
 
 #endif

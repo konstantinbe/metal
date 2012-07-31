@@ -22,6 +22,6 @@
 #include "test.h"
 
 
-void CRTestMutableDictionary() {
+void MLTestMutableDictionary() {
     // TODO: implement.
 }

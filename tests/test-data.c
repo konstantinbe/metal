@@ -19,24 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_DICTIONARY_PRIVATE_H
-#define CR_DICTIONARY_PRIVATE_H
+#include "test.h"
 
-#include "dictionary.h"
 
-#define CRDictionaryLinearVsHashedThreshold 4
-
-extern struct CRClass CRDictionaryClass;
-extern struct CRClass CRDictionaryMetaClass;
-
-extern struct CRCallbacks CRDictionaryCallbacks;
-extern struct CRCallbacks CRDictionaryMetaCallbacks;
-
-CRNatural64 CRDictionaryHash(var self);
-bool CRDictionaryEquals(var self, var other);
-var CRDictionaryCopy(var self);
-var CRDictionaryMutableCopy(var self);
-void CRDictionaryDestroy(var self);
-var CRDictionaryDescription(var self);
-
-#endif
+void MLTestData() {
+    // TODO: implement.
+}

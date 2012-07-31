@@ -20,253 +20,429 @@
 // THE SOFTWARE.
 
 #include "string.h"
-#include "string-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "object.h"
-#include "object-private.h"
-
-#include "mutable-string.h"
-#include "macros.h"
-#include "digest.h"
-#include <string.h>
+#include "helper.h"
 
 
-// --------------------------------------------------------------- Macros ------
+#define MLMutableStringMinCapacity 63 // + 1 byte will be allocated for \0
 
 
-#define this ((struct CRString*)self.pointer)
-#define that (*this)
-
-#define CRStringThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRStringThrowErrorIfNotString() if (that.class != CRString.pointer && that.class != CRMutableString.pointer) CRError("self is not a string")
+#define meta MLClassStructure(self)
+#define that MLStringStructure(self)
 
 
-// -------------------------------------------------- Constants & Globals ------
-
-
-const var CRString = {&CRStringClass};
-
-
-// ----------------------------------------------------- Creating Strings ------
-
-
-var CRStringMake(struct CRString* string, const CRCharacter* characters) {
-    const CRNatural length = strlen(characters);
-    const CRNatural64 hash = CRDigest(length, characters);
-    var self = {.pointer = string, .payload.natural = hash};
-
-    that.class = &CRStringClass;
-    that.retain_count = CRRetainCountMax;
-    that.capacity = length;
-    that.length = length;
-    that.characters = (CRCharacter*)characters;
-    return self;
+static var MLStringMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLStringMake(MLAllocate(MLStringSize), MLString, 1, 0, 0, NULL);
 }
 
 
-var CRStringCreate() {
-    return CRStringCreateWithCharacters("");
-}
-
-
-var CRStringCreateWithCharacters(const CRCharacter* characters) {
-    const CRNatural length = strlen(characters);
-    const CRNatural64 hash = CRDigest(length, characters);
-
-    struct CRString* string = CRAllocate(sizeof(struct CRString));
-    var self = {.pointer = string, .payload.natural = hash};
-
-    that.class = &CRStringClass;
-    that.retain_count = 1;
-    that.capacity = length;
-    that.length = length;
-    that.characters = CRAllocate(length + 1);
-
-    strncpy(that.characters, characters, length + 1);
-    return self;
-}
-
-
-// ----------------------------------------------------------- Properties ------
-
-
-CRNatural CRStringCapacity(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return that.capacity;
-}
-
-
-CRNatural CRStringLength(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return that.length;
-}
-
-
-CRCharacter* CRStringCharacters(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return that.characters;
-}
-
-
-bool CRStringIsEmpty(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return that.length == 0;
-}
-
-
-bool CRStringIsMutable(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return that.class == CRMutableString.pointer;
-}
-
-
-// ----------------------------------------------------- Querying Strings ------
-
-
-CRCharacter CRStringCharacterAt(var self, CRInteger index) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    if (index < 0 || index >= that.length) CRError("Index out of bounds");
-    return that.characters[index];
-}
-
-
-CRInteger CRStringIndexOf(var self, var string) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-
-    const CRInteger length_of_string = CRStringLength(string);
-    if (length_of_string > that.length) return -1;
-    if (length_of_string == 0) return 0;
-
-    CRCharacter* found = strstr(that.characters, CRStringCharacters(string));
-    if (!found) return -1;
-
-    return that.length - strlen(found);
-}
-
-
-bool CRStringContains(var self, var string) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return CRStringIndexOf(self, string) >= 0;
-}
-
-
-bool CRStringBeginsWith(var self, var string) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return CRStringIndexOf(self, string) == 0;
-}
-
-
-bool CRStringEndsWith(var self, var string) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-
-    const CRInteger length_of_string = CRStringLength(string);
-
-    if (length_of_string == 0) return true;
-    if (length_of_string > that.length) return false;
-
-    const CRInteger index_of_string = CRStringIndexOf(self, string);
-    if (index_of_string < 0) return false;
-
-    return index_of_string == that.length - CRStringLength(string);
-}
-
-
-// -------------------------------------------------------------- Private ------
-
-
-struct CRClass CRStringClass = {.class = &CRStringMetaClass, .callbacks = &CRStringCallbacks};
-struct CRClass CRStringMetaClass = {.class = &CRStringMetaClass, .callbacks = &CRStringMetaCallbacks};
-
-
-struct CRCallbacks CRStringCallbacks = {
-    &CRStringHash,
-    &CRStringEquals,
-    &CRStringCopy,
-    &CRStringMutableCopy,
-    &CRStringDestroy,
-    &CRStringDescription
+MLPointer MLStringMetaDefaultMethods[] = {
+    "create", MLStringMetaCreate,
+    NULL
 };
 
 
-struct CRCallbacks CRStringMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
+static var MLStringInit(var class, var self, var command, var arguments, var options) {
+    self = MLSuper(command, arguments, options);
+    when (self) {
+        that.retainCount = 1;
+        that.capacity = 0;
+        that.count = 0;
+        that.characters = NULL;
+    }
+    return self;
+}
+
+
+static var MLStringInitWithString(var class, var self, var command, var arguments, var options) {
+    var string = MLArgument(0);
+    self = MLSuper(command, arguments, options);
+    when (self) {
+        const var count = MLCount(string);
+        const MLInteger countInteger = MLIntegerFrom(count);
+        const MLInteger integerCapacity = countInteger;
+
+        that.retainCount = 1;
+        that.capacity = integerCapacity;
+        that.count = countInteger;
+        that.characters = NULL;
+
+        if (countInteger > 0) {
+            MLCharacter *characters = MLStringStructure(string).characters;
+            that.characters = MLAllocate(sizeof(MLCharacter) * (countInteger + 1));
+            memcpy(that.characters, characters, countInteger + 1);
+        }
+    }
+    return self;
+}
+
+
+static var MLStringDestroy(var class, var self, var command, var arguments, var options) {
+    MLFree(that.characters);
+    MLFree(&that);
+    return null;
+}
+
+
+static var MLStringCount(var class, var self, var command, var arguments, var options) {
+    return N(that.count);
+}
+
+
+static var MLStringContains(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringIsEmpty(var class, var self, var command, var arguments, var options) {
+    return B(that.count == 0);
+}
+
+
+static var MLStringIsInline(var class, var self, var command, var arguments, var options) {
+    return B(that.class == MLInlineString.pointer);
+}
+
+
+static var MLStringIsMutable(var class, var self, var command, var arguments, var options) {
+    return B(that.class == MLMutableString.pointer);
+}
+
+
+static var MLStringFirst(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringSecond(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringThird(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringRest(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringLast(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringCodeAt(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringCodesAt(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringCharacters(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringCodes(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringLines(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringParagraphs(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringIndexOf(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringLastIndexOf(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringIndexesOf(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringBeginsWith(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringEndsWith(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringUppercased(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringLowercased(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringCapitalized(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringIsString(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+static var MLStringDescription(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringEquals(var class, var self, var command, var arguments, var options) {
+    const var string = MLArgument(0);
+    unless (MLIsString(string)) return no;
+
+    const MLInteger count = MLStringStructure(string).count;
+    if (count != that.count) return no;
+    if (count == 0) return yes;
+
+    MLCharacter* characters = MLStringStructure(string).characters;
+    const MLInteger result = strncmp(characters, that.characters, that.count);
+
+    return B(result == 0);
+}
+
+
+static var MLStringHash(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringCopy(var class, var self, var command, var arguments, var options) {
+    return MLRetain(self);
+}
+
+
+static var MLStringMutableCopy(var class, var self, var command, var arguments, var options) {
+    var mutableCopy = MLCreate(MLMutableString);
+    return MLInitWithArray(mutableCopy, self);
+}
+
+
+MLPointer MLStringDefaultMethods[] = {
+    "init", MLStringInit,
+    "init_with_string*", MLStringInitWithString,
+    "destroy", MLStringDestroy,
+
+    "count", MLStringCount,
+    "contains*", MLStringContains,
+
+    "is_empty?", MLStringIsEmpty,
+    "is_inline?", MLStringIsInline,
+    "is_mutable?", MLStringIsMutable,
+
+    "first", MLStringFirst,
+    "first*", MLStringFirst,
+
+    "second", MLStringSecond,
+    "third", MLStringThird,
+    "rest", MLStringRest,
+
+    "last", MLStringLast,
+    "last*", MLStringLast,
+
+    "code_at*", MLStringCodeAt,
+    "codes_at*", MLStringCodesAt,
+
+    "characters", MLStringCharacters,
+    "codes", MLStringCodes,
+
+    "lines", MLStringLines,
+    "paragraphs", MLStringParagraphs,
+
+    "index_of*", MLStringIndexOf,
+    "last_index_of*", MLStringLastIndexOf,
+    "indexes_of*", MLStringIndexesOf,
+
+    "begins_with*", MLStringBeginsWith,
+    "ends_with*", MLStringEndsWith,
+
+    "uppercased", MLStringUppercased,
+    "lowercased", MLStringLowercased,
+    "capitalized", MLStringCapitalized,
+
+    "is_string?", MLStringIsString,
+
+    "description", MLStringDescription,
+    "equals*?", MLStringEquals,
+    "hash", MLStringHash,
+    "copy", MLStringCopy,
+    "mutable_copy", MLStringMutableCopy,
+    NULL
 };
 
 
-CRNatural64 CRStringHash(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return self.payload.natural ? self.payload.natural : CRDigest(that.length, that.characters);
+static var MLInlineStringMetaCreate(var class, var self, var command, var arguments, var options) {
+    MLError("Can't create an inline string, inline strings can only be inlined");
+    return null;
 }
 
 
-bool CRStringEquals(var self, var other) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
+MLPointer MLInlineStringMetaDefaultMethods[] = {
+    "create", MLInlineStringMetaCreate,
+    NULL
+};
 
-    CRCharacter* characters1 = CRStringCharacters(self);
-    CRCharacter* characters2 = CRStringCharacters(other);
-    if (characters1 == characters2) return true;
 
-    CRNatural length1 = CRStringLength(self);
-    CRNatural length2 = CRStringLength(other);
-    if (length1 != length2) return false;
-
-    return strncmp(characters1, characters2, length1) == 0;
+static var MLInlineStringRetain(var class, var self, var command, var arguments, var options) {
+    MLError("Can't retain an inline string, you have to copy it");
+    return null;
 }
 
 
-var CRStringCopy(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return CRStringIsMutable(self) ? CRStringCreateWithCharacters(that.characters) : CRRetain(self);
+static var MLInlineStringRetainCount(var class, var self, var command, var arguments, var options) {
+    return N(-1);
 }
 
 
-var CRStringMutableCopy(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-    return CRStringCreateMutableWithCharacters(that.characters);
+static var MLInlineStringRelease(var class, var self, var command, var arguments, var options) {
+    MLError("Can't release an inline string because it can't be retained in the first place");
+    return null;
 }
 
 
-void CRStringDestroy(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
-
-    CRCharacter* characters = that.characters;
-
-    that.class = NULL;
-    that.retain_count = 0;
-    that.capacity = 0;
-    that.length = 0;
-    that.characters = NULL;
-
-    CRFree(characters);
-    CRFree(this);
+static var MLInlineStringAutorelease(var class, var self, var command, var arguments, var options) {
+    MLError("Can't autorelease an inline string because it can't be retained in the first place");
+    return null;
 }
 
 
-var CRStringDescription(var self) {
-    CRStringThrowErrorIfNull();
-    CRStringThrowErrorIfNotString();
+MLPointer MLInlineStringDefaultMethods[] = {
+    "retain", MLInlineStringRetain,
+    "retainCount", MLInlineStringRetainCount,
+    "release", MLInlineStringRelease,
+    "autorelease", MLInlineStringAutorelease,
+};
+
+
+static var MLMutableStringMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLStringMake(MLAllocate(MLStringSize), MLMutableString, 1, 0, 0, NULL);
+}
+
+
+MLPointer MLMutableStringMetaDefaultMethods[] = {
+    NULL
+};
+
+
+static var MLMutableStringInitWithCapacity(var class, var self, var command, var arguments, var options) {
+    var capacity = MLArgument(0);
+    self = MLSuper(IS("init"), null, null);
+    when (self) {
+        MLIncreaseCapacity(self, capacity);
+    }
     return self;
 }
+
+
+static var MLMutableStringCapacity(var class, var self, var command, var arguments, var options) {
+    return N(that.capacity);
+}
+
+
+static var MLMutableStringIncreaseCapacity(var class, var self, var command, var arguments, var options) {
+    const var capacity = MLArgument(0);
+
+    MLInteger integerCapacity = MLIntegerFrom(capacity);
+    if (integerCapacity < that.capacity) return self;
+    if (integerCapacity < MLMutableStringMinCapacity) integerCapacity = MLMutableStringMinCapacity;
+    integerCapacity = MLHelperRoundUpToPowerOfTwo(integerCapacity) - 1;
+
+    that.capacity = integerCapacity;
+    that.characters = MLResize(that.characters, sizeof(MLCharacter) * (integerCapacity + 1));
+
+    return self;
+}
+
+
+static var MLMutableStringReplaceWith(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableStringPrepend(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableStringAppend(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableStringCopy(var class, var self, var command, var arguments, var options) {
+    var copy = MLCreate(MLString);
+    return MLInitWithString(copy, self);
+}
+
+
+static var MLMutableStringMutableCopy(var class, var self, var command, var arguments, var options) {
+    var mutableCopy = MLCreate(MLMutableString);
+    return MLInitWithString(mutableCopy, self);
+}
+
+
+MLPointer MLMutableStringDefaultMethods[] = {
+    "init_with_capacity*", MLMutableStringInitWithCapacity,
+
+    "capacity", MLMutableStringCapacity,
+    "increase_capacity*", MLMutableStringIncreaseCapacity,
+
+    "replace*with*", MLMutableStringReplaceWith,
+    "prepend*", MLMutableStringPrepend,
+    "append*", MLMutableStringAppend,
+
+    "copy", MLMutableStringCopy,
+    "mutable_copy", MLMutableStringMutableCopy,
+    NULL
+};

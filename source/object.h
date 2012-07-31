@@ -19,13 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_OBJECT_H
-#define CR_OBJECT_H
+#ifndef ML_OBJECT_H
+#define ML_OBJECT_H
 
-#include "core.h"
+#include "metal.h"
 
-extern const var CRObject;
-
-var CRObjectMake(CRPointer object, CRPointer class, CRNatural retain_count);
+extern MLPointer MLObjectMetaDefaultMethods[];
+extern MLPointer MLObjectDefaultMethods[];
 
 #endif

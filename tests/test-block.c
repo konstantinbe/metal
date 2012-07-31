@@ -19,22 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_WORD_PRIVATE_H
-#define CR_WORD_PRIVATE_H
+#include "test.h"
 
-#include "word.h"
 
-extern struct CRObject CRWordProxy;
-
-extern struct CRClass CRWordClass;
-extern struct CRClass CRWordMetaClass;
-
-extern struct CRCallbacks CRWordCallbacks;
-extern struct CRCallbacks CRWordMetaCallbacks;
-
-CRNatural64 CRWordHash(var self);
-bool CRWordEquals(var self, var other);
-var CRWordCopy(var self);
-var CRWordDescription(var self);
-
-#endif
+void MLTestBlock() {
+    // TODO: implement.
+}

@@ -23,29 +23,21 @@
 
 
 int main(int arguments_count, char const* arguments[]) {
-    CRTestCore();
-    CRTestDigest();
-    CRTestMath();
-
-    CRTestObject();
-    CRTestClass();
-
-    CRTestBoolean();
-    CRTestNumber();
-    CRTestWord();
-    CRTestMethod();
-    CRTestDate();
-
-    CRTestString();
-    CRTestArray();
-    CRTestDictionary();
-
-    CRTestMutableString();
-    CRTestMutableArray();
-    CRTestMutableDictionary();
-
-    CRTestPool();
-    CRTestRuntime();
-
+    MLTestMetal();
+    MLTestObject();
+    MLTestBlock();
+    MLTestBoolean();
+    MLTestNumber();
+    MLTestWord();
+    MLTestDate();
+    MLTestData();
+    MLTestArray();
+    MLTestString();
+    MLTestDictionary();
+    MLTestMutableData();
+    MLTestMutableArray();
+    MLTestMutableString();
+    MLTestMutableDictionary();
+    MLTestPool();
     return 0;
 }

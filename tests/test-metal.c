@@ -19,22 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_STRING_PRIVATE_H
-#define CR_STRING_PRIVATE_H
+#include "test.h"
 
-#include "string.h"
 
-extern struct CRClass CRStringClass;
-extern struct CRClass CRStringMetaClass;
-
-extern struct CRCallbacks CRStringCallbacks;
-extern struct CRCallbacks CRStringMetaCallbacks;
-
-CRNatural64 CRStringHash(var self);
-bool CRStringEquals(var self, var other);
-var CRStringCopy(var self);
-var CRStringMutableCopy(var self);
-void CRStringDestroy(var self);
-var CRStringDescription(var self);
-
-#endif
+void MLTestMetal() {
+    var objects = IA(N(1), N(2), N(3));
+    each (object, index, objects) {
+        printf("\n%f\n", object.payload.decimal);
+    }
+}

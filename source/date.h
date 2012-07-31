@@ -19,20 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_DATE_H
-#define CR_DATE_H
+#ifndef ML_DATE_H
+#define ML_DATE_H
 
-#include "core.h"
-#include "object.h"
+#include "metal.h"
 
-extern const var CRDate;
-
-#define CRDate(value) CRDateMake(value)
-var CRDateMake(CRDecimal seconds_since_1970);
-
-var CRDateNow();
-var CRDateParse(var string);
-
-CRDecimal CRDateSecondsSince1970(var self);
+extern MLPointer MLDateMetaDefaultMethods[];
+extern MLPointer MLDateDefaultMethods[];
 
 #endif

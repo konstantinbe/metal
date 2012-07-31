@@ -19,23 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_MUTABLE_STRING_H
-#define CR_MUTABLE_STRING_H
+#include "test.h"
 
-#include "core.h"
-#include "string.h"
 
-#define CRMutableStringMinCapacity 32
-extern const var CRMutableString;
-
-var CRStringCreateMutable();
-var CRStringCreateMutableWithCapacity(CRNatural capacity);
-var CRStringCreateMutableWithCharacters(const CRCharacter* characters);
-
-void CRStringPrepend(var self, var string);
-void CRStringAppend(var self, var string);
-
-void CRStringClear(var self);
-void CRStringIncreaseCapacityToAtLeast(var self, CRNatural capacity);
-
-#endif
+void MLTestMutableData() {
+    // TODO: implement.
+}

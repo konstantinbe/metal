@@ -19,22 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_DATE_PRIVATE_H
-#define CR_DATE_PRIVATE_H
+#ifndef ML_BLOCK_H
+#define ML_BLOCK_H
 
-#include "date.h"
+#include "metal.h"
 
-extern struct CRObject CRDateProxy;
-
-extern struct CRClass CRDateClass;
-extern struct CRClass CRDateMetaClass;
-
-extern struct CRCallbacks CRDateCallbacks;
-extern struct CRCallbacks CRDateMetaCallbacks;
-
-CRNatural64 CRDateHash(var self);
-bool CRDateEquals(var self, var other);
-var CRDateCopy(var self);
-var CRDateDescription(var self);
+extern MLPointer MLBlockMetaDefaultMethods[];
+extern MLPointer MLBlockDefaultMethods[];
 
 #endif

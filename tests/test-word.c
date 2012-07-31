@@ -22,50 +22,6 @@
 #include "test.h"
 
 
-void CRTestWordMake() {
-    CRAssert(CRWord(0x123).payload.natural == 0x123, "A word should store its value in payload as natural");
-}
-
-
-// -----------------------------------------------------------------------------
-
-
-void CRTestWordHash() {
-    var word = CRWord(0x1234);
-    CRAssert(CRHash(word) == 0x1234, "The hash of a word should be its bitpattern");
-
-    word.payload.natural = 0;
-    CRAssert(CRHash(word) == 0, "The hash of a word should be its bitpattern");
-}
-
-
-void CRTestWordEquals() {
-    var word1 = CRWord(0x1234);
-    var word2 = CRWord(0x1234);
-    var word3 = CRWord(0x123A);
-    CRAssert(CREquals(word1, word2), "Two equal words should be equal");
-    CRAssert(!CREquals(word1, word3), "Two not equal words should be not equal");
-}
-
-
-void CRTestWordCopy() {
-    var word = CRWord(0x123);
-    CRAssert(CREquals(word, CRCopy(word)), "A copy of a word should be equal to its original");
-}
-
-
-void CRTestWordDescription() {
-    const var word = CRWord(0x123abcdf);
-    const var description = CRDescription(word);
-    CRAssert(CREquals(description, CRString("0x123abcdf")), "Description for word created with 0x123abcdf '0x123abcdf', but is: '%s'", CRStringCharacters(description));
-}
-
-
-void CRTestWord() {
-    CRTestWordMake();
-
-    CRTestWordHash();
-    CRTestWordEquals();
-    CRTestWordCopy();
-    CRTestWordDescription();
+void MLTestWord() {
+    // TODO: implement.
 }

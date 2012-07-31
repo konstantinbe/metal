@@ -19,123 +19,71 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#include "pool.h"
-#include "pool-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "object.h"
-#include "object-private.h"
-
-#include "mutable-array.h"
-#include "macros.h"
-#include <string.h>
+#include "metal.h"
 
 
-// --------------------------------------------------------------- Macros ------
+#define meta MLClassStructure(self)
+#define that MLPoolStructure(self)
 
 
-#define this ((struct CRPool*)self.pointer)
-#define that (*this)
-
-#define CRPoolThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRPoolThrowErrorIfNotPool() if (that.class != CRPool.pointer) CRError("self is not an autorelease pool")
+var MLCurrentPool;
 
 
-// -------------------------------------------------- Constants & Globals ------
+static var MLPoolMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLPoolMake(MLAllocate(MLPoolSize), MLPool, 1, null, null);
+}
 
 
-const var CRPool = {&CRPoolClass};
+MLPointer MLPoolMetaDefaultMethods[] = {
+    "create", MLPoolMetaCreate,
+    NULL
+};
 
 
-// ------------------------------------------- Creating Autorelease Pools ------
-
-
-var CRPoolCreate() {
-    struct CRPool* pool = CRAllocateAndClear(sizeof(struct CRPool));
-    var self = CRReference(pool);
-
-    that.class = &CRPoolClass;
-    that.retain_count = 1;
-    that.objects = CRArrayCreateMutableWithCapacity(CRPoolMinCapacity);
-
+static var MLPoolInit(var class, var self, var command, var arguments, var options) {
+    self = MLSuper(command, arguments, options);
+    when (self) {
+        that.previousPool = MLCurrentPool;
+        that.objects = MLNew(MLMutableArray);
+        MLCurrentPool = self;
+    }
     return self;
 }
 
 
-// ----------------------------------------------------------- Properties ------
-
-
-var CRPoolObjects(var self) {
-    CRPoolThrowErrorIfNull();
-    CRPoolThrowErrorIfNotPool();
-    const var objects = CRCopy(that.objects);
-    return CRAutorelease(objects);
+static var MLPoolDestroy(var class, var self, var command, var arguments, var options) {
+    MLCurrentPool = that.previousPool;
+    that.objects = MLRelease(that.objects);
+    MLSuper(command, arguments, options);
+    return null;
 }
 
 
-// ---------------------------------------------------------------- Other ------
-
-
-void CRPoolAdd(var self, var object) {
-    CRPoolThrowErrorIfNull();
-    CRPoolThrowErrorIfNotPool();
-    CRArrayAdd(that.objects, object);
+static var MLPoolAdd(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    MLAdd(that.objects, object);
+    MLRelease(object);
+    return self;
 }
 
 
-void CRPoolDrain(var self) {
-    CRPoolThrowErrorIfNull();
-    CRPoolThrowErrorIfNotPool();
-    CRArrayClear(that.objects);
+static var MLPoolDrain(var class, var self, var command, var arguments, var options) {
+    return MLRelease(self);
 }
 
 
-// -------------------------------------------------------------- Private ------
+static var MLPoolRetain(var class, var self, var command, var arguments, var options) {
+    MLError("Can't retain an autorelease pool");
+    return null;
+}
 
 
-struct CRClass CRPoolClass = {.class = &CRPoolMetaClass, .callbacks = &CRPoolCallbacks};
-struct CRClass CRPoolMetaClass = {.class = &CRPoolMetaClass, .callbacks = &CRPoolMetaCallbacks};
+MLPointer MLPoolDefaultMethods[] = {
+    "init", MLPoolInit,
+    "destroy", MLPoolDestroy,
 
+    "add*", MLPoolAdd,
+    "drain", MLPoolDrain,
 
-struct CRCallbacks CRPoolCallbacks = {
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    &CRPoolDestroy,
-    &CRPoolDescription
+    NULL
 };
-
-
-struct CRCallbacks CRPoolMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
-};
-
-
-void CRPoolDestroy(var self) {
-    CRPoolThrowErrorIfNull();
-    CRPoolThrowErrorIfNotPool();
-
-    CRPoolDrain(self);
-    CRRelease(that.objects);
-
-    that.class = NULL;
-    that.retain_count = 0;
-    that.objects = null;
-
-    CRFree(this);
-}
-
-
-var CRPoolDescription(var self) {
-    CRPoolThrowErrorIfNull();
-    CRPoolThrowErrorIfNotPool();
-    return CRDescription(that.objects);
-}

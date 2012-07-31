@@ -19,18 +19,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_MATH_H
-#define CR_MATH_H
+#ifndef ML_DATA_H
+#define ML_DATA_H
 
-#include "core.h"
+#include "metal.h"
 
-#define CRMax(value1, value2) (value1 > value2 ? value1 : value2)
-#define CRMin(value1, value2) (value1 < value2 ? value1 : value2)
+extern MLPointer MLDataMetaDefaultMethods[];
+extern MLPointer MLDataDefaultMethods[];
 
-#define CRRotateLeft(value, count) ((value << count) | (value >> (sizeof(value) * 8 - count)))
-#define CRRotateRight(value, count) ((value >> count) | (value << (sizeof(value) * 8 - count)))
+extern MLPointer MLInlineDataMetaDefaultMethods[];
+extern MLPointer MLInlineDataDefaultMethods[];
 
-CRNatural CRRoundUpToPowerOfTwo(CRNatural number);
-CRNatural CRRoundDownToPowerOfTwo(CRNatural number);
+extern MLPointer MLMutableDataMetaDefaultMethods[];
+extern MLPointer MLMutableDataDefaultMethods[];
 
 #endif

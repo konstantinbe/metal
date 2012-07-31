@@ -19,22 +19,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef CR_OBJECT_PRIVATE_H
-#define CR_OBJECT_PRIVATE_H
+#ifndef ML_HELPER_H
+#define ML_HELPER_H
 
-#include "object.h"
+#include "metal.h"
 
-extern struct CRClass CRObjectClass;
-extern struct CRClass CRObjectMetaClass;
+#define MLHelperMax(value1, value2) ((value1) > (value2) ? (value1) : (value2))
+#define MLHelperMin(value1, value2) ((value1) < (value2) ? (value1) : (value2))
 
-extern struct CRCallbacks CRObjectCallbacks;
-extern struct CRCallbacks CRObjectMetaCallbacks;
+#define MLHelperRotateLeft(value, count) ((value << count) | (value >> (sizeof(value) * 8 - count)))
+#define MLHelperRotateRight(value, count) ((value >> count) | (value << (sizeof(value) * 8 - count)))
 
-CRNatural64 CRObjectHash(var self);
-bool CRObjectEquals(var self, var other);
-var CRObjectCopy(var self);
-var CRObjectMutableCopy(var self);
-void CRObjectDestroy(var self);
-var CRObjectDescription(var self);
+MLNatural MLHelperRoundUpToPowerOfTwo(MLNatural number);
+MLNatural MLHelperRoundDownToPowerOfTwo(MLNatural number);
+
+MLNatural MLHelperDigest(MLInteger count, const void* bytes);
+
+var MLHelperCreateStringWithCharacters(const MLCharacter* characters);
+var MLHelperCreateArrayWithObjects(var objects[]);
+var MLHelperCreateDictionaryWithMethods(MLPointer methods[]);
 
 #endif

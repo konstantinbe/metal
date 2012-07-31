@@ -20,104 +20,71 @@
 // THE SOFTWARE.
 
 #include "word.h"
-#include "word-private.h"
-
-#include "class.h"
-#include "class-private.h"
-
-#include "object.h"
-#include "object-private.h"
-
-#include "macros.h"
-#include "string.h"
 
 
-// --------------------------------------------------------------- Macros ------
+#define meta MLClassStructure(self)
+#define that MLWord(self)
 
 
-#define this ((struct CRObject*)self.pointer)
-#define that (*this)
-
-#define CRWordThrowErrorIfNull() if (this == NULL) CRError("self is null")
-#define CRWordThrowErrorIfNotWord() if (that.class != CRWord.pointer) CRError("self is not a word")
-
-
-// -------------------------------------------------- Constants & Globals ------
-
-
-const var CRWord = {&CRWordClass};
-
-
-// ------------------------------------------------------- Creating Words ------
-
-
-var CRWordMake(CRNatural value) {
-    var word = null;
-    word.pointer = &CRWordProxy;
-    word.payload.natural = value;
-    return word;
+static var MLWordMetaCreate(var class, var self, var command, var arguments, var options) {
+    return MLWordMake(0);
 }
 
 
-// -------------------------------------------------------------- Private ------
-
-
-struct CRObject CRWordProxy = {&CRWordClass, 0};
-
-
-struct CRClass CRWordClass = {.class = &CRWordMetaClass, .callbacks = &CRWordCallbacks};
-struct CRClass CRWordMetaClass = {.class = &CRWordMetaClass, .callbacks = &CRWordMetaCallbacks};
-
-
-struct CRCallbacks CRWordCallbacks = {
-    &CRWordHash,
-    &CRWordEquals,
-    &CRWordCopy,
-    NULL,
-    NULL,
-    &CRWordDescription
+MLPointer MLWordMetaDefaultMethods[] = {
+    "create", MLWordMetaCreate,
+    NULL
 };
 
 
-struct CRCallbacks CRWordMetaCallbacks = {
-    &CRClassHash,
-    &CRClassEquals,
-    &CRClassCopy,
-    &CRClassMutableCopy,
-    &CRClassDestroy,
-    &CRClassDescription
+static var MLWordDestroy(var class, var self, var command, var arguments, var options) {
+    return null;
+}
+
+
+static var MLWordIsWord(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+static var MLWordDescription(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLWordEquals(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLWordHash(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLWordCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLWordMutableCopy(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+MLPointer MLWordDefaultMethods[] = {
+    "destroy", MLWordDestroy,
+    "is_word?", MLWordIsWord,
+
+    "description", MLWordDescription,
+    "equals*?", MLWordEquals,
+    "hash", MLWordHash,
+    "copy", MLWordCopy,
+    "mutable_copy", MLWordMutableCopy,
+    NULL
 };
-
-
-CRNatural64 CRWordHash(var self) {
-    CRWordThrowErrorIfNull();
-    CRWordThrowErrorIfNotWord();
-    return (CRNatural64)self.payload.natural;
-}
-
-
-bool CRWordEquals(var self, var other) {
-    CRWordThrowErrorIfNull();
-    CRWordThrowErrorIfNotWord();
-    return self.payload.natural == other.payload.natural;
-}
-
-
-var CRWordCopy(var self) {
-    CRWordThrowErrorIfNull();
-    CRWordThrowErrorIfNotWord();
-    return self;
-}
-
-
-var CRWordDescription(var self) {
-    CRWordThrowErrorIfNull();
-    CRWordThrowErrorIfNotWord();
-
-    const CRNatural characters_capacity = 1000;
-    CRCharacter characters[characters_capacity];
-    snprintf(characters, characters_capacity, "0x%llx", self.payload.natural);
-
-    var description = CRStringCreateWithCharacters(characters);
-    return CRAutorelease(description);
-}
