@@ -22,7 +22,7 @@
 #include "test.h"
 
 
-int main(int arguments_count, char const* arguments[]) {
+int main(int argumentsCount, char const* arguments[]) {
     MLTestMetal();
     MLTestObject();
     MLTestBlock();
