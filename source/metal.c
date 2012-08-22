@@ -381,7 +381,7 @@ var MLDispatch(var class, var self, var command, var arguments, var options) {
 }
 
 
-static MLLoadWithPriority(0) MLMetal() {
+static MLLoadWithPriority(101) MLMetal() {
     MLObjectClass.class = &MLObjectMetaClass;
     MLBlockClass.class = &MLBlockMetaClass;
     MLBooleanClass.class = &MLBooleanMetaClass;
