@@ -35,7 +35,7 @@ MLNatural MLHelperRoundDownToPowerOfTwo(MLNatural number);
 
 MLNatural MLHelperDigest(MLInteger count, const void* bytes);
 
-var MLHelperCreateStringWithCharacters(const MLCharacter* characters);
+var MLHelperCreateStringWithCharacters(const char* characters);
 var MLHelperCreateArrayWithObjects(var objects[]);
 var MLHelperCreateDictionaryWithMethods(MLPointer methods[]);
 

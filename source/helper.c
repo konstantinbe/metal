@@ -89,9 +89,9 @@ MLNatural MLHelperDigest(MLInteger count, const void* bytes) {
 }
 
 
-var MLHelperCreateStringWithCharacters(const MLCharacter* characters) {
+var MLHelperCreateStringWithCharacters(const char* characters) {
     MLInteger count = strlen(characters);
-    MLCharacter* copy = MLAllocate(count + 1);
+    char* copy = MLAllocate(count + 1);
     strncpy(copy, characters, count);
     return MLStringMake(MLAllocate(MLStringSize), MLString, 1, count, count, copy);
 }

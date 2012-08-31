@@ -179,7 +179,7 @@
 #define MLCodeAt(self, index) MLSend(self, IS("code_at*"), IA(index), null)
 #define MLCodesAt(self, indexes) MLSend(self, IS("codes_at*"), IA(indexes), null)
 
-#define MLCharacters(self) MLSend(self, IS("characters"), null, null)
+#define chars(self) MLSend(self, IS("characters"), null, null)
 #define MLCodes(self) MLSend(self, IS("codes"), null, null)
 
 #define MLLines(self) MLSend(self, IS("lines"), null, null)

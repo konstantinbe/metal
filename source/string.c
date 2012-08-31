@@ -67,8 +67,8 @@ static var MLStringInitWithString(var class, var self, var command, var argument
         that.characters = NULL;
 
         if (countInteger > 0) {
-            MLCharacter *characters = MLStringStructure(string).characters;
-            that.characters = MLAllocate(sizeof(MLCharacter) * (countInteger + 1));
+            char *characters = MLStringStructure(string).characters;
+            that.characters = MLAllocate(sizeof(char) * (countInteger + 1));
             memcpy(that.characters, characters, countInteger + 1);
         }
     }
@@ -242,7 +242,7 @@ static var MLStringEquals(var class, var self, var command, var arguments, var o
     if (count != that.count) return no;
     if (count == 0) return yes;
 
-    MLCharacter* characters = MLStringStructure(string).characters;
+    char* characters = MLStringStructure(string).characters;
     const MLInteger result = strncmp(characters, that.characters, that.count);
 
     return B(result == 0);
@@ -396,7 +396,7 @@ static var MLMutableStringIncreaseCapacity(var class, var self, var command, var
     integerCapacity = MLHelperRoundUpToPowerOfTwo(integerCapacity) - 1;
 
     that.capacity = integerCapacity;
-    that.characters = MLResize(that.characters, sizeof(MLCharacter) * (integerCapacity + 1));
+    that.characters = MLResize(that.characters, sizeof(char) * (integerCapacity + 1));
 
     return self;
 }

@@ -241,7 +241,7 @@ var MLArrayMake(struct MLArray* array, var class, MLInteger retainCount, MLInteg
 }
 
 
-var MLStringMake(struct MLString* string, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, MLCharacter* characters) {
+var MLStringMake(struct MLString* string, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, char* characters) {
     const MLNatural hash = MLHelperDigest(count, characters);
     string->class = class.pointer;
     string->retainCount = retainCount;
@@ -273,31 +273,31 @@ var MLPoolMake(struct MLPool* pool, var class, MLInteger retainCount, var previo
 }
 
 
-var MLRequire(const MLCharacter* name) {
+var MLRequire(const char* name) {
     // TODO: implement.
     return null;
 }
 
 
-var MLModule(const MLCharacter* name) {
+var MLModule(const char* name) {
     // TODO: implement.
     return null;
 }
 
 
-var MLImport(var module, const MLCharacter* name) {
+var MLImport(var module, const char* name) {
     // TODO: implement.
     return null;
 }
 
 
-var MLExport(var module, const MLCharacter* name, MLCode code) {
+var MLExport(var module, const char* name, MLCode code) {
     // TODO: implement.
     return null;
 }
 
 
-var MLDefine(const MLCharacter* name) {
+var MLDefine(const char* name) {
     // TODO: implement.
     return null;
 }
@@ -309,7 +309,7 @@ var MLExtends(var class, var superclass) {
 }
 
 
-var MLResponds(var class, const MLCharacter* command, MLCode code) {
+var MLResponds(var class, const char* command, MLCode code) {
     // TODO: implement.
     return null;
 }

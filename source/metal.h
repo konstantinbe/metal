@@ -112,7 +112,6 @@ typedef long long MLInteger;
 typedef unsigned long long MLNatural;
 typedef bool MLBool;
 typedef unsigned char MLByte;
-typedef char MLCharacter;
 typedef void* MLPointer;
 
 typedef union MLPayload MLPayload;
@@ -169,7 +168,7 @@ struct MLString {
     MLInteger retainCount;
     MLNatural capacity;
     MLNatural count;
-    MLCharacter* characters;
+    char* characters;
 };
 
 struct MLDictionary {
@@ -229,17 +228,17 @@ var MLWordMake(MLNatural value);
 var MLDateMake(MLDecimal seconds);
 var MLDataMake(struct MLData* data, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, MLByte* bytes);
 var MLArrayMake(struct MLArray* array, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, var* objects);
-var MLStringMake(struct MLString* string, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, MLCharacter* characters);
+var MLStringMake(struct MLString* string, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, char* characters);
 var MLDictionaryMake(struct MLDictionary* dictionary, var class, MLInteger retainCount, MLInteger mask, MLInteger count, var* entries);
 var MLPoolMake(struct MLPool* pool, var class, MLInteger retainCount, var previousPool, var objects);
 
-var MLRequire(const MLCharacter* name);
-var MLModule(const MLCharacter* name);
-var MLImport(var module, const MLCharacter* name);
-var MLExport(var module, const MLCharacter* name, MLCode code);
-var MLDefine(const MLCharacter* name);
+var MLRequire(const char* name);
+var MLModule(const char* name);
+var MLImport(var module, const char* name);
+var MLExport(var module, const char* name, MLCode code);
+var MLDefine(const char* name);
 var MLExtends(var class, var superclass);
-var MLResponds(var class, const MLCharacter* command, MLCode code);
+var MLResponds(var class, const char* command, MLCode code);
 var MLLookup(var class, var command, var* foundInClass);
 var MLDispatch(var class, var self, var command, var arguments, var options);
 
