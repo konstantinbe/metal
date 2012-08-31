@@ -22,6 +22,40 @@
 #include "test.h"
 
 
+const char* OK = "\x1B[0;32mOK\x1B[0m";
+const char* FAILED = "\x1B[0;31mFAILED\x1B[0m";
+
+
+void MLExpectToBeTrue(var object, char* message) {
+    when (object) {
+        printf("%s ... %s\n", message, OK);
+    }
+    else {
+        printf("%s ... %s\n", message, FAILED);
+    }
+}
+
+
+void MLExpectToBeFalse(var object, char* message) {
+    unless (object) {
+        printf("%s ... %s\n", message, OK);
+    }
+    else {
+        printf("%s ... %s\n", message, FAILED);
+    }
+}
+
+
+void MLExpectToEqual(var subject, var actual, char* message) {
+    MLExpectToBeTrue(MLEquals(subject, actual), message);
+}
+
+
+void MLExpectToNotEqual(var subject, var actual, char* message) {
+    MLExpectToBeFalse(MLEquals(subject, actual), message);
+}
+
+
 int main(int argumentsCount, char const* arguments[]) {
     MLTestMetal();
     MLTestObject();

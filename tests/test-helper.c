@@ -154,6 +154,8 @@ void MLTestHelperDigest() {
 
 
 void MLTestHelper() {
+    printf("\nTesting MLHelper ...\n");
+
     MLTestHelperRotateLeft();
     MLTestHelperRotateRight();
 

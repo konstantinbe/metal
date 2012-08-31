@@ -23,8 +23,5 @@
 
 
 void MLTestMetal() {
-    var objects = IA(N(1), N(2), N(3));
-    each (object, index, objects) {
-        printf("\n%f\n", object.payload.decimal);
-    }
+    // TODO: implement.
 }

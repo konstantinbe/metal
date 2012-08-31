@@ -28,6 +28,12 @@
 #include <metal/metal.h>
 #include <metal/helper.h>
 
+void MLExpectToBeTrue(var object, char* message);
+void MLExpectToBeFalse(var object, char* message);
+
+void MLExpectToEqual(var subject, var actual, char* message);
+void MLExpectToNotEqual(var subject, var actual, char* message);
+
 void MLTestHelper();
 void MLTestMetal();
 

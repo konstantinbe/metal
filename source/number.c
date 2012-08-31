@@ -72,8 +72,9 @@ static var MLNumberDescription(var class, var self, var command, var arguments, 
 
 
 static var MLNumberEquals(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var object = MLArgument(0);
+    unless (MLIsNumber(object)) return no;
+    return B(self.payload.decimal == object.payload.decimal);
 }
 
 

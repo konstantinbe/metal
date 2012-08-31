@@ -23,9 +23,11 @@
 
 
 void MLTestArray() {
+    printf("\nTesting MLArray ...\n");
+
     var array = IA(N(1), N(2), N(3));
     var count = MLCount(array);
-    MLAssert(count.payload.decimal == 3, "Count of [1, 2, 3] should be 3");
+    MLExpectToEqual(count, N(3), "Count of [1, 2, 3] should be 3");
 
     var mutableArray = MLNew(MLMutableArray);
 }
