@@ -223,6 +223,13 @@ static var MLArrayRest(var class, var self, var command, var arguments, var opti
 }
 
 
+static var MLArraySliceAt(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = N(that.count);
+    return MLSliceAtCount(self, index, count);
+}
+
+
 static var MLArraySliceAtCount(var class, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var count = MLArgument(1);
@@ -435,8 +442,9 @@ MLPointer MLArrayDefaultMethods[] = {
 
     "second", MLArraySecond,
     "third", MLArrayThird,
-
     "rest", MLArrayRest,
+
+    "slice_at*", MLArraySliceAt,
     "slice_at*count*", MLArraySliceAtCount,
 
     "with*", MLArrayWith,

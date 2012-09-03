@@ -97,8 +97,9 @@
 
 #define MLSecond(self) MLSend(self, IS("second"), null, null)
 #define MLThird(self) MLSend(self, IS("third"), null, null)
-
 #define MLRest(self) MLSend(self, IS("rest"), null, null)
+
+#define MLSliceAt(self, index) MLSend(self, IS("slice_at*"), IA(index), null)
 #define MLSliceAtCount(self, index, count) MLSend(self, IS("slice_at*count*"), IA(index, count), null)
 
 #define MLWith(self, object) MLSend(self, IS("with*"), IA(object), null)
