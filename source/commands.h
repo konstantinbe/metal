@@ -118,6 +118,7 @@
 #define MLWithoutMany(self, object) MLSend(self, IS("without_many*"), IA(object), null)
 
 #define MLWithoutAt(self, index) MLSend(self, IS("without_at*"), IA(index), null)
+#define MLWithoutAtCount(self, index, count) MLSend(self, IS("without_at*count*"), IA(index, count), null)
 #define MLWithoutAtMany(self, indexes) MLSend(self, IS("without_at_many*"), IA(indexes), null)
 
 #define MLReversed(self) MLSend(self, IS("reversed"), null, null)
@@ -138,6 +139,7 @@
 #define MLRemoveMany(self, objects) MLSend(self, IS("remove_many*"), IA(objects), null)
 
 #define MLRemoveAt(self, index) MLSend(self, IS("remove_at*"), IA(index), null)
+#define MLRemoveAtCount(self, index, count) MLSend(self, IS("remove_at*count*"), IA(index, count), null)
 #define MLRemoveAtMany(self, indexes) MLSend(self, IS("remove_at_many*"), IA(indexes), null)
 #define MLRemoveAll(self) MLSend(self, IS("remove_all"), null, null)
 

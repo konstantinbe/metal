@@ -293,14 +293,14 @@ static var MLArrayWithManyBefore(var class, var self, var command, var arguments
 
 static var MLArrayWithAfter(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
-    var before = MLArgument(1);
-    return MLWithManyAfter(self, IA(object), before);
+    var after = MLArgument(1);
+    return MLWithManyAfter(self, IA(object), after);
 }
 
 
 static var MLArrayWithManyAfter(var class, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
-    var afterObject = MLArgument(1);
+    var after = MLArgument(1);
     MLError("TODO: implement.");
     return null;
 }
@@ -321,7 +321,15 @@ static var MLArrayWithoutMany(var class, var self, var command, var arguments, v
 
 static var MLArrayWithoutAt(var class, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
-    return MLWithoutAtMany(self, IA(index));
+    return MLWithoutAtCount(self, index, N(1));
+}
+
+
+static var MLArrayWithoutAtCount(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
 }
 
 
@@ -463,6 +471,7 @@ MLPointer MLArrayDefaultMethods[] = {
     "without_many*", MLArrayWithoutMany,
 
     "without_at*", MLArrayWithoutAt,
+    "without_at*count*", MLArrayWithoutAtCount,
     "without_at_many*", MLArrayWithoutAtMany,
 
     "reversed", MLArrayReversed,
@@ -629,6 +638,14 @@ static var MLMutableArrayRemoveAt(var class, var self, var command, var argument
 }
 
 
+static var MLMutableArrayRemoveAtCount(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
 static var MLMutableArrayRemoveAtMany(var class, var self, var command, var arguments, var options) {
     var indexes = MLArgument(0);
     MLError("TODO: implement.");
@@ -735,8 +752,8 @@ MLPointer MLMutableArrayDefaultMethods[] = {
     "remove_many*", MLMutableArrayRemoveMany,
 
     "remove_at*", MLMutableArrayRemoveAt,
+    "remove_at*count*", MLMutableArrayRemoveAtCount,
     "remove_at_many*", MLMutableArrayRemoveAtMany,
-
     "remove_all", MLMutableArrayRemoveAll,
 
     "insert*at*", MLMutableArrayInsertAt,

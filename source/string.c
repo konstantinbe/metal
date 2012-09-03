@@ -182,9 +182,103 @@ static var MLStringSliceAtCount(var class, var self, var command, var arguments,
 }
 
 
-static var MLStringCodeAt(var class, var self, var command, var arguments, var options) {
+static var MLStringWith(var class, var self, var command, var arguments, var options) {
+    var string = MLArgument(0);
+    return MLWithMany(self, IA(string));
+}
+
+
+static var MLStringWithMany(var class, var self, var command, var arguments, var options) {
+    var strings = MLArgument(0);
     MLError("TODO: implement.");
     return null;
+}
+
+
+static var MLStringWithAt(var class, var self, var command, var arguments, var options) {
+    var string = MLArgument(0);
+    var index = MLArgument(1);
+    return MLWithManyAt(self, IA(string), index);
+}
+
+
+static var MLStringWithManyAt(var class, var self, var command, var arguments, var options) {
+    var strings = MLArgument(0);
+    var index = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringWithBefore(var class, var self, var command, var arguments, var options) {
+    var string = MLArgument(0);
+    var before = MLArgument(1);
+    return MLWithManyBefore(self, IA(string), before);
+}
+
+
+static var MLStringWithManyBefore(var class, var self, var command, var arguments, var options) {
+    var strings = MLArgument(0);
+    var before = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringWithAfter(var class, var self, var command, var arguments, var options) {
+    var string = MLArgument(0);
+    var after = MLArgument(1);
+    return MLWithManyAfter(self, IA(string), after);
+}
+
+
+static var MLStringWithManyAfter(var class, var self, var command, var arguments, var options) {
+    var strings = MLArgument(0);
+    var after = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringWithout(var class, var self, var command, var arguments, var options) {
+    var string = MLArgument(0);
+    return MLWithoutMany(self, IA(string));
+}
+
+
+static var MLStringWithoutMany(var class, var self, var command, var arguments, var options) {
+    var strings = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringWithoutAt(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    return MLWithoutAtCount(self, index, N(1));
+}
+
+
+static var MLStringWithoutAtCount(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringWithoutAtMany(var class, var self, var command, var arguments, var options) {
+    var indexes = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringCodeAt(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    const MLInteger integerIndex = MLIntegerFrom(index);
+    if (integerIndex >= that.count) return null;
+    return W(that.characters[integerIndex]);
 }
 
 
@@ -248,6 +342,12 @@ static var MLStringEndsWith(var class, var self, var command, var arguments, var
 }
 
 
+static var MLStringReversed(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
 static var MLStringUppercased(var class, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
@@ -304,7 +404,7 @@ static var MLStringCopy(var class, var self, var command, var arguments, var opt
 
 static var MLStringMutableCopy(var class, var self, var command, var arguments, var options) {
     var mutableCopy = MLCreate(MLMutableString);
-    return MLInitWithArray(mutableCopy, self);
+    return MLInitWithString(mutableCopy, self);
 }
 
 
@@ -333,6 +433,25 @@ MLPointer MLStringDefaultMethods[] = {
     "slice_at*", MLStringSliceAt,
     "slice_at*count*", MLStringSliceAtCount,
 
+    "with*", MLStringWith,
+    "with_many*", MLStringWithMany,
+
+    "with*at*", MLStringWithAt,
+    "with_many*at*", MLStringWithManyAt,
+
+    "with*before*", MLStringWithBefore,
+    "with_many*before*", MLStringWithManyBefore,
+
+    "with*after*", MLStringWithAfter,
+    "with_many*after*", MLStringWithManyAfter,
+
+    "without*", MLStringWithout,
+    "without_many*", MLStringWithoutMany,
+
+    "without_at*", MLStringWithoutAt,
+    "without_at*count*", MLStringWithoutAtCount,
+    "without_at_many*", MLStringWithoutAtMany,
+
     "code_at*", MLStringCodeAt,
     "codes_at*", MLStringCodesAt,
 
@@ -349,6 +468,7 @@ MLPointer MLStringDefaultMethods[] = {
     "begins_with*", MLStringBeginsWith,
     "ends_with*", MLStringEndsWith,
 
+    "reversed", MLStringReversed,
     "uppercased", MLStringUppercased,
     "lowercased", MLStringLowercased,
     "capitalized", MLStringCapitalized,
