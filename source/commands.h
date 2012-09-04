@@ -164,6 +164,9 @@
 #define MLReplaceAtWith(self, index, replacement) MLSend(self, IS("replace_at*with*"), IA(index, replacement), null)
 #define MLReplaceAtWithMany(self, index, replacements) MLSend(self, IS("replace_at*with_many*"), IA(index, replacements), null)
 
+#define MLReplaceAtCountWith(self, index, count, replacement) MLSend(self, IS("replace_at*count*with*"), IA(index, replacement, count), null)
+#define MLReplaceAtCountWithMany(self, index, count, replacements) MLSend(self, IS("replace_at*count*with_many*"), IA(index, count, replacements), null)
+
 #define MLKeys(self) MLSend(self, IS("keys"), null, null)
 #define MLValues(self) MLSend(self, IS("values"), null, null)
 

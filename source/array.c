@@ -739,6 +739,24 @@ static var MLMutableArrayReplaceAtWithMany(var class, var self, var command, var
 }
 
 
+static var MLMutableArrayReplaceAtCountWith(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    var replacement = MLArgument(2);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayReplaceAtCountWithMany(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    var replacements = MLArgument(2);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
 MLPointer MLMutableArrayDefaultMethods[] = {
     "init_with_capacity*", MLMutableArrayInitWithCapacity,
 
@@ -770,6 +788,9 @@ MLPointer MLMutableArrayDefaultMethods[] = {
 
     "replace_at*with*", MLMutableArrayReplaceAtWith,
     "replace_at*with_many*", MLMutableArrayReplaceAtWithMany,
+
+    "replace_at*count*with*", MLMutableArrayReplaceAtCountWith,
+    "replace_at*count*with_many*", MLMutableArrayReplaceAtCountWithMany,
 
     NULL
 };
