@@ -757,6 +757,18 @@ static var MLMutableArrayReplaceAtCountWithMany(var class, var self, var command
 }
 
 
+static var MLArrayReverse(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArraySort(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
 MLPointer MLMutableArrayDefaultMethods[] = {
     "init_with_capacity*", MLMutableArrayInitWithCapacity,
 
@@ -791,6 +803,9 @@ MLPointer MLMutableArrayDefaultMethods[] = {
 
     "replace_at*count*with*", MLMutableArrayReplaceAtCountWith,
     "replace_at*count*with_many*", MLMutableArrayReplaceAtCountWithMany,
+
+    "reverse", MLMutableArrayReverse,
+    "sort", MLMutableArraySort,
 
     NULL
 };
