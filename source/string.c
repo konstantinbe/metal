@@ -110,11 +110,51 @@ static var MLStringIsMutable(var class, var self, var command, var arguments, va
 }
 
 
+static var MLStringAt(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringAtMany(var class, var self, var command, var arguments, var options) {
+    var indexes = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringAtCount(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringIndexOf(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringLastIndexOf(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLStringIndexesOf(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
 static var MLStringFirst(var class, var self, var command, var arguments, var options) {
     if (that.count <= 0) return null;
     var index = N(0);
     var count = N(1);
-    return MLSliceAtCount(self, index, count);
+    return MLAtCount(self, index, count);
 }
 
 
@@ -122,7 +162,7 @@ static var MLStringFirstCount(var class, var self, var command, var arguments, v
     var count = MLArgument(0);
     if (MLDecimalFrom(count) <= that.count) return MLAutorelease(MLCopy(self));
     var index = N(0);
-    return MLSliceAtCount(self, index, count);
+    return MLAtCount(self, index, count);
 }
 
 
@@ -130,7 +170,7 @@ static var MLStringLast(var class, var self, var command, var arguments, var opt
     if (that.count <= 0) return null;
     var index = N(that.count - 1);
     var count = N(1);
-    return MLSliceAtCount(self, index, count);
+    return MLAtCount(self, index, count);
 }
 
 
@@ -139,7 +179,7 @@ static var MLStringLastCount(var class, var self, var command, var arguments, va
     const MLDecimal decimalCount = MLDecimalFrom(count);
     if (decimalCount <= that.count) return MLAutorelease(MLCopy(self));
     var index = N(that.count - decimalCount);
-    return MLSliceAtCount(self, index, count);
+    return MLAtCount(self, index, count);
 }
 
 
@@ -147,7 +187,7 @@ static var MLStringSecond(var class, var self, var command, var arguments, var o
     if (that.count <= 1) return null;
     var index = N(1);
     var count = N(1);
-    return MLSliceAtCount(self, index, count);
+    return MLAtCount(self, index, count);
 }
 
 
@@ -155,7 +195,7 @@ static var MLStringThird(var class, var self, var command, var arguments, var op
     if (that.count <= 2) return null;
     var index = N(2);
     var count = N(1);
-    return MLSliceAtCount(self, index, count);
+    return MLAtCount(self, index, count);
 }
 
 
@@ -163,22 +203,7 @@ static var MLStringRest(var class, var self, var command, var arguments, var opt
     if (that.count <= 1) return null;
     var index = N(1);
     var count = N(that.count - 1);
-    return MLSliceAtCount(self, index, count);
-}
-
-
-static var MLStringSliceAt(var class, var self, var command, var arguments, var options) {
-    var index = MLArgument(0);
-    var count = N(that.count);
-    return MLSliceAtCount(self, index, count);
-}
-
-
-static var MLStringSliceAtCount(var class, var self, var command, var arguments, var options) {
-    var index = MLArgument(0);
-    var count = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    return MLAtCount(self, index, count);
 }
 
 
@@ -312,24 +337,6 @@ static var MLStringParagraphs(var class, var self, var command, var arguments, v
 }
 
 
-static var MLStringIndexOf(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
-}
-
-
-static var MLStringLastIndexOf(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
-}
-
-
-static var MLStringIndexesOf(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
-}
-
-
 static var MLStringBeginsWith(var class, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
@@ -420,6 +427,14 @@ MLPointer MLStringDefaultMethods[] = {
     "is_inline?", MLStringIsInline,
     "is_mutable?", MLStringIsMutable,
 
+    "at*", MLStringAt,
+    "at_many*", MLStringAtMany,
+    "at*count*", MLStringAtCount,
+
+    "index_of*", MLStringIndexOf,
+    "last_index_of*", MLStringLastIndexOf,
+    "indexes_of*", MLStringIndexesOf,
+
     "first", MLStringFirst,
     "first*", MLStringFirstCount,
 
@@ -429,9 +444,6 @@ MLPointer MLStringDefaultMethods[] = {
     "second", MLStringSecond,
     "third", MLStringThird,
     "rest", MLStringRest,
-
-    "slice_at*", MLStringSliceAt,
-    "slice_at*count*", MLStringSliceAtCount,
 
     "with*", MLStringWith,
     "with_many*", MLStringWithMany,
@@ -460,10 +472,6 @@ MLPointer MLStringDefaultMethods[] = {
 
     "lines", MLStringLines,
     "paragraphs", MLStringParagraphs,
-
-    "index_of*", MLStringIndexOf,
-    "last_index_of*", MLStringLastIndexOf,
-    "indexes_of*", MLStringIndexesOf,
 
     "begins_with*", MLStringBeginsWith,
     "ends_with*", MLStringEndsWith,

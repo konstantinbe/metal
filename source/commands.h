@@ -84,6 +84,7 @@
 
 #define MLAt(self, index) MLSend(self, IS("at*"), IA(index), null)
 #define MLAtMany(self, indexes) MLSend(self, IS("at_many*"), IA(indexes), null)
+#define MLAtCount(self, index, count) MLSend(self, IS("at*count*"), IA(index, count), null)
 
 #define MLIndexOf(self, object) MLSend(self, IS("index_of*"), IA(object), null)
 #define MLLastIndexOf(self, object) MLSend(self, IS("last_index_of*"), IA(object), null)
@@ -99,9 +100,6 @@
 #define MLThird(self) MLSend(self, IS("third"), null, null)
 #define MLRest(self) MLSend(self, IS("rest"), null, null)
 
-#define MLSliceAt(self, index) MLSend(self, IS("slice_at*"), IA(index), null)
-#define MLSliceAtCount(self, index, count) MLSend(self, IS("slice_at*count*"), IA(index, count), null)
-
 #define MLWith(self, object) MLSend(self, IS("with*"), IA(object), null)
 #define MLWithMany(self, objects) MLSend(self, IS("with_many*"), IA(objects), null)
 
@@ -113,6 +111,15 @@
 
 #define MLWithAfter(self, object, afterObject) MLSend(self, IS("with*after*"), IA(object, afterObject), null)
 #define MLWithManyAfter(self, objects, afterObject) MLSend(self, IS("with_many*after*"), IA(objects, afterObject), null)
+
+#define MLWithReplacing(self, replacement, object) MLSend(self, IS("with*replacing*"), IA(replacement, object), null)
+#define MLWithManyReplacing(self, replacements, object) MLSend(self, IS("with_many*replacing*"), IA(replacements, object), null)
+
+#define MLWithReplacingAt(self, replacement, index) MLSend(self, IS("with*replacing_at*"), IA(replacement, index), null)
+#define MLWithManyReplacingAt(self, replacements, index) MLSend(self, IS("with_many*replacing_at*"), IA(replacements, index), null)
+
+#define MLWithReplacingAtCount(self, replacement, index, count) MLSend(self, IS("with*replacing_at*count*"), IA(replacement, index, count), null)
+#define MLWithManyReplacingAtCount(self, replacements, index, count) MLSend(self, IS("with_many*replacing_at*count*"), IA(replacements, index, count), null)
 
 #define MLWithout(self, object) MLSend(self, IS("without*"), IA(object), null)
 #define MLWithoutMany(self, object) MLSend(self, IS("without_many*"), IA(object), null)

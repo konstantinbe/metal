@@ -150,6 +150,14 @@ static var MLArrayAtMany(var class, var self, var command, var arguments, var op
 }
 
 
+static var MLArrayAtCount(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
 static var MLArrayIndexOf(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     for (MLInteger index = 0; index < that.count; index += 1) {
@@ -187,7 +195,7 @@ static var MLArrayFirstCount(var class, var self, var command, var arguments, va
     var count = MLArgument(0);
     if (MLDecimalFrom(count) <= that.count) return MLAutorelease(MLCopy(self));
     var index = N(0);
-    return MLSliceAtCount(self, index, count);
+    return MLAtCount(self, index, count);
 }
 
 
@@ -202,7 +210,7 @@ static var MLArrayLastCount(var class, var self, var command, var arguments, var
     const MLDecimal decimalCount = MLDecimalFrom(count);
     if (decimalCount <= that.count) return MLAutorelease(MLCopy(self));
     var index = N(that.count - decimalCount);
-    return MLSliceAtCount(self, index, count);
+    return MLAtCount(self, index, count);
 }
 
 
@@ -223,21 +231,6 @@ static var MLArrayRest(var class, var self, var command, var arguments, var opti
 }
 
 
-static var MLArraySliceAt(var class, var self, var command, var arguments, var options) {
-    var index = MLArgument(0);
-    var count = N(that.count);
-    return MLSliceAtCount(self, index, count);
-}
-
-
-static var MLArraySliceAtCount(var class, var self, var command, var arguments, var options) {
-    var index = MLArgument(0);
-    var count = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
-}
-
-
 static var MLArrayWith(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     return MLWithMany(self, IA(object));
@@ -245,19 +238,14 @@ static var MLArrayWith(var class, var self, var command, var arguments, var opti
 
 
 static var MLArrayWithMany(var class, var self, var command, var arguments, var options) {
+    // TODO: optimize.
     var objects = MLArgument(0);
-    MLError("TODO: implement.");
-    // struct MLArray* array = MLAllocateAndClear(MLArraySize);
-    // const MLInteger count = that.count + 1;
-    // array->class = MLArray.pointer;
-    // array->retainCount = 1;
-    // array->capacity = count;
-    // array->count = count;
-    // array->objects = MLAllocate(MLVariableSize * count);
-    // memcpy(array->objects, that.objects, that.count);
-    // array->objects[that.count] = object;
-    // return MLAutorelease(MLReference(array));
-    return null;
+    var mutable = MLMutableCopy(self);
+    var index = N(that.count);
+    MLInsertManyAt(mutable, objects, index);
+    var copy = MLCopy(mutable);
+    MLRelease(mutable);
+    return MLAutorelease(copy);
 }
 
 
@@ -269,10 +257,14 @@ static var MLArrayWithAt(var class, var self, var command, var arguments, var op
 
 
 static var MLArrayWithManyAt(var class, var self, var command, var arguments, var options) {
+    // TODO: optimize.
     var objects = MLArgument(0);
     var index = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    var mutable = MLMutableCopy(self);
+    MLInsertManyAt(mutable, objects, index);
+    var copy = MLCopy(mutable);
+    MLRelease(mutable);
+    return MLAutorelease(copy);
 }
 
 
@@ -287,7 +279,7 @@ static var MLArrayWithManyBefore(var class, var self, var command, var arguments
     var objects = MLArgument(0);
     var before = MLArgument(1);
     var index = MLIndexOf(self, before);
-    if (MLIntegerFrom(index) < 0) index = MLCount(self);
+    if (MLIntegerFrom(index) < 0) index = N(that.count);
     return MLWithManyAt(self, objects, index);
 }
 
@@ -302,46 +294,64 @@ static var MLArrayWithAfter(var class, var self, var command, var arguments, var
 static var MLArrayWithManyAfter(var class, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var after = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    var index = MLLastIndexOf(self, after);
+    if (MLIntegerFrom(index) < 0) index = N(that.count);
+    return MLWithManyAt(self, objects, index);
 }
 
 
 static var MLArrayWithReplacing(var class, var self, var command, var arguments, var options) {
     var replacement = MLArgument(0);
     var object = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    return MLWithManyReplacing(self, IA(replacement), object);
 }
 
 
 static var MLArrayWithManyReplacing(var class, var self, var command, var arguments, var options) {
+    var replacements = MLArgument(0);
+    var object = MLArgument(1);
     MLError("TODO: implement.");
     return null;
 }
 
 
 static var MLArrayWithReplacingAt(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var replacement = MLArgument(0);
+    var index = MLArgument(1);
+    return MLWithManyReplacingAt(self, IA(replacement), index);
 }
 
 
 static var MLArrayWithManyReplacingAt(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    // TODO: optimize.
+    var objects = MLArgument(0);
+    var index = MLArgument(1);
+    var mutable = MLMutableCopy(self);
+    MLReplaceAtWithMany(mutable, index, objects);
+    var copy = MLCopy(mutable);
+    MLRelease(mutable);
+    return MLAutorelease(copy);
 }
 
 
 static var MLArrayWithReplacingAtCount(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var replacement = MLArgument(0);
+    var index = MLArgument(1);
+    var count = MLArgument(2);
+    return MLWithManyReplacingAtCount(self, IA(replacement), index, count);
 }
 
 
 static var MLArrayWithManyReplacingAtCount(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    // TODO: optimize.
+    var objects = MLArgument(0);
+    var index = MLArgument(1);
+    var count = MLArgument(2);
+    var mutable = MLMutableCopy(self);
+    MLReplaceAtCountWithMany(mutable, index, count, objects);
+    var copy = MLCopy(mutable);
+    MLRelease(mutable);
+    return MLAutorelease(copy);
 }
 
 
@@ -352,9 +362,13 @@ static var MLArrayWithout(var class, var self, var command, var arguments, var o
 
 
 static var MLArrayWithoutMany(var class, var self, var command, var arguments, var options) {
+    // TODO: optimize.
     var objects = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
+    var mutable = MLMutableCopy(self);
+    MLRemoveMany(mutable, objects);
+    var copy = MLCopy(mutable);
+    MLRelease(mutable);
+    return MLAutorelease(copy);
 }
 
 
@@ -476,6 +490,7 @@ MLPointer MLArrayDefaultMethods[] = {
 
     "at*", MLArrayAt,
     "at_many*", MLArrayAtMany,
+    "at*count*", MLArrayAtCount,
 
     "index_of*", MLArrayIndexOf,
     "last_index_of*", MLArrayLastIndexOf,
@@ -490,9 +505,6 @@ MLPointer MLArrayDefaultMethods[] = {
     "second", MLArraySecond,
     "third", MLArrayThird,
     "rest", MLArrayRest,
-
-    "slice_at*", MLArraySliceAt,
-    "slice_at*count*", MLArraySliceAtCount,
 
     "with*", MLArrayWith,
     "with_many*", MLArrayWithMany,
