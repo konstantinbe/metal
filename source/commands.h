@@ -135,19 +135,8 @@
 #define MLAdd(self, object) MLSend(self, IS("add*"), IA(object), null)
 #define MLAddMany(self, objects) MLSend(self, IS("add_many*"), IA(objects), null)
 
-#define MLRemove(self, object) MLSend(self, IS("remove*"), IA(object), null)
-#define MLRemoveMany(self, objects) MLSend(self, IS("remove_many*"), IA(objects), null)
-
-#define MLRemoveAt(self, index) MLSend(self, IS("remove_at*"), IA(index), null)
-#define MLRemoveAtCount(self, index, count) MLSend(self, IS("remove_at*count*"), IA(index, count), null)
-#define MLRemoveAtMany(self, indexes) MLSend(self, IS("remove_at_many*"), IA(indexes), null)
-#define MLRemoveAll(self) MLSend(self, IS("remove_all"), null, null)
-
-#define MLRemoveFirst(self, object) MLSend(self, IS("remove_first"), IA(object), null)
-#define MLRemoveFirstCount(self, objects) MLSend(self, IS("remove_first*"), IA(objects), null)
-
-#define MLRemoveLast(self, object) MLSend(self, IS("remove_last"), IA(object), null)
-#define MLRemoveLastCount(self, objects) MLSend(self, IS("remove_last*"), IA(objects), null)
+#define MLInsert(self, object) MLSend(self, IS("insert*"), IA(object), null)
+#define MLInsertMany(self, objects) MLSend(self, IS("insert_many*"), IA(objects), null)
 
 #define MLInsertAt(self, object, index) MLSend(self, IS("insert*at*"), IA(object, index), null)
 #define MLInsertManyAt(self, objects, index) MLSend(self, IS("insert_many*at*"), IA(objects, index), null)
@@ -167,6 +156,20 @@
 #define MLReplaceAtCountWith(self, index, count, replacement) MLSend(self, IS("replace_at*count*with*"), IA(index, replacement, count), null)
 #define MLReplaceAtCountWithMany(self, index, count, replacements) MLSend(self, IS("replace_at*count*with_many*"), IA(index, count, replacements), null)
 
+#define MLRemove(self, object) MLSend(self, IS("remove*"), IA(object), null)
+#define MLRemoveMany(self, objects) MLSend(self, IS("remove_many*"), IA(objects), null)
+
+#define MLRemoveAt(self, index) MLSend(self, IS("remove_at*"), IA(index), null)
+#define MLRemoveAtCount(self, index, count) MLSend(self, IS("remove_at*count*"), IA(index, count), null)
+#define MLRemoveAtMany(self, indexes) MLSend(self, IS("remove_at_many*"), IA(indexes), null)
+#define MLRemoveAll(self) MLSend(self, IS("remove_all"), null, null)
+
+#define MLRemoveFirst(self, object) MLSend(self, IS("remove_first"), IA(object), null)
+#define MLRemoveFirstCount(self, objects) MLSend(self, IS("remove_first*"), IA(objects), null)
+
+#define MLRemoveLast(self, object) MLSend(self, IS("remove_last"), IA(object), null)
+#define MLRemoveLastCount(self, objects) MLSend(self, IS("remove_last*"), IA(objects), null)
+
 #define MLKeys(self) MLSend(self, IS("keys"), null, null)
 #define MLValues(self) MLSend(self, IS("values"), null, null)
 
@@ -185,7 +188,7 @@
 #define MLCodeAt(self, index) MLSend(self, IS("code_at*"), IA(index), null)
 #define MLCodesAt(self, indexes) MLSend(self, IS("codes_at*"), IA(indexes), null)
 
-#define chars(self) MLSend(self, IS("characters"), null, null)
+#define MLCharacters(self) MLSend(self, IS("characters"), null, null)
 #define MLCodes(self) MLSend(self, IS("codes"), null, null)
 
 #define MLLines(self) MLSend(self, IS("lines"), null, null)

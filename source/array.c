@@ -306,6 +306,44 @@ static var MLArrayWithManyAfter(var class, var self, var command, var arguments,
 }
 
 
+static var MLArrayWithReplacing(var class, var self, var command, var arguments, var options) {
+    var replacement = MLArgument(0);
+    var object = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithManyReplacing(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithReplacingAt(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithManyReplacingAt(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithReplacingAtCount(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLArrayWithManyReplacingAtCount(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
 static var MLArrayWithout(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     return MLWithoutMany(self, IA(object));
@@ -467,6 +505,15 @@ MLPointer MLArrayDefaultMethods[] = {
     "with*after*", MLArrayWithAfter,
     "with_many*after*", MLArrayWithManyAfter,
 
+    "with*replacing*", MLArrayWithReplacing,
+    "with_many*replacing*", MLArrayWithManyReplacing,
+
+    "with*replacing_at*", MLArrayWithReplacingAt,
+    "with_many*replacing_at*", MLArrayWithManyReplacingAt,
+
+    "with*replacing_at*count*", MLArrayWithReplacingAtCount,
+    "with_many*replacing_at*count*", MLArrayWithManyReplacingAtCount,
+
     "without*", MLArrayWithout,
     "without_many*", MLArrayWithoutMany,
 
@@ -617,43 +664,15 @@ static var MLMutableArrayAddMany(var class, var self, var command, var arguments
 }
 
 
-static var MLMutableArrayRemove(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsert(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLMutableArrayRemoveMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsertMany(var class, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
-}
-
-
-static var MLMutableArrayRemoveAt(var class, var self, var command, var arguments, var options) {
-    var index = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
-}
-
-
-static var MLMutableArrayRemoveAtCount(var class, var self, var command, var arguments, var options) {
-    var index = MLArgument(0);
-    var count = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
-}
-
-
-static var MLMutableArrayRemoveAtMany(var class, var self, var command, var arguments, var options) {
-    var indexes = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
-}
-
-
-static var MLMutableArrayRemoveAll(var class, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
@@ -757,13 +776,55 @@ static var MLMutableArrayReplaceAtCountWithMany(var class, var self, var command
 }
 
 
-static var MLArrayReverse(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayRemove(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLArraySort(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayRemoveMany(var class, var self, var command, var arguments, var options) {
+    var objects = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayRemoveAt(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayRemoveAtCount(var class, var self, var command, var arguments, var options) {
+    var index = MLArgument(0);
+    var count = MLArgument(1);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayRemoveAtMany(var class, var self, var command, var arguments, var options) {
+    var indexes = MLArgument(0);
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayRemoveAll(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArrayReverse(var class, var self, var command, var arguments, var options) {
+    MLError("TODO: implement.");
+    return null;
+}
+
+
+static var MLMutableArraySort(var class, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
@@ -778,13 +839,8 @@ MLPointer MLMutableArrayDefaultMethods[] = {
     "add*", MLMutableArrayAdd,
     "add_many*", MLMutableArrayAddMany,
 
-    "remove*", MLMutableArrayRemove,
-    "remove_many*", MLMutableArrayRemoveMany,
-
-    "remove_at*", MLMutableArrayRemoveAt,
-    "remove_at*count*", MLMutableArrayRemoveAtCount,
-    "remove_at_many*", MLMutableArrayRemoveAtMany,
-    "remove_all", MLMutableArrayRemoveAll,
+    "insert*", MLMutableArrayInsert,
+    "insert_many*", MLMutableArrayInsertMany,
 
     "insert*at*", MLMutableArrayInsertAt,
     "insert_many*at*", MLMutableArrayInsertManyAt,
@@ -803,6 +859,14 @@ MLPointer MLMutableArrayDefaultMethods[] = {
 
     "replace_at*count*with*", MLMutableArrayReplaceAtCountWith,
     "replace_at*count*with_many*", MLMutableArrayReplaceAtCountWithMany,
+
+    "remove*", MLMutableArrayRemove,
+    "remove_many*", MLMutableArrayRemoveMany,
+
+    "remove_at*", MLMutableArrayRemoveAt,
+    "remove_at*count*", MLMutableArrayRemoveAtCount,
+    "remove_at_many*", MLMutableArrayRemoveAtMany,
+    "remove_all", MLMutableArrayRemoveAll,
 
     "reverse", MLMutableArrayReverse,
     "sort", MLMutableArraySort,
