@@ -24,7 +24,7 @@
 
 #define MLCreate(self) MLSend(self, IS("create"), null, null)
 #define MLNew(self) MLSend(self, IS("new"), null, null)
-#define MLNewWithCapacity(self) MLSend(self, IS("new_with_capacity*"), null, null)
+#define MLNewWithCapacity(self, capacity) MLSend(self, IS("new_with_capacity*"), IA(capacity), null)
 
 #define MLName(self) MLSend(self, IS("name"), null, null)
 #define MLSuperclass(self) MLSend(self, IS("superclass"), null, null)
@@ -125,8 +125,8 @@
 #define MLWithoutMany(self, object) MLSend(self, IS("without_many*"), IA(object), null)
 
 #define MLWithoutAt(self, index) MLSend(self, IS("without_at*"), IA(index), null)
-#define MLWithoutAtCount(self, index, count) MLSend(self, IS("without_at*count*"), IA(index, count), null)
 #define MLWithoutAtMany(self, indexes) MLSend(self, IS("without_at_many*"), IA(indexes), null)
+#define MLWithoutAtCount(self, index, count) MLSend(self, IS("without_at*count*"), IA(index, count), null)
 
 #define MLReversed(self) MLSend(self, IS("reversed"), null, null)
 #define MLSorted(self) MLSend(self, IS("sorted"), null, null)
@@ -167,8 +167,8 @@
 #define MLRemoveMany(self, objects) MLSend(self, IS("remove_many*"), IA(objects), null)
 
 #define MLRemoveAt(self, index) MLSend(self, IS("remove_at*"), IA(index), null)
-#define MLRemoveAtCount(self, index, count) MLSend(self, IS("remove_at*count*"), IA(index, count), null)
 #define MLRemoveAtMany(self, indexes) MLSend(self, IS("remove_at_many*"), IA(indexes), null)
+#define MLRemoveAtCount(self, index, count) MLSend(self, IS("remove_at*count*"), IA(index, count), null)
 #define MLRemoveAll(self) MLSend(self, IS("remove_all"), null, null)
 
 #define MLRemoveFirst(self, object) MLSend(self, IS("remove_first"), IA(object), null)
