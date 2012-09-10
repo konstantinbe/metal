@@ -92,7 +92,7 @@ static var MLArrayCount(var class, var self, var command, var arguments, var opt
 static var MLArrayContains(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var index = MLIndexOf(self, object);
-    return MLIsGreaterThanOrEquals(index, N(0));
+    return B(MLIntegerFrom(index) >= 0);
 }
 
 
