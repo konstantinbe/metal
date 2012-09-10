@@ -54,8 +54,11 @@ static var MLBooleanDescription(var class, var self, var command, var arguments,
 
 
 static var MLBooleanEquals(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var object = MLArgument(0);
+    const bool isTrueLeft = MLIsTrue(self);
+    const bool isTrueRight = MLIsTrue(object);
+    const bool equals = (isTrueLeft && isTrueRight) || (!isTrueLeft && !isTrueRight);
+    return B(equals);
 }
 
 
