@@ -98,7 +98,7 @@ static var MLArrayContains(var class, var self, var command, var arguments, var 
 
 static var MLArrayContainsAny(var class, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
-    each (object, index, self) {
+    each (object, index, objects) {
         when (MLContains(self, object)) return yes;
     }
     return no;
@@ -107,7 +107,7 @@ static var MLArrayContainsAny(var class, var self, var command, var arguments, v
 
 static var MLArrayContainsAll(var class, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
-    each (object, index, self) {
+    each (object, index, objects) {
         unless (MLContains(self, object)) return no;
     }
     return yes;

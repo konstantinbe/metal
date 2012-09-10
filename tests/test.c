@@ -26,7 +26,7 @@ const char* OK = "\x1B[0;32mOK\x1B[0m";
 const char* FAILED = "\x1B[0;31mFAILED\x1B[0m";
 
 
-void MLExpectToBeTrue(var object, char* message) {
+void MLExpectTo(var object, char* message) {
     when (object) {
         printf("%s ... %s\n", message, OK);
     }
@@ -36,7 +36,7 @@ void MLExpectToBeTrue(var object, char* message) {
 }
 
 
-void MLExpectToBeFalse(var object, char* message) {
+void MLExpectNotTo(var object, char* message) {
     unless (object) {
         printf("%s ... %s\n", message, OK);
     }
@@ -47,12 +47,12 @@ void MLExpectToBeFalse(var object, char* message) {
 
 
 void MLExpectToEqual(var subject, var actual, char* message) {
-    MLExpectToBeTrue(MLEquals(subject, actual), message);
+    MLExpectTo(MLEquals(subject, actual), message);
 }
 
 
 void MLExpectToNotEqual(var subject, var actual, char* message) {
-    MLExpectToBeFalse(MLEquals(subject, actual), message);
+    MLExpectNotTo(MLEquals(subject, actual), message);
 }
 
 
