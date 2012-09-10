@@ -47,10 +47,6 @@ void MLTestData();
 void MLTestArray();
 void MLTestString();
 void MLTestDictionary();
-void MLTestMutableData();
-void MLTestMutableArray();
-void MLTestMutableString();
-void MLTestMutableDictionary();
 void MLTestPool();
 
 #endif

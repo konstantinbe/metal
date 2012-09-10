@@ -68,10 +68,6 @@ int main(int argumentsCount, char const* arguments[]) {
     MLTestArray();
     MLTestString();
     MLTestDictionary();
-    MLTestMutableData();
-    MLTestMutableArray();
-    MLTestMutableString();
-    MLTestMutableDictionary();
     MLTestPool();
     return 0;
 }
