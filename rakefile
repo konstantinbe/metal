@@ -201,7 +201,7 @@ end
 
 task :test => [:prepare, 'build:tests'] do
   puts "Running Metal Tests (#{$config[:title]}) ... "
-  run "cd build; ./test"
+  run "cd build; ./test", :silent => true
 end
 
 task :debug => [:prepare] do
@@ -298,9 +298,9 @@ def check(condition)
   end
 end
 
-def run(command)
+def run(command, options = {})
   success = system command
-  check success
+  check success unless options[:silent]
 end
 
 def put(string)

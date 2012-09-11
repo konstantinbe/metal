@@ -24,15 +24,14 @@
 
 void MLTestStringInit() {
     var string = MLInit(MLCreate(MLString));
-    MLExpectToEqual(MLCount(string), N(0), "Count of a newly initialized string should be 0");
-    MLExpectToEqual(string, IS(""), "A newly initialized string should equal an empty string");
-    MLExpectToNotEqual(string, IS(" "), "A newly initialized string should not equal any non-empty string");
-    MLExpectNotTo(MLIsMutable(string), "A newly initialized string should not be mutable");
+    MLAssertEquals(MLCount(string), N(0), "Count of a newly initialized string should be 0");
+    MLAssertEquals(string, IS(""), "A newly initialized string should equal an empty string");
+    MLAssertNotEquals(string, IS(" "), "A newly initialized string should not equal any non-empty string");
+    MLAssertFalse(MLIsMutable(string), "A newly initialized string should not be mutable");
     MLRelease(string);
 }
 
 
 void MLTestString() {
-    printf("\nTesting MLString ...\n");
     MLTestStringInit();
 }

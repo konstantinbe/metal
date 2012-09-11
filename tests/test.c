@@ -20,43 +20,94 @@
 // THE SOFTWARE.
 
 #include "test.h"
+#include "time.h"
 
 
-const char* OK = "\x1B[0;32mOK\x1B[0m";
-const char* FAILED = "\x1B[0;31mFAILED\x1B[0m";
+static const char* WHITE = "\x1B[0;97m";
+static const char* RED = "\x1B[0;31m";
+static const char* GREEN = "\x1B[0;32m";
+static const char* RESET = "\x1B[0m";
 
 
-void MLExpectTo(var object, char* message) {
+static MLInteger MLTotalNumberOfExamples = 0;
+static MLInteger MLNumberOfFailedExamples = 0;
+static char* MLFailedExamples[1000000];
+static time_t MLTestBeganAt = 0;
+static time_t MLTestEndedAt = 0;
+
+
+void MLTestBegin() {
+    printf("\n");
+    time(&MLTestBeganAt);
+}
+
+
+int MLTestEnd() {
+    const char *color = RESET;
+    if (MLNumberOfFailedExamples <= 0) color = GREEN;
+    if (MLNumberOfFailedExamples >= 1) color = RED;
+
+    time(&MLTestEndedAt);
+    const double duration = difftime(MLTestEndedAt, MLTestBeganAt);
+
+    printf("\n\n");
+    if (MLNumberOfFailedExamples > 0) {
+        for (int i = 0; i < MLNumberOfFailedExamples; i += 1) printf("%s%s%s", WHITE, MLFailedExamples[i], RESET);
+        printf("\n");
+    }
+
+    printf("Finished in %.1f seconds\n", duration);
+    printf("%lld examples, %s%lld failures%s\n\n", MLTotalNumberOfExamples, color, MLNumberOfFailedExamples,  RESET);
+
+    if (MLNumberOfFailedExamples > 0) return 1;
+    return 0;
+}
+
+
+void MLAssertTrue(var object, char* message) {
+    MLTotalNumberOfExamples += 1;
     when (object) {
-        printf("%s ... %s\n", message, OK);
+        printf(".");
     }
     else {
-        printf("%s ... %s\n", message, FAILED);
+        char* description = MLAllocate(sizeof(char) * strlen(message) + 1000);
+        sprintf(description, "%s ... %sFAILED%s\n", message, RED, RESET);
+        MLFailedExamples[MLNumberOfFailedExamples] = description;
+        MLNumberOfFailedExamples += 1;
+        printf("\x1B[0;31mF\x1B[0m");
     }
+    if (MLTotalNumberOfExamples % 50 == 0) printf("\n");
 }
 
 
-void MLExpectNotTo(var object, char* message) {
+void MLAssertFalse(var object, char* message) {
+    MLTotalNumberOfExamples += 1;
     unless (object) {
-        printf("%s ... %s\n", message, OK);
+        printf(".");
     }
     else {
-        printf("%s ... %s\n", message, FAILED);
+        char* description = MLAllocate(sizeof(char) * strlen(message) + 1000);
+        sprintf(description, "%s ... %sFAILED%s\n", message, RED, RESET);
+        MLFailedExamples[MLNumberOfFailedExamples] = description;
+        MLNumberOfFailedExamples += 1;
+        printf("\x1B[0;31mF\x1B[0m");
     }
+    if (MLTotalNumberOfExamples % 50 == 0) printf("\n");
 }
 
 
-void MLExpectToEqual(var subject, var actual, char* message) {
-    MLExpectTo(MLEquals(subject, actual), message);
+void MLAssertEquals(var subject, var actual, char* message) {
+    MLAssertTrue(MLEquals(subject, actual), message);
 }
 
 
-void MLExpectToNotEqual(var subject, var actual, char* message) {
-    MLExpectNotTo(MLEquals(subject, actual), message);
+void MLAssertNotEquals(var subject, var actual, char* message) {
+    MLAssertFalse(MLEquals(subject, actual), message);
 }
 
 
 int main(int argumentsCount, char const* arguments[]) {
+    MLTestBegin();
     MLTestMetal();
     MLTestObject();
     MLTestBlock();
@@ -69,5 +120,5 @@ int main(int argumentsCount, char const* arguments[]) {
     MLTestString();
     MLTestDictionary();
     MLTestPool();
-    return 0;
+    return MLTestEnd();
 }

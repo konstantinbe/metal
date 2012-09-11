@@ -23,18 +23,16 @@
 
 
 void MLTestPool() {
-    printf("\nTesting MLPool ...\n");
-
     var pool = MLNew(MLPool);
     var object = MLNew(MLNumber);
-    MLExpectToEqual(MLRetainCount(object), N(1), "A new object should have its retain count be 1");
+    MLAssertEquals(MLRetainCount(object), N(1), "A new object should have its retain count be 1");
 
     MLRetain(object);
-    MLExpectToEqual(MLRetainCount(object), N(2), "After retaining an object its retain count should increase by 1");
+    MLAssertEquals(MLRetainCount(object), N(2), "After retaining an object its retain count should increase by 1");
 
     MLAutorelease(object);
-    MLExpectToEqual(MLRetainCount(object), N(2), "After autoreleasing an object its retain count should remain the same");
+    MLAssertEquals(MLRetainCount(object), N(2), "After autoreleasing an object its retain count should remain the same");
 
     MLDrain(pool);
-    MLExpectToEqual(MLRetainCount(object), N(1), "After draining the pool the retain count of an autoreleased object should be decreased by 1");
+    MLAssertEquals(MLRetainCount(object), N(1), "After draining the pool the retain count of an autoreleased object should be decreased by 1");
 }

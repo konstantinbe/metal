@@ -28,15 +28,17 @@
 #include <metal/metal.h>
 #include <metal/helper.h>
 
-void MLExpectTo(var object, char* message);
-void MLExpectNotTo(var object, char* message);
+void MLTestBegin();
+int MLTestEnd();
 
-void MLExpectToEqual(var subject, var actual, char* message);
-void MLExpectToNotEqual(var subject, var actual, char* message);
+void MLAssertTrue(var object, char* message);
+void MLAssertFalse(var object, char* message);
+
+void MLAssertEquals(var subject, var actual, char* message);
+void MLAssertNotEquals(var subject, var actual, char* message);
 
 void MLTestHelper();
 void MLTestMetal();
-
 void MLTestObject();
 void MLTestBlock();
 void MLTestBoolean();
