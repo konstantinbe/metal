@@ -98,14 +98,14 @@ static var MLDateMutableCopy(var class, var self, var command, var arguments, va
 
 MLPointer MLDateDefaultMethods[] = {
     "init", MLDateInit,
-    "init_with_seconds_since_1970*", MLDateInitWithSecondsSince1970,
+    "init-with-seconds-since-1970*", MLDateInitWithSecondsSince1970,
     "destroy", MLDateDestroy,
-    "is_date?", MLDateIsDate,
+    "is-date?", MLDateIsDate,
 
     "description", MLDateDescription,
     "equals*?", MLDateEquals,
     "hash", MLDateHash,
     "copy", MLDateCopy,
-    "mutable_copy", MLDateMutableCopy,
+    "mutable-copy", MLDateMutableCopy,
      NULL
 };

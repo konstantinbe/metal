@@ -92,13 +92,13 @@ static var MLDataMutableCopy(var class, var self, var command, var arguments, va
 MLPointer MLDataDefaultMethods[] = {
     "init", MLDataInit,
     "destroy", MLDataDestroy,
-    "is_data?", MLDataIsData,
+    "is-data?", MLDataIsData,
 
     "description", MLDataDescription,
     "equals*?", MLDataEquals,
     "hash", MLDataHash,
     "copy", MLDataCopy,
-    "mutable_copy", MLDataMutableCopy,
+    "mutable-copy", MLDataMutableCopy,
     NULL
 };
 

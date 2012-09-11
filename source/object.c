@@ -72,7 +72,7 @@ MLPointer MLObjectMetaDefaultMethods[] = {
     "subclasses", MLObjectMetaSubclasses,
     "methods", MLObjectMetaMethods,
 
-    "is_class?", MLObjectMetaIsClass,
+    "is-class?", MLObjectMetaIsClass,
 
     NULL
 };
@@ -282,36 +282,36 @@ MLPointer MLObjectDefaultMethods[] = {
     "hash", MLObjectHash,
 
     "copy", MLObjectCopy,
-    "mutable_copy", MLObjectMutableCopy,
+    "mutable-copy", MLObjectMutableCopy,
 
-    "compare_to*", MLObjectCompareTo,
-    "is_less_than*?", MLObjectIsLessThan,
-    "is_less_than_or_equals*?", MLObjectIsLessThanOrEquals,
-    "is_greater_than*?", MLObjectIsGreaterThan,
-    "is_greater_than_or_equals*?", MLObjectIsGreaterThanOrEquals,
+    "compare-to*", MLObjectCompareTo,
+    "is-less-than*?", MLObjectIsLessThan,
+    "is-less-than-or-equals*?", MLObjectIsLessThanOrEquals,
+    "is-greater-than*?", MLObjectIsGreaterThan,
+    "is-greater-than-or-equals*?", MLObjectIsGreaterThanOrEquals,
 
-    "is_class?", MLObjectIsClass,
-    "is_block?", MLObjectIsBlock,
-    "is_boolean?", MLObjectIsBoolean,
-    "is_number?", MLObjectIsNumber,
-    "is_word?", MLObjectIsWord,
-    "is_date?", MLObjectIsDate,
-    "is_data?", MLObjectIsData,
-    "is_array?", MLObjectIsArray,
-    "is_string?", MLObjectIsString,
-    "is_dictionary?", MLObjectIsDictionary,
+    "is-class?", MLObjectIsClass,
+    "is-block?", MLObjectIsBlock,
+    "is-boolean?", MLObjectIsBoolean,
+    "is-number?", MLObjectIsNumber,
+    "is-word?", MLObjectIsWord,
+    "is-date?", MLObjectIsDate,
+    "is-data?", MLObjectIsData,
+    "is-array?", MLObjectIsArray,
+    "is-string?", MLObjectIsString,
+    "is-dictionary?", MLObjectIsDictionary,
 
-    "is_kind_of*?", MLObjectIsKindOf,
-    "is_instance_of*?", MLObjectIsInstanceOf,
+    "is-kind-of*?", MLObjectIsKindOf,
+    "is-instance-of*?", MLObjectIsInstanceOf,
 
     "retain", MLObjectRetain,
-    "retain_count", MLObjectRetainCount,
+    "retain-count", MLObjectRetainCount,
     "release", MLObjectRelease,
     "autorelease", MLObjectAutorelease,
 
     "perform*arguments*options*", MLObjectPerformArgumentsOptionsBlock,
     "send*arguments*options*", MLObjectSendArgumentsOptionsBlock,
-    "responds_to*?", MLObjectRespondsTo,
+    "responds-to*?", MLObjectRespondsTo,
 
     NULL
 };

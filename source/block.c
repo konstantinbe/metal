@@ -71,7 +71,7 @@ static var MLBlockCopy(var class, var self, var command, var arguments, var opti
 
 MLPointer MLBlockDefaultMethods[] = {
     "destroy", MLBlockDestroy,
-    "is_block?", MLBlockIsBlock,
+    "is-block?", MLBlockIsBlock,
 
     "description", MLBlockDescription,
     "equals*?", MLBlockEquals,

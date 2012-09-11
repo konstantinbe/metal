@@ -81,12 +81,12 @@ static var MLBooleanMutableCopy(var class, var self, var command, var arguments,
 
 MLPointer MLBooleanDefaultMethods[] = {
     "destroy", MLBooleanDestroy,
-    "is_boolean?", MLBooleanIsBoolean,
+    "is-boolean?", MLBooleanIsBoolean,
 
     "description", MLBooleanDescription,
     "equals*?", MLBooleanEquals,
     "hash", MLBooleanHash,
     "copy", MLBooleanCopy,
-    "mutable_copy", MLBooleanMutableCopy,
+    "mutable-copy", MLBooleanMutableCopy,
     NULL
 };

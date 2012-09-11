@@ -131,7 +131,7 @@ void MLTestHelperRoundDownToPowerOfTwo() {
 
 
 void MLTestHelperDigest() {
-    const char* find_method_for = "find_method*for*";
+    const char* find_method_for = "find-method*for*";
     const char* method_not_found_for = "method*not_found_for*";
 
     const MLNatural find_method_for_count = strlen(find_method_for);

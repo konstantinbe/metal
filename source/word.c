@@ -79,12 +79,12 @@ static var MLWordMutableCopy(var class, var self, var command, var arguments, va
 
 MLPointer MLWordDefaultMethods[] = {
     "destroy", MLWordDestroy,
-    "is_word?", MLWordIsWord,
+    "is-word?", MLWordIsWord,
 
     "description", MLWordDescription,
     "equals*?", MLWordEquals,
     "hash", MLWordHash,
     "copy", MLWordCopy,
-    "mutable_copy", MLWordMutableCopy,
+    "mutable-copy", MLWordMutableCopy,
     NULL
 };

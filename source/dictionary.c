@@ -186,32 +186,32 @@ MLPointer MLDictionaryDefaultMethods[] = {
 
     "count", MLDictionaryCount,
     "contains*?", MLDictionaryContains,
-    "contains_all*?", MLDictionaryContainsAll,
-    "contains_any*?", MLDictionaryContainsAny,
+    "contains-all*?", MLDictionaryContainsAll,
+    "contains-any*?", MLDictionaryContainsAny,
 
-    "is_empty?", MLDictionaryIsEmpty,
-    "is_inline?", MLDictionaryIsInline,
-    "is_mutable?", MLDictionaryIsMutable,
+    "is-empty?", MLDictionaryIsEmpty,
+    "is-inline?", MLDictionaryIsInline,
+    "is-mutable?", MLDictionaryIsMutable,
 
     "keys", MLDictionaryKeys,
     "values", MLDictionaryValues,
 
     "get", MLDictionaryGet,
-    "get_many", MLDictionaryGetMany,
+    "get-many", MLDictionaryGetMany,
 
     "with*value*", MLDictionaryWithValue,
-    "with_many*", MLDictionaryWithMany,
+    "with-many*", MLDictionaryWithMany,
 
     "without*", MLDictionaryWithout,
-    "without_many*", MLDictionaryWithoutMany,
+    "without-many*", MLDictionaryWithoutMany,
 
-    "is_dictionary?", MLDictionaryIsDictionary,
+    "is-dictionary?", MLDictionaryIsDictionary,
 
     "description", MLDictionaryDescription,
     "equals*?", MLDictionaryEquals,
     "hash", MLDictionaryHash,
     "copy", MLDictionaryCopy,
-    "mutable_copy", MLDictionaryMutableCopy,
+    "mutable-copy", MLDictionaryMutableCopy,
     NULL
 };
 
@@ -283,10 +283,10 @@ static var MLMutableDictionaryRemoveMany(var class, var self, var command, var a
 
 MLPointer MLMutableDictionaryDefaultMethods[] = {
     "put*value*", MLMutableDictionaryPutValue,
-    "put_many*", MLMutableDictionaryPutMany,
+    "put-many*", MLMutableDictionaryPutMany,
 
     "remove*", MLMutableDictionaryRemove,
-    "remove_many*", MLMutableDictionaryRemoveMany,
+    "remove-many*", MLMutableDictionaryRemoveMany,
 
     NULL
 };

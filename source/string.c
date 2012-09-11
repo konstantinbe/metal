@@ -417,23 +417,23 @@ static var MLStringMutableCopy(var class, var self, var command, var arguments, 
 
 MLPointer MLStringDefaultMethods[] = {
     "init", MLStringInit,
-    "init_with_string*", MLStringInitWithString,
+    "init-with-string*", MLStringInitWithString,
     "destroy", MLStringDestroy,
 
     "count", MLStringCount,
     "contains*", MLStringContains,
 
-    "is_empty?", MLStringIsEmpty,
-    "is_inline?", MLStringIsInline,
-    "is_mutable?", MLStringIsMutable,
+    "is-empty?", MLStringIsEmpty,
+    "is-inline?", MLStringIsInline,
+    "is-mutable?", MLStringIsMutable,
 
     "at*", MLStringAt,
-    "at_many*", MLStringAtMany,
+    "at-many*", MLStringAtMany,
     "at*count*", MLStringAtCount,
 
-    "index_of*", MLStringIndexOf,
-    "last_index_of*", MLStringLastIndexOf,
-    "indexes_of*", MLStringIndexesOf,
+    "index-of*", MLStringIndexOf,
+    "last-index-of*", MLStringLastIndexOf,
+    "indexes-of*", MLStringIndexesOf,
 
     "first", MLStringFirst,
     "first*", MLStringFirstCount,
@@ -446,26 +446,26 @@ MLPointer MLStringDefaultMethods[] = {
     "rest", MLStringRest,
 
     "with*", MLStringWith,
-    "with_many*", MLStringWithMany,
+    "with-many*", MLStringWithMany,
 
     "with*at*", MLStringWithAt,
-    "with_many*at*", MLStringWithManyAt,
+    "with-many*at*", MLStringWithManyAt,
 
     "with*before*", MLStringWithBefore,
-    "with_many*before*", MLStringWithManyBefore,
+    "with-many*before*", MLStringWithManyBefore,
 
     "with*after*", MLStringWithAfter,
-    "with_many*after*", MLStringWithManyAfter,
+    "with-many*after*", MLStringWithManyAfter,
 
     "without*", MLStringWithout,
-    "without_many*", MLStringWithoutMany,
+    "without-many*", MLStringWithoutMany,
 
-    "without_at*", MLStringWithoutAt,
-    "without_at*count*", MLStringWithoutAtCount,
-    "without_at_many*", MLStringWithoutAtMany,
+    "without-at*", MLStringWithoutAt,
+    "without-at*count*", MLStringWithoutAtCount,
+    "without-at-many*", MLStringWithoutAtMany,
 
-    "code_at*", MLStringCodeAt,
-    "codes_at*", MLStringCodesAt,
+    "code-at*", MLStringCodeAt,
+    "codes-at*", MLStringCodesAt,
 
     "characters", MLStringCharacters,
     "codes", MLStringCodes,
@@ -473,21 +473,21 @@ MLPointer MLStringDefaultMethods[] = {
     "lines", MLStringLines,
     "paragraphs", MLStringParagraphs,
 
-    "begins_with*", MLStringBeginsWith,
-    "ends_with*", MLStringEndsWith,
+    "begins-with*", MLStringBeginsWith,
+    "ends-with*", MLStringEndsWith,
 
     "reversed", MLStringReversed,
     "uppercased", MLStringUppercased,
     "lowercased", MLStringLowercased,
     "capitalized", MLStringCapitalized,
 
-    "is_string?", MLStringIsString,
+    "is-string?", MLStringIsString,
 
     "description", MLStringDescription,
     "equals*?", MLStringEquals,
     "hash", MLStringHash,
     "copy", MLStringCopy,
-    "mutable_copy", MLStringMutableCopy,
+    "mutable-copy", MLStringMutableCopy,
     NULL
 };
 
@@ -606,16 +606,16 @@ static var MLMutableStringMutableCopy(var class, var self, var command, var argu
 
 
 MLPointer MLMutableStringDefaultMethods[] = {
-    "init_with_capacity*", MLMutableStringInitWithCapacity,
+    "init-with-capacity*", MLMutableStringInitWithCapacity,
 
     "capacity", MLMutableStringCapacity,
-    "increase_capacity*", MLMutableStringIncreaseCapacity,
+    "increase-capacity*", MLMutableStringIncreaseCapacity,
 
     "replace*with*", MLMutableStringReplaceWith,
     "prepend*", MLMutableStringPrepend,
     "append*", MLMutableStringAppend,
 
     "copy", MLMutableStringCopy,
-    "mutable_copy", MLMutableStringMutableCopy,
+    "mutable-copy", MLMutableStringMutableCopy,
     NULL
 };

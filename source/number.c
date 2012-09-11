@@ -98,15 +98,15 @@ static var MLNumberMutableCopy(var class, var self, var command, var arguments, 
 
 MLPointer MLNumberDefaultMethods[] = {
     "destroy", MLNumberDestroy,
-    "is_nan?", MLNumberIsNaN,
-    "is_finite?", MLNumberIsFinite,
-    "is_infinite?", MLNumberIsInfinite,
-    "is_number?", MLNumberIsNumber,
+    "is-nan?", MLNumberIsNaN,
+    "is-finite?", MLNumberIsFinite,
+    "is-infinite?", MLNumberIsInfinite,
+    "is-number?", MLNumberIsNumber,
 
     "description", MLNumberDescription,
     "equals*?", MLNumberEquals,
     "hash", MLNumberHash,
     "copy", MLNumberCopy,
-    "mutable_copy", MLNumberMutableCopy,
+    "mutable-copy", MLNumberMutableCopy,
     NULL
 };

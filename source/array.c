@@ -486,26 +486,26 @@ static var MLArrayMutableCopy(var class, var self, var command, var arguments, v
 
 MLPointer MLArrayDefaultMethods[] = {
     "init", MLArrayInit,
-    "init_with_array*", MLArrayInitWithArray,
+    "init-with-array*", MLArrayInitWithArray,
     "destroy", MLArrayDestroy,
 
     "count", MLArrayCount,
 
     "contains*?", MLArrayContains,
-    "contains_all*?", MLArrayContainsAll,
-    "contains_any*?", MLArrayContainsAny,
+    "contains-all*?", MLArrayContainsAll,
+    "contains-any*?", MLArrayContainsAny,
 
-    "is_empty?", MLArrayIsEmpty,
-    "is_inline?", MLArrayIsInline,
-    "is_mutable?", MLArrayIsMutable,
+    "is-empty?", MLArrayIsEmpty,
+    "is-inline?", MLArrayIsInline,
+    "is-mutable?", MLArrayIsMutable,
 
     "at*", MLArrayAt,
-    "at_many*", MLArrayAtMany,
+    "at-many*", MLArrayAtMany,
     "at*count*", MLArrayAtCount,
 
-    "index_of*", MLArrayIndexOf,
-    "last_index_of*", MLArrayLastIndexOf,
-    "indexes_of*", MLArrayIndexesOf,
+    "index-of*", MLArrayIndexOf,
+    "last-index-of*", MLArrayLastIndexOf,
+    "indexes-of*", MLArrayIndexesOf,
 
     "first", MLArrayFirst,
     "first*", MLArrayFirstCount,
@@ -518,32 +518,32 @@ MLPointer MLArrayDefaultMethods[] = {
     "rest", MLArrayRest,
 
     "with*", MLArrayWith,
-    "with_many*", MLArrayWithMany,
+    "with-many*", MLArrayWithMany,
 
     "with*at*", MLArrayWithAt,
-    "with_many*at*", MLArrayWithManyAt,
+    "with-many*at*", MLArrayWithManyAt,
 
     "with*before*", MLArrayWithBefore,
-    "with_many*before*", MLArrayWithManyBefore,
+    "with-many*before*", MLArrayWithManyBefore,
 
     "with*after*", MLArrayWithAfter,
-    "with_many*after*", MLArrayWithManyAfter,
+    "with-many*after*", MLArrayWithManyAfter,
 
     "with*replacing*", MLArrayWithReplacing,
-    "with_many*replacing*", MLArrayWithManyReplacing,
+    "with-many*replacing*", MLArrayWithManyReplacing,
 
     "with*replacing_at*", MLArrayWithReplacingAt,
-    "with_many*replacing_at*", MLArrayWithManyReplacingAt,
+    "with-many*replacing_at*", MLArrayWithManyReplacingAt,
 
     "with*replacing_at*count*", MLArrayWithReplacingAtCount,
-    "with_many*replacing_at*count*", MLArrayWithManyReplacingAtCount,
+    "with-many*replacing_at*count*", MLArrayWithManyReplacingAtCount,
 
     "without*", MLArrayWithout,
-    "without_many*", MLArrayWithoutMany,
+    "without-many*", MLArrayWithoutMany,
 
-    "without_at*", MLArrayWithoutAt,
-    "without_at_many*", MLArrayWithoutAtMany,
-    "without_at*count*", MLArrayWithoutAtCount,
+    "without-at*", MLArrayWithoutAt,
+    "without-at-many*", MLArrayWithoutAtMany,
+    "without-at*count*", MLArrayWithoutAtCount,
 
     "reversed", MLArrayReversed,
     "sorted", MLArraySorted,
@@ -553,13 +553,13 @@ MLPointer MLArrayDefaultMethods[] = {
     "min", MLArrayMin,
     "max", MLArrayMax,
 
-    "is_array?", MLArrayIsArray,
+    "is-array?", MLArrayIsArray,
 
     "description", MLArrayDescription,
     "equals*?", MLArrayEquals,
 
     "copy", MLArrayCopy,
-    "mutable_copy", MLArrayMutableCopy,
+    "mutable-copy", MLArrayMutableCopy,
 
     NULL
 };
@@ -614,7 +614,7 @@ static var MLInlineArrayAutorelease(var class, var self, var command, var argume
 
 MLPointer MLInlineArrayDefaultMethods[] = {
     "copy", MLInlineArrayCopy,
-    "mutable_copy", MLInlineArrayMutableCopy,
+    "mutable-copy", MLInlineArrayMutableCopy,
     "retain", MLInlineArrayRetain,
     "retainCount", MLInlineArrayRetainCount,
     "release", MLInlineArrayRelease,
@@ -636,7 +636,7 @@ static var MLMutableArrayMetaNewWithCapacity(var class, var self, var command, v
 
 MLPointer MLMutableArrayMetaDefaultMethods[] = {
     "create", MLMutableArrayMetaCreate,
-    "new_with_capacity*", MLMutableArrayMetaNewWithCapacity,
+    "new-with-capacity*", MLMutableArrayMetaNewWithCapacity,
     NULL
 };
 
@@ -855,42 +855,42 @@ static var MLMutableArraySort(var class, var self, var command, var arguments, v
 
 
 MLPointer MLMutableArrayDefaultMethods[] = {
-    "init_with_capacity*", MLMutableArrayInitWithCapacity,
+    "init-with-capacity*", MLMutableArrayInitWithCapacity,
 
     "capacity", MLMutableArrayCapacity,
-    "increase_capacity*", MLMutableArrayIncreaseCapacity,
+    "increase-capacity*", MLMutableArrayIncreaseCapacity,
 
     "add*", MLMutableArrayAdd,
-    "add_many*", MLMutableArrayAddMany,
+    "add-many*", MLMutableArrayAddMany,
 
     "insert*", MLMutableArrayInsert,
-    "insert_many*", MLMutableArrayInsertMany,
+    "insert-many*", MLMutableArrayInsertMany,
 
     "insert*at*", MLMutableArrayInsertAt,
-    "insert_many*at*", MLMutableArrayInsertManyAt,
+    "insert-many*at*", MLMutableArrayInsertManyAt,
 
     "insert*before*", MLMutableArrayInsertBefore,
-    "insert_many*before*", MLMutableArrayInsertManyBefore,
+    "insert-many*before*", MLMutableArrayInsertManyBefore,
 
     "insert*after*", MLMutableArrayInsertAfter,
-    "insert_many*after*", MLMutableArrayInsertManyAfter,
+    "insert-many*after*", MLMutableArrayInsertManyAfter,
 
     "replace*with*", MLMutableArrayReplaceWith,
     "replace*with_many*", MLMutableArrayReplaceWithMany,
 
-    "replace_at*with*", MLMutableArrayReplaceAtWith,
-    "replace_at*with_many*", MLMutableArrayReplaceAtWithMany,
+    "replace-at*with*", MLMutableArrayReplaceAtWith,
+    "replace-at*with_many*", MLMutableArrayReplaceAtWithMany,
 
-    "replace_at*count*with*", MLMutableArrayReplaceAtCountWith,
-    "replace_at*count*with_many*", MLMutableArrayReplaceAtCountWithMany,
+    "replace-at*count*with*", MLMutableArrayReplaceAtCountWith,
+    "replace-at*count*with_many*", MLMutableArrayReplaceAtCountWithMany,
 
     "remove*", MLMutableArrayRemove,
-    "remove_many*", MLMutableArrayRemoveMany,
+    "remove-many*", MLMutableArrayRemoveMany,
 
-    "remove_at*", MLMutableArrayRemoveAt,
-    "remove_at_many*", MLMutableArrayRemoveAtMany,
-    "remove_at*count*", MLMutableArrayRemoveAtCount,
-    "remove_all", MLMutableArrayRemoveAll,
+    "remove-at*", MLMutableArrayRemoveAt,
+    "remove-at-many*", MLMutableArrayRemoveAtMany,
+    "remove-at*count*", MLMutableArrayRemoveAtCount,
+    "remove-all", MLMutableArrayRemoveAll,
 
     "reverse", MLMutableArrayReverse,
     "sort", MLMutableArraySort,
