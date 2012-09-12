@@ -586,14 +586,12 @@ MLPointer MLInlineArrayMetaDefaultMethods[] = {
 
 
 static var MLInlineArrayCopy(var class, var self, var command, var arguments, var options) {
-    MLWarning("TODO: implement -copy for inline arrays");
-    return null;
+    return MLNewWithArray(MLArray, self);
 }
 
 
 static var MLInlineArrayMutableCopy(var class, var self, var command, var arguments, var options) {
-    MLWarning("TODO: implement -copy for inline arrays");
-    return null;
+    return MLNewWithArray(MLMutableArray, self);
 }
 
 
