@@ -35,8 +35,16 @@ static var MLArrayMetaCreate(var class, var self, var command, var arguments, va
 }
 
 
+static var MLArrayMetaNewWithArray(var class, var self, var command, var arguments, var options) {
+    var array = MLArgument(0);
+    var new = MLCreate(self);
+    return MLInitWithArray(new, array);
+}
+
+
 MLPointer MLArrayMetaDefaultMethods[] = {
     "create", MLArrayMetaCreate,
+    "new-with-array*", MLArrayMetaNewWithArray,
     NULL
 };
 
