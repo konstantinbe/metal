@@ -200,7 +200,7 @@ task 'profile:details' => ['profile:collect'] do
 end
 
 task :test => [:prepare, 'build:tests'] do
-  puts "Running Metal Tests (#{$config[:title]}) ... "
+  puts "Running #{WHITE_BRIGHT}Metal#{RESET} Tests ... "
   run "cd build; ./test", :silent => true
 end
 
