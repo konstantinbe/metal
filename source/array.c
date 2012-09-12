@@ -635,8 +635,8 @@ static var MLMutableArrayMetaCreate(var class, var self, var command, var argume
 
 static var MLMutableArrayMetaNewWithCapacity(var class, var self, var command, var arguments, var options) {
     var capacity = MLArgument(0);
-    var array = MLCreate(self);
-    return MLInitWithCapacity(array, capacity);
+    var new = MLCreate(self);
+    return MLInitWithCapacity(new, capacity);
 }
 
 
@@ -860,6 +860,11 @@ static var MLMutableArraySort(var class, var self, var command, var arguments, v
 }
 
 
+static var MLMutableArrayIsMutable(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
 MLPointer MLMutableArrayDefaultMethods[] = {
     "init-with-capacity*", MLMutableArrayInitWithCapacity,
 
@@ -901,5 +906,6 @@ MLPointer MLMutableArrayDefaultMethods[] = {
     "reverse", MLMutableArrayReverse,
     "sort", MLMutableArraySort,
 
+    "is-mutable?", MLMutableArrayIsMutable,
     NULL
 };
