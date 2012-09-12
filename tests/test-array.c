@@ -95,5 +95,4 @@ void MLTestArray() {
     MLTestArrayIsEmpty();
     MLTestArrayIsInline();
     MLTestArrayIsMutable();
-
 }
