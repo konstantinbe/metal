@@ -1,18 +1,18 @@
 # Metal
 
-One of my pet projects, a fast and clean object model runtime supporting roles
+A fast and clean object model runtime supporting roles
 (traits). Inspired by Objective-C, Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
 
 ## Conventions
 
 * 4 spaces, no tabs
 * Use [compact control readability style](http://en.wikipedia.org/wiki/Indent_style#Compact_control_readability_style)
-* Use underscore notation for methods:
-  `replace_at*with_many*`, `is_mutable?`
+* Use dashed notation for methods:
+  `replace-at*with-many*`, `is-mutable?`
 * Use UPPERCASE notation for global constants:
   `ML_GREATER_THAN`
 * Use CamelCase for everything else in code (types, functions, variables, ...):
-  `index_of`, `instance_variable_name`
+  `MLIndexOf`, `instanceVariableName`
 * Use dashed notation for directories and files:
   `array.c`, `test-array.c`
 * Use dashed notation for URLs:
