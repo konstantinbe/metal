@@ -246,7 +246,8 @@ static var MLObjectRelease(var class, var self, var command, var arguments, var 
 
 
 static var MLObjectAutorelease(var class, var self, var command, var arguments, var options) {
-    return MLAdd(MLCurrentPool, self);
+    MLAdd(MLCurrentPool, self);
+    return self;
 }
 
 
