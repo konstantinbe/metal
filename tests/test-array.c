@@ -78,7 +78,12 @@ void MLTestArrayIsInline() {
 
 
 void MLTestArrayIsMutable() {
-    // TODO: implement.
+    var array = A();
+    var inlineArray = IA();
+    var mutableArray = MA();
+    MLAssertFalse(MLIsMutable(array), "A regular array should not be mutable");
+    MLAssertFalse(MLIsMutable(inlineArray), "An inline array should not be mutable");
+    MLAssertTrue(MLIsMutable(mutableArray), "A mutable array should be mutable");
 }
 
 
