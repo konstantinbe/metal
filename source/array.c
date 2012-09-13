@@ -140,6 +140,7 @@ static var MLArrayIsMutable(var class, var self, var command, var arguments, var
 static var MLArrayAt(var class, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     MLInteger integerIndex = MLIntegerFrom(index);
+    if (integerIndex < 0 || integerIndex >= that.count) return null;
     return that.objects[integerIndex];
 }
 
