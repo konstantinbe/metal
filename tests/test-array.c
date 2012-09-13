@@ -123,7 +123,11 @@ void MLTestArrayAtCount() {
 
 
 void MLTestArrayIndexOf() {
-    // TODO: implement.
+    var array = IA(N(4), N(5), N(6), N(4), N(6));
+    MLAssertEquals(MLIndexOf(array, N(4)), N(0), "[4, 5, 6, 4, 6] index-of 4 should be 0");
+    MLAssertEquals(MLIndexOf(array, N(5)), N(1), "[4, 5, 6, 4, 6] index-of 5 should be 1");
+    MLAssertEquals(MLIndexOf(array, N(6)), N(2), "[4, 5, 6, 4, 6] index-of 6 should be 2");
+    MLAssertEquals(MLIndexOf(array, N(7)), N(-1), "[4, 5, 6, 4, 6] index-of 7 should be -1");
 }
 
 
