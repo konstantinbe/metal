@@ -122,6 +122,301 @@ void MLTestArrayAtCount() {
 }
 
 
+void MLTestArrayIndexOf() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayLastIndexOf() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayIndexesOf() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayFirst() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayFirstCount() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayLast() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayLastCount() {
+    // TODO: implement.
+}
+
+
+void MLTestArraySecond() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayThird() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayRest() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWith() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithMany() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithAt() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithManyAt() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithBefore() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithManyBefore() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithAfter() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithManyAfter() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithReplacing() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithManyReplacing() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithReplacingAt() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithManyReplacingAt() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithReplacingAtCount() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithManyReplacingAtCount() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithout() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithoutMany() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithoutAt() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithoutAtMany() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayWithoutAtCount() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayReversed() {
+    // TODO: implement.
+}
+
+
+void MLTestArraySorted() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayPluck() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayMin() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayMax() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayAdd() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayAddMany() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayInsert() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayInsertMany() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayInsertAt() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayInsertManyAt() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayInsertBefore() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayInsertManyBefore() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayInsertAfter() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayInsertManyAfter() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayReplaceWith() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayReplaceWithMany() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayReplaceAtWith() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayReplaceAtWithMany() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayReplaceAtCountWith() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayReplaceAtCountWithMany() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayRemove() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayRemoveMany() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayRemoveAt() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayRemoveAtMany() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayRemoveAtCount() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayRemoveAll() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayReverse() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArraySort() {
+    // TODO: implement.
+}
+
+
+void MLTestMutableArrayIsMutable() {
+    // TODO: implement.
+}
+
+
 void MLTestArray() {
     MLTestArrayCount();
     MLTestArrayContains();
@@ -133,4 +428,63 @@ void MLTestArray() {
     MLTestArrayAt();
     MLTestArrayAtMany();
     MLTestArrayAtCount();
+    MLTestArrayIndexOf();
+    MLTestArrayLastIndexOf();
+    MLTestArrayIndexesOf();
+    MLTestArrayFirst();
+    MLTestArrayFirstCount();
+    MLTestArrayLast();
+    MLTestArrayLastCount();
+    MLTestArraySecond();
+    MLTestArrayThird();
+    MLTestArrayRest();
+    MLTestArrayWith();
+    MLTestArrayWithMany();
+    MLTestArrayWithAt();
+    MLTestArrayWithManyAt();
+    MLTestArrayWithBefore();
+    MLTestArrayWithManyBefore();
+    MLTestArrayWithAfter();
+    MLTestArrayWithManyAfter();
+    MLTestArrayWithReplacing();
+    MLTestArrayWithManyReplacing();
+    MLTestArrayWithReplacingAt();
+    MLTestArrayWithManyReplacingAt();
+    MLTestArrayWithReplacingAtCount();
+    MLTestArrayWithManyReplacingAtCount();
+    MLTestArrayWithout();
+    MLTestArrayWithoutMany();
+    MLTestArrayWithoutAt();
+    MLTestArrayWithoutAtMany();
+    MLTestArrayWithoutAtCount();
+    MLTestArrayReversed();
+    MLTestArraySorted();
+    MLTestArrayPluck();
+    MLTestArrayMin();
+    MLTestArrayMax();
+    MLTestMutableArrayAdd();
+    MLTestMutableArrayAddMany();
+    MLTestMutableArrayInsert();
+    MLTestMutableArrayInsertMany();
+    MLTestMutableArrayInsertAt();
+    MLTestMutableArrayInsertManyAt();
+    MLTestMutableArrayInsertBefore();
+    MLTestMutableArrayInsertManyBefore();
+    MLTestMutableArrayInsertAfter();
+    MLTestMutableArrayInsertManyAfter();
+    MLTestMutableArrayReplaceWith();
+    MLTestMutableArrayReplaceWithMany();
+    MLTestMutableArrayReplaceAtWith();
+    MLTestMutableArrayReplaceAtWithMany();
+    MLTestMutableArrayReplaceAtCountWith();
+    MLTestMutableArrayReplaceAtCountWithMany();
+    MLTestMutableArrayRemove();
+    MLTestMutableArrayRemoveMany();
+    MLTestMutableArrayRemoveAt();
+    MLTestMutableArrayRemoveAtMany();
+    MLTestMutableArrayRemoveAtCount();
+    MLTestMutableArrayRemoveAll();
+    MLTestMutableArrayReverse();
+    MLTestMutableArraySort();
+    MLTestMutableArrayIsMutable();
 }
