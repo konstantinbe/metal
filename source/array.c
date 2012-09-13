@@ -162,14 +162,15 @@ static var MLArrayAtMany(var class, var self, var command, var arguments, var op
 
 
 static var MLArrayAtCount(var class, var self, var command, var arguments, var options) {
+    // TODO: revisit this method to bahave properly when index or count is negative.
     var index = MLArgument(0);
     var count = MLArgument(1);
     var mutable = MLNewWithCapacity(MLMutableArray, count);
     MLInteger integerIndex = MLIntegerFrom(index);
     MLInteger integerCount = MLIntegerFrom(count);
-    if (integerIndex < 0) MLError("Index is < 0");
+    if (integerIndex < 0) MLError("Index < 0");
     if (integerIndex + integerCount > that.count) integerCount = that.count - integerIndex;
-    for (MLInteger i = integerIndex; i < integerCount; i += 1) MLAdd(mutable, that.objects[i]);
+    for (MLInteger i = integerIndex; i < integerIndex + integerCount; i += 1) MLAdd(mutable, that.objects[i]);
     var copy = MLCopy(mutable);
     MLRelease(mutable);
     return MLAutorelease(copy);

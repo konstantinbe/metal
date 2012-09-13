@@ -110,7 +110,15 @@ void MLTestArrayAtMany() {
 
 
 void MLTestArrayAtCount() {
-    // TODO: implement.
+    var array = IA(N(4), N(5), N(6));
+    MLAssertEquals(MLAtCount(array, N(0), N(0)), IA(), "[4, 5, 6] at 0 count 0 should return []");
+    MLAssertEquals(MLAtCount(array, N(0), N(1)), IA(N(4)), "[4, 5, 6] at 0 count 1 should return [4]");
+    MLAssertEquals(MLAtCount(array, N(0), N(3)), array, "[4, 5, 6] at 0 count 3 should return the same array");
+    MLAssertEquals(MLAtCount(array, N(0), N(9)), array, "[4, 5, 6] at 0 count 9 (more than array contains) should return the same array");
+    MLAssertEquals(MLAtCount(array, N(1), N(2)), IA(N(5), N(6)), "[4, 5, 6] at 1 count 2 should return [5, 6]");
+    MLAssertEquals(MLAtCount(array, N(2), N(2)), IA(N(6)), "[4, 5, 6] at 2 count 2 should return [6]");
+    MLAssertEquals(MLAtCount(array, N(9), N(0)), IA(), "[4, 5, 6] at 9 count 0 should return []");
+    MLAssertEquals(MLAtCount(array, N(9), N(8)), IA(), "[4, 5, 6] at 9 count 8 should return []");
 }
 
 
