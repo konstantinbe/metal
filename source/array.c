@@ -150,6 +150,8 @@ static var MLArrayAtMany(var class, var self, var command, var arguments, var op
     var objects = MLCreate(MLMutableArray);
     MLInitWithCapacity(objects, MLCount(indexes));
     each (index, indexOfIndex, indexes) {
+        const MLInteger integerIndex = MLIntegerFrom(index);
+        if (integerIndex < 0 || integerIndex >= that.count) continue;
         var object = MLAt(self, index);
         MLAdd(objects, object);
     }
