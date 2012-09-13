@@ -34,6 +34,9 @@ int MLTestEnd();
 void MLAssertTrue(var object, char* message);
 void MLAssertFalse(var object, char* message);
 
+void MLAssertNull(var object, char* message);
+void MLAssertNotNull(var object, char* message);
+
 void MLAssertEquals(var subject, var actual, char* message);
 void MLAssertNotEquals(var subject, var actual, char* message);
 

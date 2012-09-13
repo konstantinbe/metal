@@ -96,6 +96,16 @@ void MLAssertFalse(var object, char* message) {
 }
 
 
+void MLAssertNull(var object, char* message) {
+    MLAssertTrue(B(MLIsNull(object)), message);
+}
+
+
+void MLAssertNotNull(var object, char* message) {
+    MLAssertTrue(B(MLIsNotNull(object)), message);
+}
+
+
 void MLAssertEquals(var subject, var actual, char* message) {
     MLAssertTrue(MLEquals(subject, actual), message);
 }
