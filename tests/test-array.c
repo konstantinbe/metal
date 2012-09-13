@@ -87,6 +87,26 @@ void MLTestArrayIsMutable() {
 }
 
 
+void MLTestArrayAt() {
+    var array = IA(N(1), N(2), N(3));
+    MLAssertNull(MLAt(array, N(-1)), "[1, 2, 3] should return null for indexes < 0");
+    MLAssertEquals(MLAt(array, N(0)), N(1), "Array [1, 2, 3] should have 1 at index 0");
+    MLAssertEquals(MLAt(array, N(1)), N(2), "Array [1, 2, 3] should have 2 at index 1");
+    MLAssertEquals(MLAt(array, N(2)), N(3), "Array [1, 2, 3] should have 3 at index 2");
+    MLAssertNull(MLAt(array, N(3)), "[1, 2, 3] should return null for indexes >= count");
+}
+
+
+void MLTestArrayAtMany() {
+    // TODO: implement.
+}
+
+
+void MLTestArrayAtCount() {
+    // TODO: implement.
+}
+
+
 void MLTestArray() {
     MLTestArrayCount();
     MLTestArrayContains();
@@ -95,4 +115,7 @@ void MLTestArray() {
     MLTestArrayIsEmpty();
     MLTestArrayIsInline();
     MLTestArrayIsMutable();
+    MLTestArrayAt();
+    MLTestArrayAtMany();
+    MLTestArrayAtCount();
 }
