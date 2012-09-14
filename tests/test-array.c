@@ -141,7 +141,10 @@ void MLTestArrayLastIndexOf() {
 
 
 void MLTestArrayIndexesOf() {
-    // TODO: implement.
+    var array = IA(N(4), N(5), N(6), N(4), N(6), N(4));
+    MLAssertEquals(MLIndexesOf(array, N(5)), IA(N(1)), "[4, 5, 6, 4, 6, 4] indexes-of 5 should return [1]");
+    MLAssertEquals(MLIndexesOf(array, N(4)), IA(N(0), N(3), N(5)), "[4, 5, 6, 4, 6, 4] indexes-of 4 should return [0, 3, 5]");
+    MLAssertEquals(MLIndexesOf(array, N(9)), IA(), "[4, 5, 6, 4, 6, 4] indexes-of 9 should return []");
 }
 
 
