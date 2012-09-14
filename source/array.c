@@ -199,8 +199,14 @@ static var MLArrayLastIndexOf(var class, var self, var command, var arguments, v
 
 static var MLArrayIndexesOf(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
-    var indexes = MLCreate(MLMutableArray);
-    return null;
+    var indexes = MLNewWithCapacity(MLMutableArray, N(that.count));
+    for (MLInteger index = 0; index < that.count; index += 1) {
+        var equals = MLEquals(that.objects[index], object);
+        when (equals) MLAdd(indexes, N(index));
+    }
+    var copy = MLCopy(indexes);
+    MLRelease(indexes);
+    return MLAutorelease(copy);
 }
 
 
