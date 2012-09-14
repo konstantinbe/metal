@@ -179,7 +179,12 @@ void MLTestArrayLastCount() {
 
 
 void MLTestArraySecond() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(5));
+    var array3 = IA(N(4), N(5), N(6));
+    MLAssertNull(MLSecond(array1), "[] second should be null");
+    MLAssertNull(MLSecond(array2), "[5] second should be null");
+    MLAssertEquals(MLSecond(array3), N(5), "[4, 5, 6] second should be 5");
 }
 
 
