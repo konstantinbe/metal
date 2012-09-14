@@ -124,19 +124,19 @@ void MLTestArrayAtCount() {
 
 void MLTestArrayIndexOf() {
     var array = IA(N(4), N(5), N(6), N(4), N(6));
-    MLAssertEquals(MLIndexOf(array, N(4)), N(0), "[4, 5, 6, 4, 6] index-of 4 should be 0");
-    MLAssertEquals(MLIndexOf(array, N(5)), N(1), "[4, 5, 6, 4, 6] index-of 5 should be 1");
-    MLAssertEquals(MLIndexOf(array, N(6)), N(2), "[4, 5, 6, 4, 6] index-of 6 should be 2");
-    MLAssertEquals(MLIndexOf(array, N(7)), N(-1), "[4, 5, 6, 4, 6] index-of 7 should be -1");
+    MLAssertEquals(MLIndexOf(array, N(4)), N(0), "[4, 5, 6, 4, 6] index-of 4 should return 0");
+    MLAssertEquals(MLIndexOf(array, N(5)), N(1), "[4, 5, 6, 4, 6] index-of 5 should return 1");
+    MLAssertEquals(MLIndexOf(array, N(6)), N(2), "[4, 5, 6, 4, 6] index-of 6 should return 2");
+    MLAssertEquals(MLIndexOf(array, N(7)), N(-1), "[4, 5, 6, 4, 6] index-of 7 should return -1");
 }
 
 
 void MLTestArrayLastIndexOf() {
     var array = IA(N(4), N(5), N(6), N(4), N(6));
-    MLAssertEquals(MLLastIndexOf(array, N(4)), N(3), "[4, 5, 6, 4, 6] last-index-of 4 should be 3");
-    MLAssertEquals(MLLastIndexOf(array, N(5)), N(1), "[4, 5, 6, 4, 6] last-index-of 5 should be 1");
-    MLAssertEquals(MLLastIndexOf(array, N(6)), N(4), "[4, 5, 6, 4, 6] last-index-of 6 should be 4");
-    MLAssertEquals(MLLastIndexOf(array, N(7)), N(-1), "[4, 5, 6, 4, 6] last-index-of 7 should be -1");
+    MLAssertEquals(MLLastIndexOf(array, N(4)), N(3), "[4, 5, 6, 4, 6] last-index-of 4 should return 3");
+    MLAssertEquals(MLLastIndexOf(array, N(5)), N(1), "[4, 5, 6, 4, 6] last-index-of 5 should return 1");
+    MLAssertEquals(MLLastIndexOf(array, N(6)), N(4), "[4, 5, 6, 4, 6] last-index-of 6 should return 4");
+    MLAssertEquals(MLLastIndexOf(array, N(7)), N(-1), "[4, 5, 6, 4, 6] last-index-of 7 should return -1");
 }
 
 
