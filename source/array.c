@@ -218,7 +218,7 @@ static var MLArrayFirst(var class, var self, var command, var arguments, var opt
 
 static var MLArrayFirstCount(var class, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
-    if (MLDecimalFrom(count) <= that.count) return MLAutorelease(MLCopy(self));
+    if (MLDecimalFrom(count) >= that.count) return MLAutorelease(MLCopy(self));
     var index = N(0);
     return MLAtCount(self, index, count);
 }
@@ -233,7 +233,7 @@ static var MLArrayLast(var class, var self, var command, var arguments, var opti
 static var MLArrayLastCount(var class, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
     const MLDecimal decimalCount = MLDecimalFrom(count);
-    if (decimalCount <= that.count) return MLAutorelease(MLCopy(self));
+    if (decimalCount >= that.count) return MLAutorelease(MLCopy(self));
     var index = N(that.count - decimalCount);
     return MLAtCount(self, index, count);
 }
