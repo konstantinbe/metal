@@ -149,7 +149,12 @@ void MLTestArrayIndexesOf() {
 
 
 void MLTestArrayFirst() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(5));
+    var array3 = IA(N(4), N(5), N(6));
+    MLAssertNull(MLFirst(array1), "[] first should be null");
+    MLAssertEquals(MLFirst(array2), N(5), "[5] first should be 5");
+    MLAssertEquals(MLFirst(array3), N(4), "[4, 5, 6] first should be 4");
 }
 
 
