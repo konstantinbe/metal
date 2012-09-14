@@ -189,7 +189,12 @@ void MLTestArraySecond() {
 
 
 void MLTestArrayThird() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(5));
+    var array3 = IA(N(4), N(5), N(6));
+    MLAssertNull(MLThird(array1), "[] third should be null");
+    MLAssertNull(MLThird(array2), "[5] third should be null");
+    MLAssertEquals(MLThird(array3), N(6), "[4, 5, 6] third should be 6");
 }
 
 
