@@ -360,7 +360,13 @@ void MLTestArrayMax() {
 
 
 void MLTestMutableArrayAdd() {
-    // TODO: implement.
+    var array = MA();
+    MLAdd(array, N(4));
+    MLAssertEquals(array, IA(N(4)), "[] add 4 should change array to [4]");
+    MLAdd(array, N(5));
+    MLAssertEquals(array, IA(N(4), N(5)), "[4] add 5 should change array to [4, 5]");
+    MLAdd(array, N(6));
+    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[4, 5] add 6 should change array to [4, 5, 6]");
 }
 
 
