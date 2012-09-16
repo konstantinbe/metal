@@ -344,7 +344,10 @@ void MLTestArrayPluck() {
 
 
 void MLTestArrayMin() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(2), N(-1), N(3));
+    MLAssertNull(MLMin(array1), "[] min should be null");
+    MLAssertEquals(MLMin(array2), N(-1), "[2, -1, 3] min should be -1");
 }
 
 
