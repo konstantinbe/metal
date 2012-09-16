@@ -352,7 +352,10 @@ void MLTestArrayMin() {
 
 
 void MLTestArrayMax() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(2), N(-1), N(3));
+    MLAssertNull(MLMax(array1), "[] max should be null");
+    MLAssertEquals(MLMax(array2), N(3), "[2, -1, 3] max should be 3");
 }
 
 
