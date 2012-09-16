@@ -96,6 +96,15 @@ static var MLNumberMutableCopy(var class, var self, var command, var arguments, 
 }
 
 
+var MLNumberCompareTo(var class, var self, var command, var arguments, var options) {
+    var object = MLArgument(0);
+    unless (MLIsNumber(object)) MLError("Can't compare number to object, object is not a number");
+    if (MLDecimalFrom(self) < MLDecimalFrom(object)) return N(-1);
+    if (MLDecimalFrom(self) > MLDecimalFrom(object)) return N(+1);
+    return N(0);
+}
+
+
 MLPointer MLNumberDefaultMethods[] = {
     "destroy", MLNumberDestroy,
     "is-nan?", MLNumberIsNaN,
@@ -108,5 +117,7 @@ MLPointer MLNumberDefaultMethods[] = {
     "hash", MLNumberHash,
     "copy", MLNumberCopy,
     "mutable-copy", MLNumberMutableCopy,
+
+    "compare-to*", MLNumberCompareTo,
     NULL
 };
