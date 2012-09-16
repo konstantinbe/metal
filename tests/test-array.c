@@ -189,7 +189,22 @@ void MLTestArrayLast() {
 
 
 void MLTestArrayLastCount() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(5));
+    var array3 = IA(N(4), N(5), N(6));
+    MLAssertEquals(MLLastCount(array1, N(0)), IA(), "[] last 0 should be []");
+    MLAssertEquals(MLLastCount(array1, N(1)), IA(), "[] last 1 should be []");
+    MLAssertEquals(MLLastCount(array1, N(9)), IA(), "[] last 9 should be []");
+    MLAssertEquals(MLLastCount(array2, N(0)), IA(), "[5] last 0 should be []");
+    MLAssertEquals(MLLastCount(array2, N(1)), IA(N(5)), "[5] last 1 should be [5]");
+    MLAssertEquals(MLLastCount(array2, N(2)), IA(N(5)), "[5] last 2 should be [5]");
+    MLAssertEquals(MLLastCount(array2, N(9)), IA(N(5)), "[5] last 9 should be [5]");
+    MLAssertEquals(MLLastCount(array3, N(0)), IA(), "[4, 5, 6] last 0 should be []");
+    MLAssertEquals(MLLastCount(array3, N(1)), IA(N(6)), "[4, 5, 6] last 1 should be [6]");
+    MLAssertEquals(MLLastCount(array3, N(2)), IA(N(5), N(6)), "[4, 5, 6] last 2 should be [5, 6]");
+    MLAssertEquals(MLLastCount(array3, N(3)), IA(N(4), N(5), N(6)), "[4, 5, 6] last 3 should be [4, 5, 6]");
+    MLAssertEquals(MLLastCount(array3, N(4)), IA(N(4), N(5), N(6)), "[4, 5, 6] last 4 should be [4, 5, 6]");
+    MLAssertEquals(MLLastCount(array3, N(9)), IA(N(4), N(5), N(6)), "[4, 5, 6] last 9 should be [4, 5, 6]");
 }
 
 
