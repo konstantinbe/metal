@@ -159,7 +159,22 @@ void MLTestArrayFirst() {
 
 
 void MLTestArrayFirstCount() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(5));
+    var array3 = IA(N(4), N(5), N(6));
+    MLAssertEquals(MLFirstCount(array1, N(0)), IA(), "[] first 0 should be []");
+    MLAssertEquals(MLFirstCount(array1, N(1)), IA(), "[] first 1 should be []");
+    MLAssertEquals(MLFirstCount(array1, N(9)), IA(), "[] first 9 should be []");
+    MLAssertEquals(MLFirstCount(array2, N(0)), IA(), "[5] first 0 should be []");
+    MLAssertEquals(MLFirstCount(array2, N(1)), IA(N(5)), "[5] first 1 should be [5]");
+    MLAssertEquals(MLFirstCount(array2, N(2)), IA(N(5)), "[5] first 2 should be [5]");
+    MLAssertEquals(MLFirstCount(array2, N(9)), IA(N(5)), "[5] first 9 should be [5]");
+    MLAssertEquals(MLFirstCount(array3, N(0)), IA(), "[4, 5, 6] first 0 should be []");
+    MLAssertEquals(MLFirstCount(array3, N(1)), IA(N(4)), "[4, 5, 6] first 1 should be [4]");
+    MLAssertEquals(MLFirstCount(array3, N(2)), IA(N(4), N(5)), "[4, 5, 6] first 2 should be [4, 5]");
+    MLAssertEquals(MLFirstCount(array3, N(3)), IA(N(4), N(5), N(6)), "[4, 5, 6] first 3 should be [4, 5, 6]");
+    MLAssertEquals(MLFirstCount(array3, N(4)), IA(N(4), N(5), N(6)), "[4, 5, 6] first 4 should be [4, 5, 6]");
+    MLAssertEquals(MLFirstCount(array3, N(9)), IA(N(4), N(5), N(6)), "[4, 5, 6] first 9 should be [4, 5, 6]");
 }
 
 
