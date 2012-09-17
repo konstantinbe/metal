@@ -371,7 +371,15 @@ void MLTestMutableArrayAdd() {
 
 
 void MLTestMutableArrayAddMany() {
-    // TODO: implement.
+    var array = MA();
+    MLAddMany(array, IA());
+    MLAssertEquals(array, IA(), "[] add-many [] should not change array and leave it as []");
+    MLAddMany(array, IA(N(4), N(5)));
+    MLAssertEquals(array, IA(N(4), N(5)), "[] add-many [4, 5] should change array to [4, 5]");
+    MLAddMany(array, IA(N(6), N(7), N(8)));
+    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] add-many [6, 7, 8] should change array to [4, 5, 6, 7, 8]");
+    MLAddMany(array, IA());
+    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] add-many [] should not change the array and leave it as [4, 5, 6, 7, 8]");
 }
 
 
