@@ -699,8 +699,14 @@ static var MLMutableArrayAdd(var class, var self, var command, var arguments, va
 
 static var MLMutableArrayAddMany(var class, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
+    var objectsCount = MLCount(objects);
+    const MLInteger requiredCapacity = that.count + MLIntegerFrom(objectsCount);
+    if (that.capacity < requiredCapacity) MLIncreaseCapacity(self, N(requiredCapacity));
+    each (object, index, objects) {
+        that.objects[that.count] = MLRetain(object);
+        that.count += 1;
+    }
+    return self;
 }
 
 
