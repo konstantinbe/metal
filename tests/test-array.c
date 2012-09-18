@@ -395,7 +395,15 @@ void MLTestMutableArrayInsert() {
 
 
 void MLTestMutableArrayInsertMany() {
-    // TODO: implement.
+    var array = MA();
+    MLInsertMany(array, IA());
+    MLAssertEquals(array, IA(), "[] insert-many [] should not change array and leave it as []");
+    MLInsertMany(array, IA(N(5), N(4)));
+    MLAssertEquals(array, IA(N(5), N(4)), "[] insert-many [5, 4] should change array to [5, 4]");
+    MLInsertMany(array, IA(N(8), N(7), N(6)));
+    MLAssertEquals(array, IA(N(8), N(7), N(6), N(5), N(4)), "[5, r] insert-many [8, 7, 6] should change array to [8, 7, 6, 5, 4]");
+    MLInsertMany(array, IA());
+    MLAssertEquals(array, IA(N(8), N(7), N(6), N(5), N(4)), "[4, 5, 6, 7, 8] insert-many [] should not change the array and leave it as [8, 7, 6, 5, 4]");
 }
 
 
