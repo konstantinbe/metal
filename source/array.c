@@ -725,8 +725,7 @@ static var MLMutableArrayInsertMany(var class, var self, var command, var argume
 static var MLMutableArrayInsertAt(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var index = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    return MLInsertManyAt(self, IA(object), index);
 }
 
 
