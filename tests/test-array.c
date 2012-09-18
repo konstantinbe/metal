@@ -384,7 +384,13 @@ void MLTestMutableArrayAddMany() {
 
 
 void MLTestMutableArrayInsert() {
-    // TODO: implement.
+    var array = MA();
+    MLInsert(array, N(6));
+    MLAssertEquals(array, IA(N(6)), "[] insert 4 should change array to [6]");
+    MLInsert(array, N(5));
+    MLAssertEquals(array, IA(N(5), N(6)), "[6] insert 5 should change array to [5, 6]");
+    MLInsert(array, N(4));
+    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[5, 6] insert 4 should change array to [4, 5, 6]");
 }
 
 
