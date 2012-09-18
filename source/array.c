@@ -733,20 +733,21 @@ static var MLMutableArrayInsertManyAt(var class, var self, var command, var argu
     var objects = MLArgument(0);
     var index = MLArgument(1);
 
-    const bool isIndexOutOfBounds = MLIntegerFrom(index) < 0 || MLIntegerFrom(index) > that.count;
+    const MLInteger integerIndex = MLIntegerFrom(index);
+    const bool isIndexOutOfBounds = integerIndex < 0 || integerIndex > that.count;
     if (isIndexOutOfBounds) MLError("Can't insert many objects at index, index is out of bounds");
 
     const MLInteger numberOfObjects = MLIntegerFrom(MLCount(objects));
     const MLInteger capacity = that.count + numberOfObjects;
     MLIncreaseCapacity(self, N(capacity));
 
-    for (MLInteger i = that.count - 1; i >= MLIntegerFrom(index); i -= 1) {
+    for (MLInteger i = that.count - 1; i >= integerIndex; i -= 1) {
         that.objects[i + numberOfObjects] = that.objects[i];
     }
 
-    for (MLInteger j = MLIntegerFrom(index); j < numberOfObjects; j += 1) {
-        const var object = MLAt(object, N(j));
-        that.objects[j] = object;
+    for (MLInteger j = 0; j < numberOfObjects; j += 1) {
+        const var object = MLAt(objects, N(j));
+        that.objects[j + integerIndex] = object;
         MLRetain(object);
     }
 

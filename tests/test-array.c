@@ -379,7 +379,7 @@ void MLTestMutableArrayAddMany() {
     MLAddMany(array, IA(N(6), N(7), N(8)));
     MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] add-many [6, 7, 8] should change array to [4, 5, 6, 7, 8]");
     MLAddMany(array, IA());
-    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] add-many [] should not change the array and leave it as [4, 5, 6, 7, 8]");
+    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5, 6, 7, 8] add-many [] should not change the array and leave it as [4, 5, 6, 7, 8]");
 }
 
 
@@ -419,7 +419,15 @@ void MLTestMutableArrayInsertAt() {
 
 
 void MLTestMutableArrayInsertManyAt() {
-    // TODO: implement.
+    var array = MA();
+    MLInsertManyAt(array, IA(), N(0));
+    MLAssertEquals(array, IA(), "[] insert-many [] at 0 should not change array and leave it as []");
+    MLInsertManyAt(array, IA(N(4), N(8)), N(0));
+    MLAssertEquals(array, IA(N(4), N(8)), "[] insert-many [4, 8] at 0 should change array to [4, 8]");
+    MLInsertManyAt(array, IA(N(5), N(6), N(7)), N(1));
+    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 8] insert-many [5, 6, 7] at 1 should change array to [4, 5, 6, 7, 8]");
+    MLInsertManyAt(array, IA(), N(2));
+    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] insert-many [] at 2 should not change the array and leave it as [4, 5, 6, 7, 8]");
 }
 
 
