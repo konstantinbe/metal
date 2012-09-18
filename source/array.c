@@ -757,9 +757,10 @@ static var MLMutableArrayInsertManyBefore(var class, var self, var command, var 
 
 static var MLMutableArrayInsertAfter(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
-    var afterObject = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    var after = MLArgument(1);
+    var index = MLLastIndexOf(self, after);
+    if (MLIntegerFrom(index) < 0) index = N(that.count);
+    return MLInsertManyAt(self, IA(object), index);
 }
 
 
