@@ -832,8 +832,14 @@ static var MLMutableArrayRemove(var class, var self, var command, var arguments,
 
 static var MLMutableArrayRemoveMany(var class, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
+    var indexes = MLNewWithCapacity(MLMutableArray, N(that.count));
+    each (object, index, objects) {
+        var indexesOfObject = MLIndexesOf(self, object);
+        MLAddMany(indexes, indexesOfObject);
+    }
+    MLRemoveAtMany(self, indexes);
+    MLRelease(indexes);
+    return self;
 }
 
 
