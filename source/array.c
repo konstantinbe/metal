@@ -866,8 +866,12 @@ static var MLMutableArrayRemoveAtCount(var class, var self, var command, var arg
 
 
 static var MLMutableArrayRemoveAll(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    for (MLInteger index = 0; index < that.count; index += 1) {
+        MLRelease(that.objects[index]);
+        that.objects[index] = null;
+    }
+    that.count = 0;
+    return self;
 }
 
 
