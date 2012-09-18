@@ -777,9 +777,10 @@ static var MLMutableArrayInsertManyBefore(var class, var self, var command, var 
 static var MLMutableArrayInsertAfter(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var after = MLArgument(1);
-    var index = MLLastIndexOf(self, after);
-    if (MLIntegerFrom(index) < 0) index = N(that.count);
-    return MLInsertManyAt(self, IA(object), index);
+    const var index = MLLastIndexOf(self, after);
+    const MLInteger integerIndex = MLIntegerFrom(index);
+    const MLInteger insertionIndex = integerIndex >= 0 ? integerIndex + 1 : that.count;
+    return MLInsertManyAt(self, IA(object), N(insertionIndex));
 }
 
 
