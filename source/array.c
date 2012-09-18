@@ -825,8 +825,8 @@ static var MLMutableArrayReplaceAtCountWithMany(var class, var self, var command
 
 static var MLMutableArrayRemove(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
+    var indexes = MLIndexesOf(self, object);
+    return MLRemoveAtMany(self, indexes);
 }
 
 
