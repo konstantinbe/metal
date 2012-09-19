@@ -759,9 +759,7 @@ static var MLMutableArrayInsertManyAt(var class, var self, var command, var argu
 static var MLMutableArrayInsertBefore(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var before = MLArgument(1);
-    var index = MLIndexOf(self, before);
-    if (MLIntegerFrom(index) < 0) index = N(0);
-    return MLInsertManyAt(self, IA(object), index);
+    return MLInsertManyBefore(self, IA(object), before);
 }
 
 
