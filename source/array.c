@@ -792,8 +792,7 @@ static var MLMutableArrayInsertManyAfter(var class, var self, var command, var a
 static var MLMutableArrayReplaceWith(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var replacement = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    return MLReplaceWithMany(self, object, IA(replacement));
 }
 
 
@@ -808,8 +807,7 @@ static var MLMutableArrayReplaceWithMany(var class, var self, var command, var a
 static var MLMutableArrayReplaceAtWith(var class, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var replacement = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    return MLReplaceAtWithMany(self, index, IA(replacement));
 }
 
 
@@ -825,8 +823,7 @@ static var MLMutableArrayReplaceAtCountWith(var class, var self, var command, va
     var index = MLArgument(0);
     var count = MLArgument(1);
     var replacement = MLArgument(2);
-    MLError("TODO: implement.");
-    return null;
+    return MLReplaceAtCountWithMany(self, index, count, IA(replacement));
 }
 
 
@@ -861,8 +858,7 @@ static var MLMutableArrayRemoveMany(var class, var self, var command, var argume
 
 static var MLMutableArrayRemoveAt(var class, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
+    return MLRemoveAtMany(self, IA(index));
 }
 
 
