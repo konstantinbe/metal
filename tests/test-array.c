@@ -473,7 +473,13 @@ void MLTestMutableArrayInsertAfter() {
 
 
 void MLTestMutableArrayInsertManyAfter() {
-    // TODO: implement.
+    var array = MA();
+    MLInsertManyAfter(array, IA(N(6)), N(9));
+    MLAssertEquals(array, IA(N(6)), "[] insert-many [6] after 9 should change array to [6]");
+    MLInsertManyAfter(array, IA(N(4), N(5)), N(9));
+    MLAssertEquals(array, IA(N(6), N(4), N(5)), "[6] insert-many [4, 5] after 9 should change array to [6, 4, 5]");
+    MLInsertManyAfter(array, IA(N(4), N(5)), N(6));
+    MLAssertEquals(array, IA(N(6), N(4), N(5), N(4), N(5)), "[6, 4, 5] insert-many [4, 5] after 6 should change array to [6, 4, 5, 4, 5]");
 }
 
 
