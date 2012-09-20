@@ -553,11 +553,6 @@ void MLTestMutableArraySort() {
 }
 
 
-void MLTestMutableArrayIsMutable() {
-    // TODO: implement.
-}
-
-
 void MLTestArray() {
     MLTestArrayCount();
     MLTestArrayContains();
@@ -627,5 +622,4 @@ void MLTestArray() {
     MLTestMutableArrayRemoveAll();
     MLTestMutableArrayReverse();
     MLTestMutableArraySort();
-    MLTestMutableArrayIsMutable();
 }
