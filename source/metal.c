@@ -357,7 +357,7 @@ var MLLookup(var class, var command, var* foundInClass) {
 
 
 var MLDispatch(var class, var self, var command, var arguments, var options) {
-    unless (self) return null;
+    if (self.pointer == NULL) return null;
     unless (class) class = MLReference(MLObjectStructure(self).class);
 
     var foundInClass = null;
@@ -581,5 +581,4 @@ static MLLoadWithPriority(101) MLMetal() {
     MLMutableStringMetaClass.methods = MLHelperCreateDictionaryWithMethods(MLMutableStringMetaDefaultMethods);
     MLMutableDictionaryMetaClass.methods = MLHelperCreateDictionaryWithMethods(MLMutableDictionaryMetaDefaultMethods);
     MLPoolMetaClass.methods = MLHelperCreateDictionaryWithMethods(MLPoolMetaDefaultMethods);
-
 }
