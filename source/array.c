@@ -443,8 +443,12 @@ static var MLArraySorted(var class, var self, var command, var arguments, var op
 
 static var MLArrayPluck(var class, var self, var command, var arguments, var options) {
     var key = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
+    var values = MLNewWithCapacity(MLMutableArray, N(that.count));
+    each (object, index, self) {
+        var value = MLSend(object, key, null, null);
+        MLAdd(values, value);
+    }
+    return MLMakeAutoreleasedCopyAndReleaseOriginal(values);
 }
 
 
