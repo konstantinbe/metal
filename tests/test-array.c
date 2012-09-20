@@ -544,7 +544,15 @@ void MLTestMutableArrayRemoveAll() {
 
 
 void MLTestMutableArrayReverse() {
-    // TODO: implement.
+    var array1 = MA(N(1));
+    var array2 = MA(N(1), N(2));
+    var array3 = MA(N(1), N(2), N(3));
+    MLReverse(array1);
+    MLReverse(array2);
+    MLReverse(array3);
+    MLAssertEquals(array1, IA(N(1)), "[1] reverse should not change the array and leave it as [1]");
+    MLAssertEquals(array2, IA(N(2), N(1)), "[1, 2] reverse should change array to [2, 1]");
+    MLAssertEquals(array3, IA(N(3), N(2), N(1)), "[1, 2, 3] reverse should change array to [3, 2, 1]");
 }
 
 
