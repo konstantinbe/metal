@@ -562,7 +562,15 @@ void MLTestMutableArrayReverse() {
 
 
 void MLTestMutableArraySort() {
-    // TODO: implement.
+    var array1 = MA(N(1));
+    var array2 = MA(N(2), N(1));
+    var array3 = MA(N(3), N(2), N(1), N(4), N(6), N(5));
+    MLSort(array1);
+    MLSort(array2);
+    MLSort(array3);
+    MLAssertEquals(array1, IA(N(1)), "[1] sort should not change the array and leave it as [1]");
+    MLAssertEquals(array2, IA(N(1), N(2)), "[2, 1] sort should change array to [1, 2]");
+    MLAssertEquals(array3, IA(N(1), N(2), N(3), N(4), N(5), N(6)), "[3, 2, 1, 4, 6, 5] sort should change array to [1, 2, 3, 4, 5, 6]");
 }
 
 
