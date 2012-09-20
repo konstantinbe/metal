@@ -329,7 +329,12 @@ void MLTestArrayWithoutAtCount() {
 
 
 void MLTestArrayReversed() {
-    // TODO: implement.
+    var array1 = IA(N(1));
+    var array2 = IA(N(1), N(2));
+    var array3 = IA(N(1), N(2), N(3));
+    MLAssertEquals(MLReversed(array1), array1, "[1] reversed should return same array");
+    MLAssertEquals(MLReversed(array2), IA(N(2), N(1)), "[1, 2] reversed should return [2, 1]");
+    MLAssertEquals(MLReversed(array3), IA(N(3), N(2), N(1)), "[1, 2, 3] reverse should return [3, 2, 1]");
 }
 
 
