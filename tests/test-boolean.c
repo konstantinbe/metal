@@ -22,6 +22,14 @@
 #include "test.h"
 
 
+void MLTestBooleanEquals() {
+    MLAssertTrue(MLEquals(no, no), "no equals no should return yes");
+    MLAssertTrue(MLEquals(yes, yes), "yes equals yes should return yes");
+    MLAssertFalse(MLEquals(no, yes), "no equals yes should return no");
+    MLAssertFalse(MLEquals(yes, no), "yes equals no should return no");
+}
+
+
 void MLTestBoolean() {
-    // TODO: implement.
+    MLTestBooleanEquals();
 }
