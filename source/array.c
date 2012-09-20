@@ -888,8 +888,15 @@ static var MLMutableArrayRemoveAll(var class, var self, var command, var argumen
 
 
 static var MLMutableArrayReverse(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    const MLInteger center = that.count / 2;
+    for (MLInteger left = 0; left < center; left += 1) {
+        const MLInteger right = that.count - left - 1;
+        const var leftObject = that.objects[left];
+        const var rightObject = that.objects[right];
+        that.objects[left] = rightObject;
+        that.objects[right] = leftObject;
+    }
+    return self;
 }
 
 
