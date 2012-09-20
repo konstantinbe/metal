@@ -924,6 +924,18 @@ static var MLMutableArrayIsMutable(var class, var self, var command, var argumen
 }
 
 
+static var MLMutableArrayCopy(var class, var self, var command, var arguments, var options) {
+    var copy = MLCreate(MLArray);
+    return MLInitWithArray(copy, self);
+}
+
+
+static var MLMutableArrayMutableCopy(var class, var self, var command, var arguments, var options) {
+    var mutableCopy = MLCreate(MLMutableArray);
+    return MLInitWithArray(mutableCopy, self);
+}
+
+
 MLPointer MLMutableArrayDefaultMethods[] = {
     "init-with-capacity*", MLMutableArrayInitWithCapacity,
 
@@ -966,5 +978,9 @@ MLPointer MLMutableArrayDefaultMethods[] = {
     "sort", MLMutableArraySort,
 
     "is-mutable?", MLMutableArrayIsMutable,
+
+    "copy", MLMutableArrayCopy,
+    "mutable-copy", MLMutableArrayMutableCopy,
+
     NULL
 };
