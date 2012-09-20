@@ -349,7 +349,9 @@ void MLTestArraySorted() {
 
 
 void MLTestArrayPluck() {
-    // TODO: implement.
+    var numbers = IA(N(1), N(2), N(3));
+    MLAssertEquals(MLPluck(numbers, IS("is-number?")), IA(yes, yes, yes), "[1, 2, 3] pluck 'is-number?' should return [yes, yes, yes]");
+    MLAssertEquals(MLPluck(numbers, IS("is-boolean?")), IA(no, no, no), "[1, 2, 3] pluck 'is-boolean?' should return [no, no, no]");
 }
 
 
