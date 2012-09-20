@@ -339,7 +339,12 @@ void MLTestArrayReversed() {
 
 
 void MLTestArraySorted() {
-    // TODO: implement.
+    var array1 = IA(N(1));
+    var array2 = IA(N(2), N(1));
+    var array3 = IA(N(3), N(2), N(1), N(4), N(6), N(5));
+    MLAssertEquals(MLSorted(array1), IA(N(1)), "[1] sorted should return the same array");
+    MLAssertEquals(MLSorted(array2), IA(N(1), N(2)), "[2, 1] sorted should return [1, 2]");
+    MLAssertEquals(MLSorted(array3), IA(N(1), N(2), N(3), N(4), N(5), N(6)), "[3, 2, 1, 4, 6, 5] sorted should return [1, 2, 3, 4, 5, 6]");
 }
 
 
