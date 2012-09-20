@@ -420,8 +420,8 @@ static var MLArrayWithoutAtCount(var class, var self, var command, var arguments
 
 
 static var MLArrayReversed(var class, var self, var command, var arguments, var options) {
-    var mutable = MLNewWithCapacity(MLMutableArray, N(that.count));
-    for (MLInteger index = that.count - 1; index >= 0; index -= 1) MLAdd(mutable, that.objects[index]);
+    var mutable = MLMutableCopy(self);
+    MLReverse(mutable);
     var copy = MLCopy(mutable);
     MLRelease(mutable);
     return MLAutorelease(copy);
