@@ -672,9 +672,18 @@ static var MLMutableArrayMetaNewWithCapacity(var class, var self, var command, v
 }
 
 
+static var MLMutableArrayMetaWithCapacity(var class, var self, var command, var arguments, var options) {
+    var capacity = MLArgument(0);
+    var new = MLCreate(self);
+    MLInitWithCapacity(new, capacity);
+    return MLAutorelease(new);
+}
+
+
 MLPointer MLMutableArrayMetaDefaultMethods[] = {
     "create", MLMutableArrayMetaCreate,
     "new-with-capacity*", MLMutableArrayMetaNewWithCapacity,
+    "with-capacity*", MLMutableArrayMetaWithCapacity,
     NULL
 };
 
