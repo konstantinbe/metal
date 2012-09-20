@@ -30,6 +30,16 @@
 #define that MLArrayStructure(self)
 
 
+int MLCompare(const void* left, const void* right) {
+    const var leftObject = *(const var*)(left);
+    const var rightObject = *(const var*)(right);
+    if (MLIsNull(leftObject) && MLIsNull(rightObject)) return 0;
+    if (MLIsNull(leftObject)) return -1;
+    const var ordering = MLCompareTo(leftObject, rightObject);
+    return MLIntegerFrom(ordering);
+}
+
+
 static var MLArrayMetaCreate(var class, var self, var command, var arguments, var options) {
     return MLArrayMake(MLAllocate(MLArraySize), MLArray, 1, 0, 0, NULL);
 }
@@ -901,8 +911,8 @@ static var MLMutableArrayReverse(var class, var self, var command, var arguments
 
 
 static var MLMutableArraySort(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    qsort(that.objects, that.count, sizeof(var), MLCompare);
+    return self;
 }
 
 
