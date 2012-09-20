@@ -30,7 +30,7 @@
 #define that MLArrayStructure(self)
 
 
-int MLCompare(const void* left, const void* right) {
+static int MLCompare(const void* left, const void* right) {
     const var leftObject = *(const var*)(left);
     const var rightObject = *(const var*)(right);
     if (MLIsNull(leftObject) && MLIsNull(rightObject)) return 0;
