@@ -178,6 +178,9 @@
 #define MLRemoveLast(self, object) MLSend(self, IS("remove-last"), IA(object), null)
 #define MLRemoveLastCount(self, objects) MLSend(self, IS("remove-last*"), IA(objects), null)
 
+#define MLReverse(self) MLSend(self, IS("reverse"), null, null)
+#define MLSort(self) MLSend(self, IS("sort"), null, null)
+
 #define MLKeys(self) MLSend(self, IS("keys"), null, null)
 #define MLValues(self) MLSend(self, IS("values"), null, null)
 
