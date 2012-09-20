@@ -439,8 +439,11 @@ static var MLArrayReversed(var class, var self, var command, var arguments, var 
 
 
 static var MLArraySorted(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var mutable = MLMutableCopy(self);
+    MLSort(mutable);
+    var copy = MLCopy(mutable);
+    MLRelease(mutable);
+    return MLAutorelease(copy);
 }
 
 
