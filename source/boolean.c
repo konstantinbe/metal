@@ -47,6 +47,16 @@ static var MLBooleanIsBoolean(var class, var self, var command, var arguments, v
 }
 
 
+static var MLBooleanIsTruthy(var class, var self, var command, var arguments, var options) {
+    return B(self.payload.boolean);
+}
+
+
+static var MLBooleanIsFalsy(var class, var self, var command, var arguments, var options) {
+    return B(!self.payload.boolean);
+}
+
+
 static var MLBooleanDescription(var class, var self, var command, var arguments, var options) {
     when (self)
         return S("yes");
