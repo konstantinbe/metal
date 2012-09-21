@@ -34,8 +34,8 @@
 #define MLMethods(self) MLSend(self, IS("methods"), null, null)
 
 #define MLInit(self) MLSend(self, IS("init"), null, null)
-#define MLInitWithCapacity(self, capacity) MLSend(self, IS("init-with-capacity*"), IA(capacity), null)
 #define MLInitWithArray(self, array) MLSend(self, IS("init-with-array*"), IA(array), null)
+#define MLInitWithCapacity(self, capacity) MLSend(self, IS("init-with-capacity*"), IA(capacity), null)
 #define MLInitWithString(self, string) MLSend(self, IS("init-with-string*"), IA(string), null)
 #define MLDestroy(self) MLSend(self, IS("destroy"), null, null)
 
