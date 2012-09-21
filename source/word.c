@@ -71,20 +71,15 @@ static var MLWordCopy(var class, var self, var command, var arguments, var optio
 }
 
 
-static var MLWordMutableCopy(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
-}
-
-
 MLPointer MLWordDefaultMethods[] = {
     "destroy", MLWordDestroy,
+
     "is-word?", MLWordIsWord,
 
     "description", MLWordDescription,
     "equals*?", MLWordEquals,
     "hash", MLWordHash,
     "copy", MLWordCopy,
-    "mutable-copy", MLWordMutableCopy,
+
     NULL
 };

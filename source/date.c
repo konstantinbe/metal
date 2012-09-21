@@ -90,22 +90,17 @@ static var MLDateCopy(var class, var self, var command, var arguments, var optio
 }
 
 
-static var MLDateMutableCopy(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
-}
-
-
 MLPointer MLDateDefaultMethods[] = {
     "init", MLDateInit,
     "init-with-seconds-since-1970*", MLDateInitWithSecondsSince1970,
     "destroy", MLDateDestroy,
+
     "is-date?", MLDateIsDate,
 
     "description", MLDateDescription,
     "equals*?", MLDateEquals,
     "hash", MLDateHash,
     "copy", MLDateCopy,
-    "mutable-copy", MLDateMutableCopy,
+
      NULL
 };

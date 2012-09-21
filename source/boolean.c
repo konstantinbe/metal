@@ -70,25 +70,21 @@ static var MLBooleanHash(var class, var self, var command, var arguments, var op
 
 
 static var MLBooleanCopy(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
-}
-
-
-static var MLBooleanMutableCopy(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    return self;
 }
 
 
 MLPointer MLBooleanDefaultMethods[] = {
     "destroy", MLBooleanDestroy,
+
     "is-boolean?", MLBooleanIsBoolean,
+    "is-truthy?", MLBooleanIsTruthy,
+    "is-falsy?", MLBooleanIsFalsy,
 
     "description", MLBooleanDescription,
     "equals*?", MLBooleanEquals,
     "hash", MLBooleanHash,
     "copy", MLBooleanCopy,
-    "mutable-copy", MLBooleanMutableCopy,
+
     NULL
 };

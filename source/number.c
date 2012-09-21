@@ -42,6 +42,11 @@ static var MLNumberDestroy(var class, var self, var command, var arguments, var 
 }
 
 
+static var MLNumberIsNumber(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
 static var MLNumberIsNaN(var class, var self, var command, var arguments, var options) {
     MLError("TODO: implement this.");
     return null;
@@ -57,11 +62,6 @@ static var MLNumberIsFinite(var class, var self, var command, var arguments, var
 static var MLNumberIsInfinite(var class, var self, var command, var arguments, var options) {
     MLError("TODO: implement this.");
     return null;
-}
-
-
-static var MLNumberIsNumber(var class, var self, var command, var arguments, var options) {
-    return yes;
 }
 
 
@@ -90,12 +90,6 @@ static var MLNumberCopy(var class, var self, var command, var arguments, var opt
 }
 
 
-static var MLNumberMutableCopy(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
-}
-
-
 var MLNumberCompareTo(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     unless (MLIsNumber(object)) MLError("Can't compare number to object, object is not a number");
@@ -107,17 +101,18 @@ var MLNumberCompareTo(var class, var self, var command, var arguments, var optio
 
 MLPointer MLNumberDefaultMethods[] = {
     "destroy", MLNumberDestroy,
+
+    "is-number?", MLNumberIsNumber,
     "is-nan?", MLNumberIsNaN,
     "is-finite?", MLNumberIsFinite,
     "is-infinite?", MLNumberIsInfinite,
-    "is-number?", MLNumberIsNumber,
 
     "description", MLNumberDescription,
     "equals*?", MLNumberEquals,
     "hash", MLNumberHash,
     "copy", MLNumberCopy,
-    "mutable-copy", MLNumberMutableCopy,
 
     "compare-to*", MLNumberCompareTo,
+
     NULL
 };
