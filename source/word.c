@@ -48,26 +48,27 @@ static var MLWordIsWord(var class, var self, var command, var arguments, var opt
 
 
 static var MLWordDescription(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    const int stringCount = 1024 * 1024;
+    char* string = MLInline(stringCount + 1);
+    snprintf(string, stringCount, "%llx", self.payload.natural);
+    return S(string);
 }
 
 
 static var MLWordEquals(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var object = MLArgument(0);
+    unless (MLIsWord(object)) return no;
+    return B(self.payload.natural == object.payload.natural);
 }
 
 
 static var MLWordHash(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    return self;
 }
 
 
 static var MLWordCopy(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    return self;
 }
 
 
