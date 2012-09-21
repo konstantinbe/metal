@@ -136,6 +136,7 @@ MLPointer MLInlineDataDefaultMethods[] = {
     "retainCount", MLInlineDataRetainCount,
     "release", MLInlineDataRelease,
     "autorelease", MLInlineDataAutorelease,
+    NULL,
 };
 
 

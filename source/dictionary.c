@@ -249,6 +249,7 @@ MLPointer MLInlineDictionaryDefaultMethods[] = {
     "retainCount", MLInlineDictionaryRetainCount,
     "release", MLInlineDictionaryRelease,
     "autorelease", MLInlineDictionaryAutorelease,
+    NULL
 };
 
 

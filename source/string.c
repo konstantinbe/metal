@@ -553,6 +553,8 @@ MLPointer MLInlineStringDefaultMethods[] = {
     "retainCount", MLInlineStringRetainCount,
     "release", MLInlineStringRelease,
     "autorelease", MLInlineStringAutorelease,
+
+    NULL
 };
 
 

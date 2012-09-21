@@ -633,10 +633,13 @@ static var MLInlineArrayAutorelease(var class, var self, var command, var argume
 MLPointer MLInlineArrayDefaultMethods[] = {
     "copy", MLInlineArrayCopy,
     "mutable-copy", MLInlineArrayMutableCopy,
+
     "retain", MLInlineArrayRetain,
     "retainCount", MLInlineArrayRetainCount,
     "release", MLInlineArrayRelease,
     "autorelease", MLInlineArrayAutorelease,
+
+    NULL,
 };
 
 
