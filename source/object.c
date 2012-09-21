@@ -213,6 +213,16 @@ static var MLObjectIsDictionary(var class, var self, var command, var arguments,
 }
 
 
+static var MLObjectIsTruthy(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
+static var MLObjectIsFalsy(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
 static var MLObjectIsKindOf(var class, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
@@ -301,6 +311,9 @@ MLPointer MLObjectDefaultMethods[] = {
     "is-array?", MLObjectIsArray,
     "is-string?", MLObjectIsString,
     "is-dictionary?", MLObjectIsDictionary,
+
+    "is-truthy?", MLObjectIsTruthy,
+    "is-falsy?", MLObjectIsFalsy,
 
     "is-kind-of*?", MLObjectIsKindOf,
     "is-instance-of*?", MLObjectIsInstanceOf,
