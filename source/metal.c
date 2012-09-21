@@ -362,7 +362,10 @@ var MLLookup(var class, var command, var* foundInClass) {
 
 
 var MLDispatch(var class, var self, var command, var arguments, var options) {
-    if (self.pointer == NULL) return null;
+    if (self.pointer == NULL) {
+        MLError("Can't dispatch command  %s for something that is not a proper object (pointer is NULL)", MLStringStructure(command).characters);
+    }
+
     unless (class) class = MLReference(MLObjectStructure(self).class);
 
     var foundInClass = null;
