@@ -20,6 +20,7 @@
 // THE SOFTWARE.
 
 #include "number.h"
+#include "math.h"
 
 
 #define meta MLClassStructure(self)
@@ -42,32 +43,31 @@ static var MLNumberDestroy(var class, var self, var command, var arguments, var 
 }
 
 
+static var MLNumberIsNaN(var class, var self, var command, var arguments, var options) {
+    return B(isnan(self.payload.decimal));
+}
+
+
+static var MLNumberIsFinite(var class, var self, var command, var arguments, var options) {
+    return B(isfinite(self.payload.decimal));
+}
+
+
+static var MLNumberIsInfinite(var class, var self, var command, var arguments, var options) {
+    return B(isinf(self.payload.decimal));
+}
+
+
 static var MLNumberIsNumber(var class, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLNumberIsNaN(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement this.");
-    return null;
-}
-
-
-static var MLNumberIsFinite(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement this.");
-    return null;
-}
-
-
-static var MLNumberIsInfinite(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement this.");
-    return null;
-}
-
-
 static var MLNumberDescription(var class, var self, var command, var arguments, var options) {
-    MLWarning("TODO: implement method -description for numbers");
-    return null;
+    const int stringCount = 1024 * 1024;
+    char* string = MLInline(stringCount + 1);
+    snprintf(string, stringCount, "%f", self.payload.decimal);
+    return S(string);
 }
 
 
@@ -79,14 +79,12 @@ static var MLNumberEquals(var class, var self, var command, var arguments, var o
 
 
 static var MLNumberHash(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    return W(self.payload.natural);
 }
 
 
 static var MLNumberCopy(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    return self;
 }
 
 
@@ -102,10 +100,11 @@ var MLNumberCompareTo(var class, var self, var command, var arguments, var optio
 MLPointer MLNumberDefaultMethods[] = {
     "destroy", MLNumberDestroy,
 
-    "is-number?", MLNumberIsNumber,
     "is-nan?", MLNumberIsNaN,
     "is-finite?", MLNumberIsFinite,
     "is-infinite?", MLNumberIsInfinite,
+
+    "is-number?", MLNumberIsNumber,
 
     "description", MLNumberDescription,
     "equals*?", MLNumberEquals,
