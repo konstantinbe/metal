@@ -79,7 +79,6 @@ MLPointer MLObjectMetaDefaultMethods[] = {
 
 
 static var MLObjectInit(var class, var self, var command, var arguments, var options) {
-    that.retainCount = 1;
     return self;
 }
 
