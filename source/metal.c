@@ -83,12 +83,12 @@ static struct MLClass MLMutableDictionaryMetaClass = {.retainCount = MLRetainCou
 static struct MLClass MLPoolMetaClass = {.retainCount = MLRetainCountMax};
 
 
-static struct MLObject MLNullProxy = {&MLNullClass, MLNaturalMax};
-static struct MLObject MLBlockProxy = {&MLBlockClass, MLNaturalMax};
-static struct MLObject MLBooleanProxy = {&MLBooleanClass, MLNaturalMax};
-static struct MLObject MLNumberProxy = {&MLNumberClass, MLNaturalMax};
-static struct MLObject MLWordProxy = {&MLWordClass, MLNaturalMax};
-static struct MLObject MLDateProxy = {&MLDateClass, MLNaturalMax};
+static struct MLObject MLNullProxy = {&MLNullClass, MLRetainCountMax};
+static struct MLObject MLBlockProxy = {&MLBlockClass, MLRetainCountMax};
+static struct MLObject MLBooleanProxy = {&MLBooleanClass, MLRetainCountMax};
+static struct MLObject MLNumberProxy = {&MLNumberClass, MLRetainCountMax};
+static struct MLObject MLWordProxy = {&MLWordClass, MLRetainCountMax};
+static struct MLObject MLDateProxy = {&MLDateClass, MLRetainCountMax};
 
 
 const var MLObject = {&MLObjectClass};
