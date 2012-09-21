@@ -244,8 +244,7 @@ static var MLObjectIsInstanceOf(var class, var self, var command, var arguments,
 
 
 static var MLObjectRetain(var class, var self, var command, var arguments, var options) {
-    that.retainCount += 1;
-    if (that.retainCount > MLRetainCountMax) that.retainCount = MLRetainCountMax;
+    if (that.retainCount < MLRetainCountMax) that.retainCount += 1;
     return self;
 }
 
