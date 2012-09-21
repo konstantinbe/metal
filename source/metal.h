@@ -102,7 +102,7 @@
 #define each(object, index, array) for (var object = null, index = N(0), _count = MLCount(array); index.payload.decimal < _count.payload.decimal && (object = MLAt(array, index)).pointer != MLReference; index.payload.decimal += 1)
 #define every(key, value, dictionary) // TODO: define.
 
-#define whilst(expression) while (MLIsTrue(exression))
+#define whilst(expression) while (MLIsTrue(expression))
 #define until(expression) while (!MLIsTrue(expression))
 
 #define send(self, command, ...) MLSend(self, IS(command), IA(__VA_ARGS__), null)
