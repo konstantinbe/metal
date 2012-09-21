@@ -48,8 +48,10 @@ static var MLBooleanIsBoolean(var class, var self, var command, var arguments, v
 
 
 static var MLBooleanDescription(var class, var self, var command, var arguments, var options) {
-    MLWarning("TODO: implement method -description for booleans");
-    return null;
+    when (self)
+        return S("yes");
+    else
+        return S("no");
 }
 
 
