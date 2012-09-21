@@ -196,6 +196,9 @@
 #define MLPutValue(self, key, value) MLSend(self, IS("put*value*"), IA(key, value), null)
 #define MLPutMany(self, valuesByKeys) MLSend(self, IS("put-many*"), IA(valuesByKeys), null)
 
+#define MLIsYes(self) MLSend(self, IS("is-yes?"), null, null)
+#define MLIsNo(self) MLSend(self, IS("is-no?"), null, null)
+
 #define MLIsNaN(self) MLSend(self, IS("is-nan?"), null, null)
 #define MLIsFinite(self) MLSend(self, IS("is-finite?"), null, null)
 #define MLIsInfinite(self) MLSend(self, IS("is-infinite?"), null, null)

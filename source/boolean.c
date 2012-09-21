@@ -47,6 +47,16 @@ static var MLBooleanIsBoolean(var class, var self, var command, var arguments, v
 }
 
 
+static var MLBooleanIsYes(var class, var self, var command, var arguments, var options) {
+    return B(self.payload.boolean);
+}
+
+
+static var MLBooleanIsNo(var class, var self, var command, var arguments, var options) {
+    return B(!self.payload.boolean);
+}
+
+
 static var MLBooleanIsTruthy(var class, var self, var command, var arguments, var options) {
     return B(self.payload.boolean);
 }
@@ -88,6 +98,9 @@ static var MLBooleanCopy(var class, var self, var command, var arguments, var op
 
 MLPointer MLBooleanDefaultMethods[] = {
     "destroy", MLBooleanDestroy,
+
+    "is-yes?", MLBooleanIsYes,
+    "is-no?", MLBooleanIsNo,
 
     "is-boolean?", MLBooleanIsBoolean,
     "is-truthy?", MLBooleanIsTruthy,
