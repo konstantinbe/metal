@@ -35,8 +35,16 @@ static var MLStringMetaCreate(var class, var self, var command, var arguments, v
 }
 
 
+static var MLStringMetaNewWithString(var class, var self, var command, var arguments, var options) {
+    var string = MLArgument(0);
+    var new = MLCreate(self);
+    return MLInitWithString(new, string);
+}
+
+
 MLPointer MLStringMetaDefaultMethods[] = {
     "create", MLStringMetaCreate,
+    "new-with-string*", MLStringMetaNewWithString,
     NULL
 };
 
