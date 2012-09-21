@@ -24,7 +24,7 @@
 
 void MLTestPool() {
     var pool = MLNew(MLPool);
-    var object = MLNew(MLNumber);
+    var object = MLNew(MLString);
     MLAssertEquals(MLRetainCount(object), N(1), "A new object should have its retain count be 1");
 
     MLRetain(object);
