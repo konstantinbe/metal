@@ -67,26 +67,28 @@ static var MLDateIsDate(var class, var self, var command, var arguments, var opt
 
 
 static var MLDateDescription(var class, var self, var command, var arguments, var options) {
-    MLWarning("TODO: implement method -description for dates");
-    return null;
+    const int stringCount = 1024 * 1024;
+    char* string = MLInline(stringCount + 1);
+    // TODO: format date in ISO 8601 format
+    snprintf(string, stringCount, "Date(%f)", self.payload.decimal);
+    return S(string);
 }
 
 
 static var MLDateEquals(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var object = MLArgument(0);
+    unless (MLIsDate(object)) return no;
+    return B(self.payload.decimal == object.payload.decimal);
 }
 
 
 static var MLDateHash(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    return W(self.payload.natural);
 }
 
 
 static var MLDateCopy(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    return self;
 }
 
 
