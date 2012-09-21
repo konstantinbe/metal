@@ -512,6 +512,16 @@ MLPointer MLInlineStringMetaDefaultMethods[] = {
 };
 
 
+static var MLInlineStringCopy(var class, var self, var command, var arguments, var options) {
+    return MLNewWithString(MLString, self);
+}
+
+
+static var MLInlineStringMutableCopy(var class, var self, var command, var arguments, var options) {
+    return MLNewWithString(MLMutableString, self);
+}
+
+
 static var MLInlineStringRetain(var class, var self, var command, var arguments, var options) {
     MLError("Can't retain an inline string, you have to copy it");
     return null;
@@ -536,6 +546,9 @@ static var MLInlineStringAutorelease(var class, var self, var command, var argum
 
 
 MLPointer MLInlineStringDefaultMethods[] = {
+    "copy", MLInlineStringCopy,
+    "mutable-copy", MLInlineStringMutableCopy,
+
     "retain", MLInlineStringRetain,
     "retainCount", MLInlineStringRetainCount,
     "release", MLInlineStringRelease,
