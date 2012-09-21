@@ -266,6 +266,7 @@ static var MLObjectRelease(var class, var self, var command, var arguments, var 
 
 
 static var MLObjectAutorelease(var class, var self, var command, var arguments, var options) {
+    if (MLCurrentPool.pointer == NULL) MLError("Can't autorelease, no autorelase pool found");
     MLAdd(MLCurrentPool, self);
     return self;
 }
