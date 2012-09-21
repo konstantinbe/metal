@@ -42,7 +42,7 @@ void MLTestBegin() {
 }
 
 
-int MLTestEnd() {
+void MLTestEnd() {
     const char *color = RESET;
     if (MLNumberOfFailedExamples <= 0) color = GREEN;
     if (MLNumberOfFailedExamples >= 1) color = RED;
@@ -58,9 +58,6 @@ int MLTestEnd() {
 
     printf("Finished in %.1f seconds\n", duration);
     printf("%lld examples, %s%lld failures%s\n\n", MLTotalNumberOfExamples, color, MLNumberOfFailedExamples,  RESET);
-
-    if (MLNumberOfFailedExamples > 0) return 1;
-    return 0;
 }
 
 
@@ -117,7 +114,9 @@ void MLAssertNotEquals(var subject, var actual, char* message) {
 
 
 int main(int argumentsCount, char const* arguments[]) {
+    var pool = MLNew(MLPool);
     MLTestBegin();
+
     MLTestMetal();
     MLTestObject();
     MLTestNull();
@@ -131,5 +130,8 @@ int main(int argumentsCount, char const* arguments[]) {
     MLTestString();
     MLTestDictionary();
     MLTestPool();
-    return MLTestEnd();
+
+    MLTestEnd();
+    MLDrain(pool);
+    return MLNumberOfFailedExamples > 0 ? 1 : 0;
 }

@@ -29,7 +29,7 @@
 #include <metal/helper.h>
 
 void MLTestBegin();
-int MLTestEnd();
+void MLTestEnd();
 
 void MLAssertTrue(var object, char* message);
 void MLAssertFalse(var object, char* message);
