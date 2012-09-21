@@ -96,14 +96,14 @@
 #define MLSend(self, command, arguments, options) MLDispatch(null, self, command, arguments, options)
 #define MLSuper(command, arguments, options) MLDispatch(MLClassStructure(class).superclass, self, command, arguments, options)
 
-#define when(expression) if (MLIsTrue(expression))
-#define unless(expression) if (!MLIsTrue(expression))
+#define when(expression) if (MLIsTruthy(expression))
+#define unless(expression) if (!MLIsTruthy(expression))
 
 #define each(object, index, array) for (var object = null, index = N(0), _count = MLCount(array); index.payload.decimal < _count.payload.decimal && (object = MLAt(array, index)).pointer != MLReference; index.payload.decimal += 1)
 #define every(key, value, dictionary) // TODO: define.
 
-#define whilst(expression) while (MLIsTrue(expression))
-#define until(expression) while (!MLIsTrue(expression))
+#define whilst(expression) while (MLIsTruthy(expression))
+#define until(expression) while (!MLIsTruthy(expression))
 
 #define send(self, command, ...) MLSend(self, IS(command), IA(__VA_ARGS__), null)
 
@@ -187,6 +187,7 @@ struct MLPool {
 };
 
 extern const var MLObject;
+extern const var MLNull;
 extern const var MLBlock;
 extern const var MLBoolean;
 extern const var MLNumber;
@@ -214,8 +215,8 @@ var MLReference(MLPointer pointer);
 
 MLBool MLIsNull(var object);
 MLBool MLIsNotNull(var object);
-MLBool MLIsTrue(var object);
-MLBool MLIsFalse(var object);
+MLBool MLIsTruthy(var object);
+MLBool MLIsFalsy(var object);
 
 MLInteger MLIntegerFrom(var number);
 MLNatural MLNaturalFrom(var number);

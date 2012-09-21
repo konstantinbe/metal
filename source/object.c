@@ -163,7 +163,17 @@ var MLObjectIsGreaterThanOrEquals(var class, var self, var command, var argument
 }
 
 
+static var MLObjectIsObject(var class, var self, var command, var arguments, var options) {
+    return yes;
+}
+
+
 static var MLObjectIsClass(var class, var self, var command, var arguments, var options) {
+    return no;
+}
+
+
+static var MLObjectIsNull(var class, var self, var command, var arguments, var options) {
     return no;
 }
 
@@ -301,8 +311,11 @@ MLPointer MLObjectDefaultMethods[] = {
     "is-greater-than*?", MLObjectIsGreaterThan,
     "is-greater-than-or-equals*?", MLObjectIsGreaterThanOrEquals,
 
+    "is-object?", MLObjectIsObject,
+    "is-null?", MLObjectIsNull,
     "is-class?", MLObjectIsClass,
     "is-block?", MLObjectIsBlock,
+
     "is-boolean?", MLObjectIsBoolean,
     "is-number?", MLObjectIsNumber,
     "is-word?", MLObjectIsWord,

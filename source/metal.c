@@ -23,6 +23,7 @@
 #include "helper.h"
 
 #include "object.h"
+#include "null.h"
 #include "block.h"
 
 #include "boolean.h"
@@ -39,6 +40,7 @@
 
 
 static struct MLClass MLObjectClass = {.retainCount = MLRetainCountMax};
+static struct MLClass MLNullClass = {.retainCount = MLRetainCountMax};
 static struct MLClass MLBlockClass = {.retainCount = MLRetainCountMax};
 static struct MLClass MLBooleanClass = {.retainCount = MLRetainCountMax};
 static struct MLClass MLNumberClass = {.retainCount = MLRetainCountMax};
@@ -60,6 +62,7 @@ static struct MLClass MLPoolClass = {.retainCount = MLRetainCountMax};
 
 
 static struct MLClass MLObjectMetaClass = {.retainCount = MLRetainCountMax};
+static struct MLClass MLNullMetaClass = {.retainCount = MLRetainCountMax};
 static struct MLClass MLBlockMetaClass = {.retainCount = MLRetainCountMax};
 static struct MLClass MLBooleanMetaClass = {.retainCount = MLRetainCountMax};
 static struct MLClass MLNumberMetaClass = {.retainCount = MLRetainCountMax};
@@ -80,6 +83,7 @@ static struct MLClass MLMutableDictionaryMetaClass = {.retainCount = MLRetainCou
 static struct MLClass MLPoolMetaClass = {.retainCount = MLRetainCountMax};
 
 
+static struct MLObject MLNullProxy = {&MLNullClass, MLNaturalMax};
 static struct MLObject MLBlockProxy = {&MLBlockClass, MLNaturalMax};
 static struct MLObject MLBooleanProxy = {&MLBooleanClass, MLNaturalMax};
 static struct MLObject MLNumberProxy = {&MLNumberClass, MLNaturalMax};
@@ -88,6 +92,7 @@ static struct MLObject MLDateProxy = {&MLDateClass, MLNaturalMax};
 
 
 const var MLObject = {&MLObjectClass};
+const var MLNull = {&MLNullClass};
 const var MLBlock = {&MLBlockClass};
 const var MLBoolean = {&MLBooleanClass};
 const var MLNumber = {&MLNumberClass};
@@ -109,6 +114,7 @@ const var MLPool = {&MLPoolClass};
 
 
 const var MLObjectMeta = {&MLObjectMetaClass};
+const var MLNullMeta = {&MLNullMetaClass};
 const var MLBlockMeta = {&MLBlockMetaClass};
 const var MLBooleanMeta = {&MLBooleanMetaClass};
 const var MLNumberMeta = {&MLNumberMetaClass};
@@ -129,7 +135,7 @@ const var MLMutableDictionaryMeta = {&MLMutableDictionaryMetaClass};
 const var MLPoolMeta = {&MLPoolMetaClass};
 
 
-const var null = {0, {0}};
+const var null = {&MLNullProxy, {0}};
 const var yes = {&MLBooleanProxy, {true}};
 const var no = {&MLBooleanProxy, {false}};
 
@@ -143,26 +149,25 @@ var MLReference(MLPointer pointer) {
 
 
 MLBool MLIsNull(var object) {
-    if (object.pointer == NULL) return true;
+    if (object.pointer == &MLNullProxy) return true;
     return false;
 }
 
 
 MLBool MLIsNotNull(var object) {
-    if (object.pointer != NULL) return true;
-    return false;
+    return !MLIsNull(object);
 }
 
 
-MLBool MLIsTrue(var object) {
-    if (object.pointer == NULL) return false;
+MLBool MLIsTruthy(var object) {
+    if (object.pointer == &MLNullProxy) return false;
     if (MLObjectStructure(object).class == &MLBooleanClass) return object.payload.boolean;
     return true;
 }
 
 
-MLBool MLIsFalse(var object) {
-    return !MLIsTrue(object);
+MLBool MLIsFalsy(var object) {
+    return !MLIsTruthy(object);
 }
 
 
@@ -383,6 +388,7 @@ var MLDispatch(var class, var self, var command, var arguments, var options) {
 
 static MLLoadWithPriority(101) MLMetal() {
     MLObjectClass.class = &MLObjectMetaClass;
+    MLNullClass.class = &MLNullMetaClass;
     MLBlockClass.class = &MLBlockMetaClass;
     MLBooleanClass.class = &MLBooleanMetaClass;
     MLNumberClass.class = &MLNumberMetaClass;
@@ -403,6 +409,7 @@ static MLLoadWithPriority(101) MLMetal() {
     MLPoolClass.class = &MLPoolMetaClass;
 
     MLObjectMetaClass.class = &MLObjectMetaClass;
+    MLNullMetaClass.class = &MLNullMetaClass;
     MLBlockMetaClass.class = &MLBlockMetaClass;
     MLBooleanMetaClass.class = &MLBooleanMetaClass;
     MLNumberMetaClass.class = &MLNumberMetaClass;
@@ -423,6 +430,7 @@ static MLLoadWithPriority(101) MLMetal() {
     MLPoolMetaClass.class = &MLPoolMetaClass;
 
     MLObjectClass.superclass = null;
+    MLNullClass.superclass = MLObject;
     MLBlockClass.superclass = MLObject;
     MLBooleanClass.superclass = MLObject;
     MLNumberClass.superclass = MLObject;
@@ -443,6 +451,7 @@ static MLLoadWithPriority(101) MLMetal() {
     MLPoolClass.superclass = MLObject;
 
     MLObjectMetaClass.superclass = MLObject;
+    MLNullMetaClass.superclass = MLObjectMeta;
     MLBlockMetaClass.superclass = MLObjectMeta;
     MLBooleanMetaClass.superclass = MLObjectMeta;
     MLNumberMetaClass.superclass = MLObjectMeta;
@@ -463,6 +472,7 @@ static MLLoadWithPriority(101) MLMetal() {
     MLPoolMetaClass.superclass = MLObjectMeta;
 
     MLObjectClass.name = MLHelperCreateStringWithCharacters("Object");
+    MLNullClass.name = MLHelperCreateStringWithCharacters("Null");
     MLBlockClass.name = MLHelperCreateStringWithCharacters("Method");
     MLBooleanClass.name = MLHelperCreateStringWithCharacters("Boolean");
     MLNumberClass.name = MLHelperCreateStringWithCharacters("Number");
@@ -483,6 +493,7 @@ static MLLoadWithPriority(101) MLMetal() {
     MLPoolClass.name = MLHelperCreateStringWithCharacters("Pool");
 
     MLObjectMetaClass.name = MLHelperCreateStringWithCharacters("ObjectMeta");
+    MLNullMetaClass.name = MLHelperCreateStringWithCharacters("NullMeta");
     MLBlockMetaClass.name = MLHelperCreateStringWithCharacters("MethodMeta");
     MLBooleanMetaClass.name = MLHelperCreateStringWithCharacters("BooleanMeta");
     MLNumberMetaClass.name = MLHelperCreateStringWithCharacters("NumberMeta");
@@ -502,7 +513,8 @@ static MLLoadWithPriority(101) MLMetal() {
     MLMutableDictionaryMetaClass.name = MLHelperCreateStringWithCharacters("MutableDictionaryMeta");
     MLPoolMetaClass.name = MLHelperCreateStringWithCharacters("PoolMeta");
 
-    MLObjectClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(MLObjectMeta, MLBlock, MLBoolean, MLNumber, MLWord, MLDate, MLData, MLArray, MLString, MLDictionary, MLPool, null));
+    MLObjectClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(MLObjectMeta, MLNull, MLBlock, MLBoolean, MLNumber, MLWord, MLDate, MLData, MLArray, MLString, MLDictionary, MLPool, null));
+    MLNullClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
     MLBlockClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
     MLBooleanClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
     MLNumberClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
@@ -522,7 +534,8 @@ static MLLoadWithPriority(101) MLMetal() {
     MLMutableDictionaryClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
     MLPoolClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
 
-    MLObjectMetaClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(MLBlockMeta, MLBooleanMeta, MLNumberMeta, MLWordMeta, MLDateMeta, MLDataMeta, MLArrayMeta, MLStringMeta, MLDictionaryMeta, MLPoolMeta, null));
+    MLObjectMetaClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(MLNullMeta, MLBlockMeta, MLBooleanMeta, MLNumberMeta, MLWordMeta, MLDateMeta, MLDataMeta, MLArrayMeta, MLStringMeta, MLDictionaryMeta, MLPoolMeta, null));
+    MLNullMetaClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
     MLBlockMetaClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
     MLBooleanMetaClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
     MLNumberMetaClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
@@ -543,6 +556,7 @@ static MLLoadWithPriority(101) MLMetal() {
     MLPoolMetaClass.subclasses = MLHelperCreateArrayWithObjects(MLPointerToVariables(null));
 
     MLObjectClass.methods = MLHelperCreateDictionaryWithMethods(MLObjectDefaultMethods);
+    MLNullClass.methods = MLHelperCreateDictionaryWithMethods(MLNullDefaultMethods);
     MLBlockClass.methods = MLHelperCreateDictionaryWithMethods(MLBlockDefaultMethods);
     MLBooleanClass.methods = MLHelperCreateDictionaryWithMethods(MLBooleanDefaultMethods);
     MLNumberClass.methods = MLHelperCreateDictionaryWithMethods(MLNumberDefaultMethods);
@@ -563,6 +577,7 @@ static MLLoadWithPriority(101) MLMetal() {
     MLPoolClass.methods = MLHelperCreateDictionaryWithMethods(MLPoolDefaultMethods);
 
     MLObjectMetaClass.methods = MLHelperCreateDictionaryWithMethods(MLObjectMetaDefaultMethods);
+    MLNullMetaClass.methods = MLHelperCreateDictionaryWithMethods(MLNullMetaDefaultMethods);
     MLBlockMetaClass.methods = MLHelperCreateDictionaryWithMethods(MLBlockMetaDefaultMethods);
     MLBooleanMetaClass.methods = MLHelperCreateDictionaryWithMethods(MLBooleanMetaDefaultMethods);
     MLNumberMetaClass.methods = MLHelperCreateDictionaryWithMethods(MLNumberMetaDefaultMethods);

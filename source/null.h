@@ -19,40 +19,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ML_TEST_H
-#define ML_TEST_H
+#ifndef ML_NULL_H
+#define ML_NULL_H
 
-#include <assert.h>
-#include <stdio.h>
+#include "metal.h"
 
-#include <metal/metal.h>
-#include <metal/helper.h>
-
-void MLTestBegin();
-int MLTestEnd();
-
-void MLAssertTrue(var object, char* message);
-void MLAssertFalse(var object, char* message);
-
-void MLAssertNull(var object, char* message);
-void MLAssertNotNull(var object, char* message);
-
-void MLAssertEquals(var subject, var actual, char* message);
-void MLAssertNotEquals(var subject, var actual, char* message);
-
-void MLTestHelper();
-void MLTestMetal();
-void MLTestObject();
-void MLTestNull();
-void MLTestBlock();
-void MLTestBoolean();
-void MLTestNumber();
-void MLTestWord();
-void MLTestDate();
-void MLTestData();
-void MLTestArray();
-void MLTestString();
-void MLTestDictionary();
-void MLTestPool();
+extern MLPointer MLNullMetaDefaultMethods[];
+extern MLPointer MLNullDefaultMethods[];
 
 #endif

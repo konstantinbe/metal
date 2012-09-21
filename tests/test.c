@@ -120,6 +120,7 @@ int main(int argumentsCount, char const* arguments[]) {
     MLTestBegin();
     MLTestMetal();
     MLTestObject();
+    MLTestNull();
     MLTestBlock();
     MLTestBoolean();
     MLTestNumber();
