@@ -38,7 +38,7 @@
 #define MLNaturalMin 0
 #define MLNaturalMax 18446744073709551615ull
 
-#define MLRetainCountMax 0x00ffffffull
+#define MLRetainCountMax 0x0fffffffull
 
 #define MLDebug(message, ...) printf("[DEBUG] " message "\n", ## __VA_ARGS__)
 #define MLInfo(message, ...) printf("[INFO] " message "\n", ## __VA_ARGS__)
