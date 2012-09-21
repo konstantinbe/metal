@@ -100,7 +100,7 @@ var MLHelperCreateStringWithCharacters(const char* characters) {
 var MLHelperCreateArrayWithObjects(var objects[]) {
     struct MLArray* array = MLAllocateAndClear(MLArraySize);
     MLNatural count = 0;
-    while (MLIsTrue(objects[count])) count += 1;
+    whilst (objects[count]) count += 1;
     var* objectsCopy = MLAllocateAndClear(MLArraySize);
     for (MLNatural index = 0; index < count; index += 1) {
         objectsCopy[index] = objects[index];
