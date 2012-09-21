@@ -27,6 +27,7 @@
 
 #define MLNewWithArray(self, array) MLSend(self, IS("new-with-array*"), IA(array), null)
 #define MLNewWithCapacity(self, capacity) MLSend(self, IS("new-with-capacity*"), IA(capacity), null)
+#define MLNewWithString(self, string) MLSend(self, IS("new-with-string*"), IA(string), null)
 
 #define MLName(self) MLSend(self, IS("name"), null, null)
 #define MLSuperclass(self) MLSend(self, IS("superclass"), null, null)
