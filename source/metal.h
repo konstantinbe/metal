@@ -213,6 +213,12 @@ extern const var no;
 
 var MLReference(MLPointer pointer);
 
+MLBool MLIsObjectNull(var object);
+MLBool MLIsObjectNotNull(var object);
+
+MLBool MLIsObjectTruthy(var object);
+MLBool MLIsObjectFalsy(var object);
+
 MLBool MLIsNull(var object);
 MLBool MLIsNotNull(var object);
 

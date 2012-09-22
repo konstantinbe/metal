@@ -148,6 +148,19 @@ var MLReference(MLPointer pointer) {
 }
 
 
+MLBool MLIsObjectNull(var object) {
+    if (object.pointer == &MLNullProxy) return true;
+    return false;
+}
+
+
+MLBool MLIsObjectTruthy(var object) {
+    if (object.pointer == &MLNullProxy) return false;
+    if (MLObjectStructure(object).class == &MLBooleanClass) return object.payload.boolean;
+    return true;
+}
+
+
 MLBool MLIsNull(var object) {
     if (object.pointer == &MLNullProxy) return true;
     return false;
