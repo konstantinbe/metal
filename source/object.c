@@ -243,7 +243,8 @@ static var MLObjectIsKindOf(var class, var self, var command, var arguments, var
 
 
 static var MLObjectIsInstanceOf(var class, var self, var command, var arguments, var options) {
-    return MLEquals(MLClass(self), MLArgument(0));
+    var klass = MLArgument(0);
+    return MLEquals(MLClass(self), klass);
 }
 
 
