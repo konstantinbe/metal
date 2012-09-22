@@ -96,8 +96,12 @@ static var MLObjectClass(var class, var self, var command, var arguments, var op
 
 
 static var MLObjectDescription(var class, var self, var command, var arguments, var options) {
-    MLWarning("TODO: implement method -description for objects");
-    return null;
+    const int maxNumberOfCharacters = 1024 * 1024;
+    char* description = MLInline(maxNumberOfCharacters + 1);
+    var klass = MLClass(self);
+    var klassName = MLName(klass);
+    snprintf(description, maxNumberOfCharacters, "<%s>", MLStringStructure(klassName).characters);
+    return S(description);
 }
 
 
