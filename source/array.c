@@ -33,8 +33,6 @@
 static int MLCompare(const void* left, const void* right) {
     const var leftObject = *(const var*)(left);
     const var rightObject = *(const var*)(right);
-    if (MLIsNull(leftObject) && MLIsNull(rightObject)) return 0;
-    if (MLIsNull(leftObject)) return -1;
     const var ordering = MLCompareTo(leftObject, rightObject);
     return MLIntegerFrom(ordering);
 }
