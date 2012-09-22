@@ -171,6 +171,9 @@ MLBool MLIsFalsy(var object) {
 }
 
 
+MLBool MLBoolFrom(var boolean) {
+    if (boolean.pointer != &MLBooleanProxy) MLError("Can't convert boolean to bool, object is not a boolean");
+    return (MLBool)boolean.payload.boolean;
 }
 
 

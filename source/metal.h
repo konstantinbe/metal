@@ -219,6 +219,7 @@ MLBool MLIsNotNull(var object);
 MLBool MLIsTruthy(var object);
 MLBool MLIsFalsy(var object);
 
+MLBool MLBoolFrom(var boolean);
 MLInteger MLIntegerFrom(var number);
 MLDecimal MLDecimalFrom(var number);
 MLNatural MLNaturalFrom(var number);
