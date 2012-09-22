@@ -122,7 +122,7 @@ task 'profile:summary' => [:prepare, 'profile:collect'] do
 
   results = raw.scan /File '(.*)'\nLines executed:(\d+\.\d+)% of (\d+)/
   results = results.reject do |result|
-    result[0].start_with? "test" or result[0].include? "/" or result[2].include? "no functions found"
+    result[0].start_with? "test" or result[0].start_with? "__" or result[0].include? "/" or result[2].include? "no functions found"
   end
 
   total_number_of_lines = 0
@@ -170,7 +170,7 @@ task 'profile:details' => ['profile:collect'] do
 
     results = raw.scan /Function '(.*)'\nLines executed:(\d+\.\d+)% of (\d+)/
     results = results.reject do |result|
-      result[0].start_with? "_-" or result[0].include? "/" or result[2].include? "no functions found"
+      result[0].start_with? "_-" or result[0].start_with? "__" or result[0].include? "/" or result[2].include? "no functions found"
     end
 
     dashes = "-" * (80 - 6 - 6 - 1 - 1 - source_file.size)
