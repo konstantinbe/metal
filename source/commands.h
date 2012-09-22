@@ -53,6 +53,8 @@
 #define MLIsGreaterThan(self, object) MLSend(self, IS("is-greater-than*?"), IA(object), null)
 #define MLIsGreaterThanOrEquals(self, object) MLSend(self, IS("is-greater-than-or-equals*?"), IA(object), null)
 
+#define MLIsObject(self) MLSend(self, IS("is-object?"), null, null)
+#define MLIsNull(self) MLSend(self, IS("is-null?"), null, null)
 #define MLIsClass(self) MLSend(self, IS("is-class?"), null, null)
 #define MLIsBlock(self) MLSend(self, IS("is-block?"), null, null)
 #define MLIsBoolean(self) MLSend(self, IS("is-boolean?"), null, null)

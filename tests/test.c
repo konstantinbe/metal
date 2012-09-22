@@ -94,12 +94,12 @@ void MLAssertFalse(var object, char* message) {
 
 
 void MLAssertNull(var object, char* message) {
-    MLAssertTrue(B(MLIsNull(object)), message);
+    MLAssertTrue(MLIsNull(object), message);
 }
 
 
 void MLAssertNotNull(var object, char* message) {
-    MLAssertTrue(B(MLIsNotNull(object)), message);
+    MLAssertFalse(MLIsNull(object), message);
 }
 
 

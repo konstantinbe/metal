@@ -55,7 +55,7 @@
 
 #define MLNumberOfVariables(...) (sizeof((var[]){null, __VA_ARGS__}) / MLVariableSize - 1)
 #define MLPointerToVariables(...) ((var[]){null, __VA_ARGS__} + 1)
-#define MLArgument(number) (MLIsNull(arguments) ? null : ((struct MLArray*)arguments.pointer)->objects[number])
+#define MLArgument(number) (MLIsObjectNull(arguments) ? null : ((struct MLArray*)arguments.pointer)->objects[number])
 
 #define B(value) MLBooleanMake(value)
 #define N(value) MLNumberMake(value)
@@ -214,13 +214,7 @@ extern const var no;
 var MLReference(MLPointer pointer);
 
 MLBool MLIsObjectNull(var object);
-MLBool MLIsObjectNotNull(var object);
-
 MLBool MLIsObjectTruthy(var object);
-MLBool MLIsObjectFalsy(var object);
-
-MLBool MLIsNull(var object);
-MLBool MLIsNotNull(var object);
 
 MLBool MLIsTruthy(var object);
 MLBool MLIsFalsy(var object);

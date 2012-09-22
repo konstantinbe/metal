@@ -161,17 +161,6 @@ MLBool MLIsObjectTruthy(var object) {
 }
 
 
-MLBool MLIsNull(var object) {
-    if (object.pointer == &MLNullProxy) return true;
-    return false;
-}
-
-
-MLBool MLIsNotNull(var object) {
-    return !MLIsNull(object);
-}
-
-
 MLBool MLIsTruthy(var object) {
     if (object.pointer == &MLNullProxy) return false;
     if (MLObjectStructure(object).class == &MLBooleanClass) return object.payload.boolean;
@@ -343,10 +332,10 @@ var MLLookup(var class, var command, var* foundInClass) {
     unless (class) return null;
     var methods = MLClassStructure(class).methods;
 
-    const MLBool isCommandAString = MLIsNotNull(command) && MLObjectStructure(command).class == &MLStringClass;
-    const MLBool isCommandAnInlineString = MLIsNotNull(command) && MLObjectStructure(command).class == &MLInlineStringClass;
-    const MLBool isMethodsADictionary = MLIsNotNull(methods) && MLObjectStructure(methods).class == &MLDictionaryClass;
-    const MLBool isMethodsAMutableDictionary = MLIsNotNull(methods) && MLObjectStructure(methods).class == &MLMutableDictionaryClass;
+    const MLBool isCommandAString = !MLIsObjectNull(command) && MLObjectStructure(command).class == &MLStringClass;
+    const MLBool isCommandAnInlineString = !MLIsObjectNull(command) && MLObjectStructure(command).class == &MLInlineStringClass;
+    const MLBool isMethodsADictionary = !MLIsObjectNull(methods) && MLObjectStructure(methods).class == &MLDictionaryClass;
+    const MLBool isMethodsAMutableDictionary = !MLIsObjectNull(methods) && MLObjectStructure(methods).class == &MLMutableDictionaryClass;
 
     MLAssert(isCommandAString || isCommandAnInlineString, "Command should be a string");
     MLAssert(isMethodsADictionary || isMethodsAMutableDictionary, "Methods should be a dictionary");
@@ -360,9 +349,9 @@ var MLLookup(var class, var command, var* foundInClass) {
         var key = entries[index];
         var value = entries[index + 1];
 
-        if (MLIsNotNull(key)) {
-            const MLBool isKeyAString = MLIsNotNull(key) && MLObjectStructure(key).class == &MLStringClass;
-            const MLBool isValueABlock = MLIsNotNull(value) && MLObjectStructure(value).class == &MLBlockClass;
+        if (!MLIsObjectNull(key)) {
+            const MLBool isKeyAString = !MLIsObjectNull(key) && MLObjectStructure(key).class == &MLStringClass;
+            const MLBool isValueABlock = !MLIsObjectNull(value) && MLObjectStructure(value).class == &MLBlockClass;
 
             MLAssert(isValueABlock, "Key should be a string");
             MLAssert(isValueABlock, "Value should be a block");
@@ -389,7 +378,7 @@ var MLDispatch(var class, var self, var command, var arguments, var options) {
 
     var foundInClass = null;
 
-    MLAssert(MLIsNotNull(class), "Class must be not null");
+    MLAssert(!MLIsObjectNull(class), "Class must be not null");
 
     var method = MLLookup(class, command, &foundInClass);
     when (method) {
