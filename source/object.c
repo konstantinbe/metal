@@ -98,9 +98,9 @@ static var MLObjectClass(var context, var self, var command, var arguments, var 
 static var MLObjectDescription(var context, var self, var command, var arguments, var options) {
     const int maxNumberOfCharacters = 1024 * 1024;
     char* description = MLInline(maxNumberOfCharacters + 1);
-    var klass = MLClass(self);
-    var klassName = MLName(klass);
-    snprintf(description, maxNumberOfCharacters, "<%s>", MLStringStructure(klassName).characters);
+    var class = MLClass(self);
+    var className = MLName(class);
+    snprintf(description, maxNumberOfCharacters, "<%s>", MLStringStructure(className).characters);
     return S(description);
 }
 
@@ -237,10 +237,10 @@ static var MLObjectIsFalsy(var context, var self, var command, var arguments, va
 
 
 static var MLObjectIsKindOf(var context, var self, var command, var arguments, var options) {
-    var klass = MLArgument(0);
+    var class = MLArgument(0);
     var current = MLClass(self);
     whilst (current) {
-        when (MLEquals(current, klass)) return yes;
+        when (MLEquals(current, class)) return yes;
         current = MLSuperclass(current);
     }
     return no;
@@ -248,8 +248,8 @@ static var MLObjectIsKindOf(var context, var self, var command, var arguments, v
 
 
 static var MLObjectIsInstanceOf(var context, var self, var command, var arguments, var options) {
-    var klass = MLArgument(0);
-    return MLEquals(MLClass(self), klass);
+    var class = MLArgument(0);
+    return MLEquals(MLClass(self), class);
 }
 
 
@@ -284,9 +284,9 @@ static var MLObjectPerformArgumentsOptionsBlock(var context, var self, var comma
     var commandToPerform = MLArgument(0);
     var argumentsToPass = MLArgument(1);
     var optionsToPass = MLArgument(2);
-    var klass = MLClass(self);
-    var klassName = MLName(klass);
-    MLError("Can't perform command, %s doesn't respond to \"%s\"", MLStringStructure(klassName).characters, MLStringStructure(commandToPerform).characters);
+    var class = MLClass(self);
+    var className = MLName(class);
+    MLError("Can't perform command, %s doesn't respond to \"%s\"", MLStringStructure(className).characters, MLStringStructure(commandToPerform).characters);
     return null;
 }
 
