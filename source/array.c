@@ -480,13 +480,9 @@ static var MLArrayEquals(var class, var self, var command, var arguments, var op
     for (MLInteger index = 0; index < count; index += 1) {
         var object1 = that.objects[index];
         var object2 = MLArrayStructure(array).objects[index];
-
-        const bool isNull1 = MLIsNull(object1);
-        const bool isNull2 = MLIsNull(object2);
-        if (isNull1 != isNull2) return no;
-
         unless (MLEquals(object1, object2)) return no;
     }
+
     return yes;
 }
 
