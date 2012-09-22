@@ -161,18 +161,6 @@ MLBool MLIsObjectTruthy(var object) {
 }
 
 
-MLBool MLIsTruthy(var object) {
-    if (object.pointer == &MLNullProxy) return false;
-    if (MLObjectStructure(object).class == &MLBooleanClass) return object.payload.boolean;
-    return true;
-}
-
-
-MLBool MLIsFalsy(var object) {
-    return !MLIsTruthy(object);
-}
-
-
 MLBool MLBoolFrom(var boolean) {
     if (boolean.pointer != &MLBooleanProxy) MLError("Can't convert boolean to bool, object is not a boolean");
     return (MLBool)boolean.payload.boolean;
