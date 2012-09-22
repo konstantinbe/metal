@@ -215,6 +215,7 @@ var MLReference(MLPointer pointer);
 
 MLBool MLIsNull(var object);
 MLBool MLIsNotNull(var object);
+
 MLBool MLIsTruthy(var object);
 MLBool MLIsFalsy(var object);
 

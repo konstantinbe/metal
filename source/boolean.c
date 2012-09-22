@@ -77,11 +77,12 @@ static var MLBooleanDescription(var class, var self, var command, var arguments,
 
 static var MLBooleanEquals(var class, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
-    if (MLIsNull(object)) return no;
     unless (MLIsBoolean(object)) return no;
-    const bool isTrueLeft = self.payload.boolean;
-    const bool isTrueRight = object.payload.boolean;
-    const bool equals = (isTrueLeft && isTrueRight) || (!isTrueLeft && !isTrueRight);
+    const bool isLeftYes = self.payload.boolean;
+    const bool isRightYes = object.payload.boolean;
+    const bool isLeftNo = !isLeftYes;
+    const bool isRightNo = !isRightYes;
+    const bool equals = (isLeftYes && isRightYes) || (isLeftNo && isRightNo);
     return B(equals);
 }
 
