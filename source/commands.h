@@ -66,6 +66,9 @@
 #define MLIsString(self) MLSend(self, IS("is-string?"), null, null)
 #define MLIsDictionary(self) MLSend(self, IS("is-dictionary?"), null, null)
 
+#define MLIsTruthy(self) MLSend(self, IS("is-truthy?"), null, null)
+#define MLIsFalsy(self) MLSend(self, IS("is-falsy?"), null, null)
+
 #define MLIsKindOf(self, class) MLSend(self, IS("is-kind-of*?"), IA(class), null)
 #define MLIsInstanceOf(self, class) MLSend(self, IS("is-instance-of*?"), IA(class), null)
 
