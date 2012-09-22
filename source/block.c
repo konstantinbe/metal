@@ -26,7 +26,7 @@
 #define that MLObjectStructure(self)
 
 
-static var MLBlockMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLBlockMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLBlockMake(NULL);
 }
 
@@ -37,34 +37,34 @@ MLPointer MLBlockMetaDefaultMethods[] = {
 };
 
 
-static var MLBlockDestroy(var class, var self, var command, var arguments, var options) {
+static var MLBlockDestroy(var context, var self, var command, var arguments, var options) {
     return null;
 }
 
 
-static var MLBlockIsBlock(var class, var self, var command, var arguments, var options) {
+static var MLBlockIsBlock(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLBlockDescription(var class, var self, var command, var arguments, var options) {
+static var MLBlockDescription(var context, var self, var command, var arguments, var options) {
     MLWarning("TODO: implement method -description for blocks");
     return null;
 }
 
 
-static var MLBlockEquals(var class, var self, var command, var arguments, var options) {
+static var MLBlockEquals(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     return B(self.pointer == object.pointer && self.payload.code == object.payload.code);
 }
 
 
-static var MLBlockHash(var class, var self, var command, var arguments, var options) {
+static var MLBlockHash(var context, var self, var command, var arguments, var options) {
     return W((MLNatural)self.payload.code);
 }
 
 
-static var MLBlockCopy(var class, var self, var command, var arguments, var options) {
+static var MLBlockCopy(var context, var self, var command, var arguments, var options) {
     return self;
 }
 

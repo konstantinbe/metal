@@ -45,12 +45,12 @@ static var MLMakeAutoreleasedCopyAndReleaseOriginal(var array) {
 }
 
 
-static var MLArrayMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLArrayMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLArrayMake(MLAllocate(MLArraySize), MLArray, 1, 0, 0, NULL);
 }
 
 
-static var MLArrayMetaNewWithArray(var class, var self, var command, var arguments, var options) {
+static var MLArrayMetaNewWithArray(var context, var self, var command, var arguments, var options) {
     var array = MLArgument(0);
     var new = MLCreate(self);
     return MLInitWithArray(new, array);
@@ -64,7 +64,7 @@ MLPointer MLArrayMetaDefaultMethods[] = {
 };
 
 
-static var MLArrayInit(var class, var self, var command, var arguments, var options) {
+static var MLArrayInit(var context, var self, var command, var arguments, var options) {
     self = MLSuper(command, arguments, options);
     when (self) {
         that.count = 0;
@@ -75,7 +75,7 @@ static var MLArrayInit(var class, var self, var command, var arguments, var opti
 }
 
 
-static var MLArrayInitWithArray(var class, var self, var command, var arguments, var options) {
+static var MLArrayInitWithArray(var context, var self, var command, var arguments, var options) {
     var array = MLArgument(0);
     self = MLSuper(IS("init"), null, null);
     when (self) {
@@ -97,7 +97,7 @@ static var MLArrayInitWithArray(var class, var self, var command, var arguments,
 }
 
 
-static var MLArrayDestroy(var class, var self, var command, var arguments, var options) {
+static var MLArrayDestroy(var context, var self, var command, var arguments, var options) {
     for (MLInteger index = 0; index < that.count; index += 1) {
         MLRelease(that.objects[index]);
     }
@@ -107,19 +107,19 @@ static var MLArrayDestroy(var class, var self, var command, var arguments, var o
 }
 
 
-static var MLArrayCount(var class, var self, var command, var arguments, var options) {
+static var MLArrayCount(var context, var self, var command, var arguments, var options) {
     return N(that.count);
 }
 
 
-static var MLArrayContains(var class, var self, var command, var arguments, var options) {
+static var MLArrayContains(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var index = MLIndexOf(self, object);
     return B(MLIntegerFrom(index) >= 0);
 }
 
 
-static var MLArrayContainsAny(var class, var self, var command, var arguments, var options) {
+static var MLArrayContainsAny(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     each (object, index, objects) {
         when (MLContains(self, object)) return yes;
@@ -128,7 +128,7 @@ static var MLArrayContainsAny(var class, var self, var command, var arguments, v
 }
 
 
-static var MLArrayContainsAll(var class, var self, var command, var arguments, var options) {
+static var MLArrayContainsAll(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     each (object, index, objects) {
         unless (MLContains(self, object)) return no;
@@ -137,22 +137,22 @@ static var MLArrayContainsAll(var class, var self, var command, var arguments, v
 }
 
 
-static var MLArrayIsEmpty(var class, var self, var command, var arguments, var options) {
+static var MLArrayIsEmpty(var context, var self, var command, var arguments, var options) {
     return B(that.count == 0);
 }
 
 
-static var MLArrayIsInline(var class, var self, var command, var arguments, var options) {
+static var MLArrayIsInline(var context, var self, var command, var arguments, var options) {
     return B(that.class == MLInlineArray.pointer);
 }
 
 
-static var MLArrayIsMutable(var class, var self, var command, var arguments, var options) {
+static var MLArrayIsMutable(var context, var self, var command, var arguments, var options) {
     return B(that.class == MLMutableArray.pointer);
 }
 
 
-static var MLArrayAt(var class, var self, var command, var arguments, var options) {
+static var MLArrayAt(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     MLInteger integerIndex = MLIntegerFrom(index);
     if (integerIndex < 0 || integerIndex >= that.count) return null;
@@ -160,7 +160,7 @@ static var MLArrayAt(var class, var self, var command, var arguments, var option
 }
 
 
-static var MLArrayAtMany(var class, var self, var command, var arguments, var options) {
+static var MLArrayAtMany(var context, var self, var command, var arguments, var options) {
     var indexes = MLArgument(0);
     var objects = MLCreate(MLMutableArray);
     MLInitWithCapacity(objects, MLCount(indexes));
@@ -176,7 +176,7 @@ static var MLArrayAtMany(var class, var self, var command, var arguments, var op
 }
 
 
-static var MLArrayAtCount(var class, var self, var command, var arguments, var options) {
+static var MLArrayAtCount(var context, var self, var command, var arguments, var options) {
     // TODO: revisit this method to bahave properly when index or count is negative.
     var index = MLArgument(0);
     var count = MLArgument(1);
@@ -190,7 +190,7 @@ static var MLArrayAtCount(var class, var self, var command, var arguments, var o
 }
 
 
-static var MLArrayIndexOf(var class, var self, var command, var arguments, var options) {
+static var MLArrayIndexOf(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     for (MLInteger index = 0; index < that.count; index += 1) {
         var equals = MLEquals(that.objects[index], object);
@@ -200,7 +200,7 @@ static var MLArrayIndexOf(var class, var self, var command, var arguments, var o
 }
 
 
-static var MLArrayLastIndexOf(var class, var self, var command, var arguments, var options) {
+static var MLArrayLastIndexOf(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     for (MLInteger index = that.count - 1; index >= 0; index -= 1) {
         var equals = MLEquals(that.objects[index], object);
@@ -210,7 +210,7 @@ static var MLArrayLastIndexOf(var class, var self, var command, var arguments, v
 }
 
 
-static var MLArrayIndexesOf(var class, var self, var command, var arguments, var options) {
+static var MLArrayIndexesOf(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var indexes = MLNewWithCapacity(MLMutableArray, N(that.count));
     for (MLInteger index = 0; index < that.count; index += 1) {
@@ -221,13 +221,13 @@ static var MLArrayIndexesOf(var class, var self, var command, var arguments, var
 }
 
 
-static var MLArrayFirst(var class, var self, var command, var arguments, var options) {
+static var MLArrayFirst(var context, var self, var command, var arguments, var options) {
     if (that.count == 0) return null;
     return that.objects[0];
 }
 
 
-static var MLArrayFirstCount(var class, var self, var command, var arguments, var options) {
+static var MLArrayFirstCount(var context, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
     if (MLDecimalFrom(count) >= that.count) return MLAutorelease(MLCopy(self));
     var index = N(0);
@@ -235,13 +235,13 @@ static var MLArrayFirstCount(var class, var self, var command, var arguments, va
 }
 
 
-static var MLArrayLast(var class, var self, var command, var arguments, var options) {
+static var MLArrayLast(var context, var self, var command, var arguments, var options) {
     if (that.count == 0) return null;
     return that.objects[that.count - 1];
 }
 
 
-static var MLArrayLastCount(var class, var self, var command, var arguments, var options) {
+static var MLArrayLastCount(var context, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
     const MLDecimal decimalCount = MLDecimalFrom(count);
     if (decimalCount >= that.count) return MLAutorelease(MLCopy(self));
@@ -250,30 +250,30 @@ static var MLArrayLastCount(var class, var self, var command, var arguments, var
 }
 
 
-static var MLArraySecond(var class, var self, var command, var arguments, var options) {
+static var MLArraySecond(var context, var self, var command, var arguments, var options) {
     if (that.count < 2) return null;
     return that.objects[1];
 }
 
 
-static var MLArrayThird(var class, var self, var command, var arguments, var options) {
+static var MLArrayThird(var context, var self, var command, var arguments, var options) {
     if (that.count < 3) return null;
     return that.objects[2];
 }
 
 
-static var MLArrayRest(var class, var self, var command, var arguments, var options) {
+static var MLArrayRest(var context, var self, var command, var arguments, var options) {
     return MLWithoutAt(self, N(0));
 }
 
 
-static var MLArrayWith(var class, var self, var command, var arguments, var options) {
+static var MLArrayWith(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     return MLWithMany(self, IA(object));
 }
 
 
-static var MLArrayWithMany(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithMany(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var mutable = MLMutableCopy(self);
     var index = N(that.count);
@@ -282,14 +282,14 @@ static var MLArrayWithMany(var class, var self, var command, var arguments, var 
 }
 
 
-static var MLArrayWithAt(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithAt(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var index = MLArgument(1);
     return MLWithManyAt(self, IA(object), index);
 }
 
 
-static var MLArrayWithManyAt(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithManyAt(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var index = MLArgument(1);
     var mutable = MLMutableCopy(self);
@@ -298,14 +298,14 @@ static var MLArrayWithManyAt(var class, var self, var command, var arguments, va
 }
 
 
-static var MLArrayWithBefore(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithBefore(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var before = MLArgument(1);
     return MLWithManyBefore(self, IA(object), before);
 }
 
 
-static var MLArrayWithManyBefore(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithManyBefore(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var before = MLArgument(1);
     var index = MLIndexOf(self, before);
@@ -314,14 +314,14 @@ static var MLArrayWithManyBefore(var class, var self, var command, var arguments
 }
 
 
-static var MLArrayWithAfter(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithAfter(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var after = MLArgument(1);
     return MLWithManyAfter(self, IA(object), after);
 }
 
 
-static var MLArrayWithManyAfter(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithManyAfter(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var after = MLArgument(1);
     var index = MLLastIndexOf(self, after);
@@ -330,14 +330,14 @@ static var MLArrayWithManyAfter(var class, var self, var command, var arguments,
 }
 
 
-static var MLArrayWithReplacing(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithReplacing(var context, var self, var command, var arguments, var options) {
     var replacement = MLArgument(0);
     var object = MLArgument(1);
     return MLWithManyReplacing(self, IA(replacement), object);
 }
 
 
-static var MLArrayWithManyReplacing(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithManyReplacing(var context, var self, var command, var arguments, var options) {
     var replacements = MLArgument(0);
     var object = MLArgument(1);
     MLError("TODO: implement.");
@@ -345,14 +345,14 @@ static var MLArrayWithManyReplacing(var class, var self, var command, var argume
 }
 
 
-static var MLArrayWithReplacingAt(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithReplacingAt(var context, var self, var command, var arguments, var options) {
     var replacement = MLArgument(0);
     var index = MLArgument(1);
     return MLWithManyReplacingAt(self, IA(replacement), index);
 }
 
 
-static var MLArrayWithManyReplacingAt(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithManyReplacingAt(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var index = MLArgument(1);
     var mutable = MLMutableCopy(self);
@@ -361,7 +361,7 @@ static var MLArrayWithManyReplacingAt(var class, var self, var command, var argu
 }
 
 
-static var MLArrayWithReplacingAtCount(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithReplacingAtCount(var context, var self, var command, var arguments, var options) {
     var replacement = MLArgument(0);
     var index = MLArgument(1);
     var count = MLArgument(2);
@@ -369,7 +369,7 @@ static var MLArrayWithReplacingAtCount(var class, var self, var command, var arg
 }
 
 
-static var MLArrayWithManyReplacingAtCount(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithManyReplacingAtCount(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var index = MLArgument(1);
     var count = MLArgument(2);
@@ -379,13 +379,13 @@ static var MLArrayWithManyReplacingAtCount(var class, var self, var command, var
 }
 
 
-static var MLArrayWithout(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithout(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     return MLWithoutMany(self, IA(object));
 }
 
 
-static var MLArrayWithoutMany(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithoutMany(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var mutable = MLMutableCopy(self);
     MLRemoveMany(mutable, objects);
@@ -393,13 +393,13 @@ static var MLArrayWithoutMany(var class, var self, var command, var arguments, v
 }
 
 
-static var MLArrayWithoutAt(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithoutAt(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     return MLWithoutAtCount(self, index, N(1));
 }
 
 
-static var MLArrayWithoutAtMany(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithoutAtMany(var context, var self, var command, var arguments, var options) {
     var indexes = MLArgument(0);
     var mutable = MLMutableCopy(self);
     MLRemoveAtMany(mutable, indexes);
@@ -407,7 +407,7 @@ static var MLArrayWithoutAtMany(var class, var self, var command, var arguments,
 }
 
 
-static var MLArrayWithoutAtCount(var class, var self, var command, var arguments, var options) {
+static var MLArrayWithoutAtCount(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var count = MLArgument(1);
     var mutable = MLMutableCopy(self);
@@ -416,21 +416,21 @@ static var MLArrayWithoutAtCount(var class, var self, var command, var arguments
 }
 
 
-static var MLArrayReversed(var class, var self, var command, var arguments, var options) {
+static var MLArrayReversed(var context, var self, var command, var arguments, var options) {
     var mutable = MLMutableCopy(self);
     MLReverse(mutable);
     return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
-static var MLArraySorted(var class, var self, var command, var arguments, var options) {
+static var MLArraySorted(var context, var self, var command, var arguments, var options) {
     var mutable = MLMutableCopy(self);
     MLSort(mutable);
     return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
-static var MLArrayPluck(var class, var self, var command, var arguments, var options) {
+static var MLArrayPluck(var context, var self, var command, var arguments, var options) {
     var key = MLArgument(0);
     var values = MLNewWithCapacity(MLMutableArray, N(that.count));
     each (object, index, self) {
@@ -441,7 +441,7 @@ static var MLArrayPluck(var class, var self, var command, var arguments, var opt
 }
 
 
-static var MLArrayMin(var class, var self, var command, var arguments, var options) {
+static var MLArrayMin(var context, var self, var command, var arguments, var options) {
     var min = MLFirst(self);
     each (object, index, self) {
         when (MLIsLessThan(object, min)) min = object;
@@ -450,7 +450,7 @@ static var MLArrayMin(var class, var self, var command, var arguments, var optio
 }
 
 
-static var MLArrayMax(var class, var self, var command, var arguments, var options) {
+static var MLArrayMax(var context, var self, var command, var arguments, var options) {
     var max = MLFirst(self);
     each (object, index, self) {
         when (MLIsGreaterThan(object, max)) max = object;
@@ -459,18 +459,18 @@ static var MLArrayMax(var class, var self, var command, var arguments, var optio
 }
 
 
-static var MLArrayIsArray(var class, var self, var command, var arguments, var options) {
+static var MLArrayIsArray(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLArrayDescription(var class, var self, var command, var arguments, var options) {
+static var MLArrayDescription(var context, var self, var command, var arguments, var options) {
     MLWarning("TODO: implement method -description for arrays");
     return null;
 }
 
 
-static var MLArrayEquals(var class, var self, var command, var arguments, var options) {
+static var MLArrayEquals(var context, var self, var command, var arguments, var options) {
     var array = MLArgument(0);
     unless (MLIsArray(array)) return no;
 
@@ -487,12 +487,12 @@ static var MLArrayEquals(var class, var self, var command, var arguments, var op
 }
 
 
-static var MLArrayCopy(var class, var self, var command, var arguments, var options) {
+static var MLArrayCopy(var context, var self, var command, var arguments, var options) {
     return MLRetain(self);
 }
 
 
-static var MLArrayMutableCopy(var class, var self, var command, var arguments, var options) {
+static var MLArrayMutableCopy(var context, var self, var command, var arguments, var options) {
     var mutableCopy = MLCreate(MLMutableArray);
     return MLInitWithArray(mutableCopy, self);
 }
@@ -579,7 +579,7 @@ MLPointer MLArrayDefaultMethods[] = {
 };
 
 
-static var MLInlineArrayMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLInlineArrayMetaCreate(var context, var self, var command, var arguments, var options) {
     MLError("Can't create inline array, inline arrays can only be inlined");
     return null;
 }
@@ -591,34 +591,34 @@ MLPointer MLInlineArrayMetaDefaultMethods[] = {
 };
 
 
-static var MLInlineArrayCopy(var class, var self, var command, var arguments, var options) {
+static var MLInlineArrayCopy(var context, var self, var command, var arguments, var options) {
     return MLNewWithArray(MLArray, self);
 }
 
 
-static var MLInlineArrayMutableCopy(var class, var self, var command, var arguments, var options) {
+static var MLInlineArrayMutableCopy(var context, var self, var command, var arguments, var options) {
     return MLNewWithArray(MLMutableArray, self);
 }
 
 
-static var MLInlineArrayRetain(var class, var self, var command, var arguments, var options) {
+static var MLInlineArrayRetain(var context, var self, var command, var arguments, var options) {
     MLError("Can't retain an inline array, you have to copy it");
     return null;
 }
 
 
-static var MLInlineArrayRetainCount(var class, var self, var command, var arguments, var options) {
+static var MLInlineArrayRetainCount(var context, var self, var command, var arguments, var options) {
     return N(-1);
 }
 
 
-static var MLInlineArrayRelease(var class, var self, var command, var arguments, var options) {
+static var MLInlineArrayRelease(var context, var self, var command, var arguments, var options) {
     MLError("Can't release an inline array because it can't be retained in the first place");
     return null;
 }
 
 
-static var MLInlineArrayAutorelease(var class, var self, var command, var arguments, var options) {
+static var MLInlineArrayAutorelease(var context, var self, var command, var arguments, var options) {
     MLError("Can't autorelease an inline array because it can't be retained in the first place");
     return null;
 }
@@ -637,19 +637,19 @@ MLPointer MLInlineArrayDefaultMethods[] = {
 };
 
 
-static var MLMutableArrayMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLArrayMake(MLAllocate(MLArraySize), MLMutableArray, 1, 0, 0, NULL);
 }
 
 
-static var MLMutableArrayMetaNewWithCapacity(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayMetaNewWithCapacity(var context, var self, var command, var arguments, var options) {
     var capacity = MLArgument(0);
     var new = MLCreate(self);
     return MLInitWithCapacity(new, capacity);
 }
 
 
-static var MLMutableArrayMetaWithCapacity(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayMetaWithCapacity(var context, var self, var command, var arguments, var options) {
     var capacity = MLArgument(0);
     var new = MLCreate(self);
     MLInitWithCapacity(new, capacity);
@@ -665,7 +665,7 @@ MLPointer MLMutableArrayMetaDefaultMethods[] = {
 };
 
 
-static var MLMutableArrayInitWithCapacity(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInitWithCapacity(var context, var self, var command, var arguments, var options) {
     var capacity = MLArgument(0);
     self = MLSuper(IS("init"), null, null);
     when (self) {
@@ -675,12 +675,12 @@ static var MLMutableArrayInitWithCapacity(var class, var self, var command, var 
 }
 
 
-static var MLMutableArrayCapacity(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayCapacity(var context, var self, var command, var arguments, var options) {
     return N(that.capacity);
 }
 
 
-static var MLMutableArrayIncreaseCapacity(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayIncreaseCapacity(var context, var self, var command, var arguments, var options) {
     var capacity = MLArgument(0);
 
     MLInteger integerCapacity = MLIntegerFrom(capacity);
@@ -696,7 +696,7 @@ static var MLMutableArrayIncreaseCapacity(var class, var self, var command, var 
 }
 
 
-static var MLMutableArrayAdd(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayAdd(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     if (that.capacity <= that.count) MLIncreaseCapacity(self, N(that.count + 1));
     that.objects[that.count] = MLRetain(object);
@@ -705,7 +705,7 @@ static var MLMutableArrayAdd(var class, var self, var command, var arguments, va
 }
 
 
-static var MLMutableArrayAddMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayAddMany(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var objectsCount = MLCount(objects);
     const MLInteger requiredCapacity = that.count + MLIntegerFrom(objectsCount);
@@ -718,26 +718,26 @@ static var MLMutableArrayAddMany(var class, var self, var command, var arguments
 }
 
 
-static var MLMutableArrayInsert(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsert(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     return MLInsertManyAt(self, IA(object), N(0));
 }
 
 
-static var MLMutableArrayInsertMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsertMany(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     return MLInsertManyAt(self, objects, N(0));
 }
 
 
-static var MLMutableArrayInsertAt(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsertAt(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var index = MLArgument(1);
     return MLInsertManyAt(self, IA(object), index);
 }
 
 
-static var MLMutableArrayInsertManyAt(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsertManyAt(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var index = MLArgument(1);
 
@@ -764,14 +764,14 @@ static var MLMutableArrayInsertManyAt(var class, var self, var command, var argu
 }
 
 
-static var MLMutableArrayInsertBefore(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsertBefore(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var before = MLArgument(1);
     return MLInsertManyBefore(self, IA(object), before);
 }
 
 
-static var MLMutableArrayInsertManyBefore(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsertManyBefore(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var before = MLArgument(1);
     var index = MLIndexOf(self, before);
@@ -780,14 +780,14 @@ static var MLMutableArrayInsertManyBefore(var class, var self, var command, var 
 }
 
 
-static var MLMutableArrayInsertAfter(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsertAfter(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var after = MLArgument(1);
     return MLInsertManyAfter(self, IA(object), after);
 }
 
 
-static var MLMutableArrayInsertManyAfter(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayInsertManyAfter(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var after = MLArgument(1);
     const var index = MLLastIndexOf(self, after);
@@ -797,14 +797,14 @@ static var MLMutableArrayInsertManyAfter(var class, var self, var command, var a
 }
 
 
-static var MLMutableArrayReplaceWith(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayReplaceWith(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var replacement = MLArgument(1);
     return MLReplaceWithMany(self, object, IA(replacement));
 }
 
 
-static var MLMutableArrayReplaceWithMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayReplaceWithMany(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var replacements = MLArgument(1);
     MLError("TODO: implement.");
@@ -812,14 +812,14 @@ static var MLMutableArrayReplaceWithMany(var class, var self, var command, var a
 }
 
 
-static var MLMutableArrayReplaceAtWith(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayReplaceAtWith(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var replacement = MLArgument(1);
     return MLReplaceAtWithMany(self, index, IA(replacement));
 }
 
 
-static var MLMutableArrayReplaceAtWithMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayReplaceAtWithMany(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var replacements = MLArgument(1);
     MLError("TODO: implement.");
@@ -827,7 +827,7 @@ static var MLMutableArrayReplaceAtWithMany(var class, var self, var command, var
 }
 
 
-static var MLMutableArrayReplaceAtCountWith(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayReplaceAtCountWith(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var count = MLArgument(1);
     var replacement = MLArgument(2);
@@ -835,7 +835,7 @@ static var MLMutableArrayReplaceAtCountWith(var class, var self, var command, va
 }
 
 
-static var MLMutableArrayReplaceAtCountWithMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayReplaceAtCountWithMany(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var count = MLArgument(1);
     var replacements = MLArgument(2);
@@ -844,14 +844,14 @@ static var MLMutableArrayReplaceAtCountWithMany(var class, var self, var command
 }
 
 
-static var MLMutableArrayRemove(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayRemove(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var indexes = MLIndexesOf(self, object);
     return MLRemoveAtMany(self, indexes);
 }
 
 
-static var MLMutableArrayRemoveMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayRemoveMany(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var indexes = MLNewWithCapacity(MLMutableArray, N(that.count));
     each (object, index, objects) {
@@ -864,20 +864,20 @@ static var MLMutableArrayRemoveMany(var class, var self, var command, var argume
 }
 
 
-static var MLMutableArrayRemoveAt(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayRemoveAt(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     return MLRemoveAtMany(self, IA(index));
 }
 
 
-static var MLMutableArrayRemoveAtMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayRemoveAtMany(var context, var self, var command, var arguments, var options) {
     var indexes = MLArgument(0);
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLMutableArrayRemoveAtCount(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayRemoveAtCount(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var count = MLArgument(1);
     MLError("TODO: implement.");
@@ -885,7 +885,7 @@ static var MLMutableArrayRemoveAtCount(var class, var self, var command, var arg
 }
 
 
-static var MLMutableArrayRemoveAll(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayRemoveAll(var context, var self, var command, var arguments, var options) {
     for (MLInteger index = 0; index < that.count; index += 1) {
         MLRelease(that.objects[index]);
         that.objects[index] = null;
@@ -895,7 +895,7 @@ static var MLMutableArrayRemoveAll(var class, var self, var command, var argumen
 }
 
 
-static var MLMutableArrayReverse(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayReverse(var context, var self, var command, var arguments, var options) {
     const MLInteger center = that.count / 2;
     for (MLInteger left = 0; left < center; left += 1) {
         const MLInteger right = that.count - left - 1;
@@ -908,24 +908,24 @@ static var MLMutableArrayReverse(var class, var self, var command, var arguments
 }
 
 
-static var MLMutableArraySort(var class, var self, var command, var arguments, var options) {
+static var MLMutableArraySort(var context, var self, var command, var arguments, var options) {
     qsort(that.objects, that.count, sizeof(var), MLCompare);
     return self;
 }
 
 
-static var MLMutableArrayIsMutable(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayIsMutable(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLMutableArrayCopy(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayCopy(var context, var self, var command, var arguments, var options) {
     var copy = MLCreate(MLArray);
     return MLInitWithArray(copy, self);
 }
 
 
-static var MLMutableArrayMutableCopy(var class, var self, var command, var arguments, var options) {
+static var MLMutableArrayMutableCopy(var context, var self, var command, var arguments, var options) {
     var mutableCopy = MLCreate(MLMutableArray);
     return MLInitWithArray(mutableCopy, self);
 }

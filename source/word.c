@@ -26,7 +26,7 @@
 #define that MLWord(self)
 
 
-static var MLWordMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLWordMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLWordMake(0);
 }
 
@@ -37,17 +37,17 @@ MLPointer MLWordMetaDefaultMethods[] = {
 };
 
 
-static var MLWordDestroy(var class, var self, var command, var arguments, var options) {
+static var MLWordDestroy(var context, var self, var command, var arguments, var options) {
     return null;
 }
 
 
-static var MLWordIsWord(var class, var self, var command, var arguments, var options) {
+static var MLWordIsWord(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLWordDescription(var class, var self, var command, var arguments, var options) {
+static var MLWordDescription(var context, var self, var command, var arguments, var options) {
     const int stringCount = 1024 * 1024;
     char* string = MLInline(stringCount + 1);
     snprintf(string, stringCount, "%llx", self.payload.natural);
@@ -55,19 +55,19 @@ static var MLWordDescription(var class, var self, var command, var arguments, va
 }
 
 
-static var MLWordEquals(var class, var self, var command, var arguments, var options) {
+static var MLWordEquals(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     unless (MLIsWord(object)) return no;
     return B(self.payload.natural == object.payload.natural);
 }
 
 
-static var MLWordHash(var class, var self, var command, var arguments, var options) {
+static var MLWordHash(var context, var self, var command, var arguments, var options) {
     return self;
 }
 
 
-static var MLWordCopy(var class, var self, var command, var arguments, var options) {
+static var MLWordCopy(var context, var self, var command, var arguments, var options) {
     return self;
 }
 

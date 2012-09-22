@@ -29,7 +29,7 @@
 #define that MLDataStructure(self)
 
 
-static var MLDataMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLDataMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLDataMake(MLAllocate(MLDataSize), MLData, 1, 0, 0, NULL);
 }
 
@@ -40,7 +40,7 @@ MLPointer MLDataMetaDefaultMethods[] = {
 };
 
 
-static var MLDataInit(var class, var self, var command, var arguments, var options) {
+static var MLDataInit(var context, var self, var command, var arguments, var options) {
     self = MLSuper(command, arguments, options);
     when (self) {
         // TODO: implement.
@@ -49,41 +49,41 @@ static var MLDataInit(var class, var self, var command, var arguments, var optio
 }
 
 
-static var MLDataDestroy(var class, var self, var command, var arguments, var options) {
+static var MLDataDestroy(var context, var self, var command, var arguments, var options) {
     return null;
 }
 
 
-static var MLDataIsData(var class, var self, var command, var arguments, var options) {
+static var MLDataIsData(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLDataDescription(var class, var self, var command, var arguments, var options) {
+static var MLDataDescription(var context, var self, var command, var arguments, var options) {
     MLWarning("TODO: implement method -description for data");
     return null;
 }
 
 
-static var MLDataEquals(var class, var self, var command, var arguments, var options) {
+static var MLDataEquals(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDataHash(var class, var self, var command, var arguments, var options) {
+static var MLDataHash(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDataCopy(var class, var self, var command, var arguments, var options) {
+static var MLDataCopy(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDataMutableCopy(var class, var self, var command, var arguments, var options) {
+static var MLDataMutableCopy(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
@@ -108,24 +108,24 @@ MLPointer MLInlineDataMetaDefaultMethods[] = {
 };
 
 
-static var MLInlineDataRetain(var class, var self, var command, var arguments, var options) {
+static var MLInlineDataRetain(var context, var self, var command, var arguments, var options) {
     MLError("Can't retain an inline data, you have to copy it");
     return null;
 }
 
 
-static var MLInlineDataRetainCount(var class, var self, var command, var arguments, var options) {
+static var MLInlineDataRetainCount(var context, var self, var command, var arguments, var options) {
     return N(-1);
 }
 
 
-static var MLInlineDataRelease(var class, var self, var command, var arguments, var options) {
+static var MLInlineDataRelease(var context, var self, var command, var arguments, var options) {
     MLError("Can't release an inline data because it can't be retained in the first place");
     return null;
 }
 
 
-static var MLInlineDataAutorelease(var class, var self, var command, var arguments, var options) {
+static var MLInlineDataAutorelease(var context, var self, var command, var arguments, var options) {
     MLError("Can't autorelease an inline data because it can't be retained in the first place");
     return null;
 }

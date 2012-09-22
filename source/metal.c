@@ -357,24 +357,24 @@ var MLLookup(var class, var command, var* foundInClass) {
 }
 
 
-var MLDispatch(var class, var self, var command, var arguments, var options) {
+var MLDispatch(var context, var self, var command, var arguments, var options) {
     if (self.pointer == NULL) {
         MLError("Can't dispatch command  %s for something that is not a proper object (pointer is NULL)", MLStringStructure(command).characters);
     }
 
-    unless (class) class = MLReference(MLObjectStructure(self).class);
+    unless (context) context = MLReference(MLObjectStructure(self).class);
 
     var foundInClass = null;
 
-    MLAssert(!MLIsObjectNull(class), "Class must be not null");
+    MLAssert(!MLIsObjectNull(context), "Context must be a class and not null");
 
-    var method = MLLookup(class, command, &foundInClass);
+    var method = MLLookup(context, command, &foundInClass);
     when (method) {
         // TODO: cache this method.
         return method.payload.code(foundInClass, self, command, arguments, options);
     }
 
-    var fallback = MLLookup(class, IS("perform*arguments*options*"), &foundInClass);
+    var fallback = MLLookup(context, IS("perform*arguments*options*"), &foundInClass);
     when (fallback) {
         // TODO: cache this method.
         return fallback.payload.code(foundInClass, self, IS("perform*arguments*options*"), IA(command, arguments, options), null);

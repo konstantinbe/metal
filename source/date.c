@@ -26,7 +26,7 @@
 #define that MLObjectStructure(self)
 
 
-static var MLDateMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLDateMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLDateMake(0);
 }
 
@@ -37,36 +37,36 @@ MLPointer MLDateMetaDefaultMethods[] = {
 };
 
 
-static var MLDateInit(var class, var self, var command, var arguments, var options) {
+static var MLDateInit(var context, var self, var command, var arguments, var options) {
     return self;
 }
 
 
-static var MLDateInitWithSecondsSince1970(var class, var self, var command, var arguments, var options) {
+static var MLDateInitWithSecondsSince1970(var context, var self, var command, var arguments, var options) {
     var secondsSince1970 = MLArgument(0);
     unless (secondsSince1970) return null;
     return MLDateMake(MLDecimalFrom(secondsSince1970));
 }
 
 
-static var MLDateDestroy(var class, var self, var command, var arguments, var options) {
+static var MLDateDestroy(var context, var self, var command, var arguments, var options) {
     return null;
 }
 
 
-static var MLDateParse(var class, var self, var command, var arguments, var options) {
+static var MLDateParse(var context, var self, var command, var arguments, var options) {
     var string = MLArgument(0);
     // TODO: implement.
     return null;
 }
 
 
-static var MLDateIsDate(var class, var self, var command, var arguments, var options) {
+static var MLDateIsDate(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLDateDescription(var class, var self, var command, var arguments, var options) {
+static var MLDateDescription(var context, var self, var command, var arguments, var options) {
     const int stringCount = 1024 * 1024;
     char* string = MLInline(stringCount + 1);
     // TODO: format date in ISO 8601 format
@@ -75,19 +75,19 @@ static var MLDateDescription(var class, var self, var command, var arguments, va
 }
 
 
-static var MLDateEquals(var class, var self, var command, var arguments, var options) {
+static var MLDateEquals(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     unless (MLIsDate(object)) return no;
     return B(self.payload.decimal == object.payload.decimal);
 }
 
 
-static var MLDateHash(var class, var self, var command, var arguments, var options) {
+static var MLDateHash(var context, var self, var command, var arguments, var options) {
     return W(self.payload.natural);
 }
 
 
-static var MLDateCopy(var class, var self, var command, var arguments, var options) {
+static var MLDateCopy(var context, var self, var command, var arguments, var options) {
     return self;
 }
 

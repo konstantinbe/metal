@@ -27,7 +27,7 @@
 #define that MLObjectStructure(self)
 
 
-static var MLNumberMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLNumberMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLNumberMake(0);
 }
 
@@ -38,32 +38,32 @@ MLPointer MLNumberMetaDefaultMethods[] = {
 };
 
 
-static var MLNumberDestroy(var class, var self, var command, var arguments, var options) {
+static var MLNumberDestroy(var context, var self, var command, var arguments, var options) {
     return null;
 }
 
 
-static var MLNumberIsNaN(var class, var self, var command, var arguments, var options) {
+static var MLNumberIsNaN(var context, var self, var command, var arguments, var options) {
     return B(isnan(self.payload.decimal));
 }
 
 
-static var MLNumberIsFinite(var class, var self, var command, var arguments, var options) {
+static var MLNumberIsFinite(var context, var self, var command, var arguments, var options) {
     return B(isfinite(self.payload.decimal));
 }
 
 
-static var MLNumberIsInfinite(var class, var self, var command, var arguments, var options) {
+static var MLNumberIsInfinite(var context, var self, var command, var arguments, var options) {
     return B(isinf(self.payload.decimal));
 }
 
 
-static var MLNumberIsNumber(var class, var self, var command, var arguments, var options) {
+static var MLNumberIsNumber(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLNumberDescription(var class, var self, var command, var arguments, var options) {
+static var MLNumberDescription(var context, var self, var command, var arguments, var options) {
     const int stringCount = 1024 * 1024;
     char* string = MLInline(stringCount + 1);
     snprintf(string, stringCount, "%f", self.payload.decimal);
@@ -71,24 +71,24 @@ static var MLNumberDescription(var class, var self, var command, var arguments, 
 }
 
 
-static var MLNumberEquals(var class, var self, var command, var arguments, var options) {
+static var MLNumberEquals(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     unless (MLIsNumber(object)) return no;
     return B(self.payload.decimal == object.payload.decimal);
 }
 
 
-static var MLNumberHash(var class, var self, var command, var arguments, var options) {
+static var MLNumberHash(var context, var self, var command, var arguments, var options) {
     return W(self.payload.natural);
 }
 
 
-static var MLNumberCopy(var class, var self, var command, var arguments, var options) {
+static var MLNumberCopy(var context, var self, var command, var arguments, var options) {
     return self;
 }
 
 
-var MLNumberCompareTo(var class, var self, var command, var arguments, var options) {
+var MLNumberCompareTo(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     unless (MLIsNumber(object)) MLError("Can't compare number to object, object is not a number");
     if (MLDecimalFrom(self) < MLDecimalFrom(object)) return N(-1);

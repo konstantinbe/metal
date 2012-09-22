@@ -29,7 +29,7 @@
 var MLCurrentPool;
 
 
-static var MLPoolMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLPoolMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLPoolMake(MLAllocate(MLPoolSize), MLPool, 1, null, null);
 }
 
@@ -40,7 +40,7 @@ MLPointer MLPoolMetaDefaultMethods[] = {
 };
 
 
-static var MLPoolInit(var class, var self, var command, var arguments, var options) {
+static var MLPoolInit(var context, var self, var command, var arguments, var options) {
     self = MLSuper(command, arguments, options);
     when (self) {
         that.previousPool = MLCurrentPool;
@@ -51,7 +51,7 @@ static var MLPoolInit(var class, var self, var command, var arguments, var optio
 }
 
 
-static var MLPoolDestroy(var class, var self, var command, var arguments, var options) {
+static var MLPoolDestroy(var context, var self, var command, var arguments, var options) {
     MLCurrentPool = that.previousPool;
     that.objects = MLRelease(that.objects);
     MLSuper(command, arguments, options);
@@ -59,7 +59,7 @@ static var MLPoolDestroy(var class, var self, var command, var arguments, var op
 }
 
 
-static var MLPoolAdd(var class, var self, var command, var arguments, var options) {
+static var MLPoolAdd(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     MLAdd(that.objects, object);
     MLRelease(object);
@@ -67,12 +67,12 @@ static var MLPoolAdd(var class, var self, var command, var arguments, var option
 }
 
 
-static var MLPoolDrain(var class, var self, var command, var arguments, var options) {
+static var MLPoolDrain(var context, var self, var command, var arguments, var options) {
     return MLRelease(self);
 }
 
 
-static var MLPoolRetain(var class, var self, var command, var arguments, var options) {
+static var MLPoolRetain(var context, var self, var command, var arguments, var options) {
     MLError("Can't retain an autorelease pool");
     return null;
 }

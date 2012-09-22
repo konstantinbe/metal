@@ -94,7 +94,7 @@
 #define MLLoad MLLoadWithPriority(1000000)
 
 #define MLSend(self, command, arguments, options) MLDispatch(null, self, command, arguments, options)
-#define MLSuper(command, arguments, options) MLDispatch(MLClassStructure(class).superclass, self, command, arguments, options)
+#define MLSuper(command, arguments, options) MLDispatch(MLClassStructure(context).superclass, self, command, arguments, options)
 
 #define when(expression) if (MLIsObjectTruthy(expression))
 #define unless(expression) if (!MLIsObjectTruthy(expression))
@@ -118,7 +118,7 @@ typedef union MLPayload MLPayload;
 typedef struct MLVariable MLVariable;
 typedef MLVariable var;
 
-typedef var (*MLCode)(var class, var self, var command, var arguments, var options);
+typedef var (*MLCode)(var context, var self, var command, var arguments, var options);
 
 union MLPayload {
     MLBool boolean;
@@ -240,6 +240,6 @@ var MLDefine(const char* name);
 var MLExtends(var class, var superclass);
 var MLResponds(var class, const char* command, MLCode code);
 var MLLookup(var class, var command, var* foundInClass);
-var MLDispatch(var class, var self, var command, var arguments, var options);
+var MLDispatch(var context, var self, var command, var arguments, var options);
 
 #endif

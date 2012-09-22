@@ -29,7 +29,7 @@
 #define that MLDictionaryStructure(self)
 
 
-static var MLDictionaryMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryMetaCreate(var context, var self, var command, var arguments, var options) {
     return MLDictionaryMake(MLAllocate(MLDictionarySize), MLDictionary, 1, 0, 0, NULL);
 }
 
@@ -40,7 +40,7 @@ MLPointer MLDictionaryMetaDefaultMethods[] = {
 };
 
 
-static var MLDictionaryInit(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryInit(var context, var self, var command, var arguments, var options) {
     self = MLSuper(command, arguments, options);
     when (self) {
         // TODO: implement.
@@ -49,132 +49,132 @@ static var MLDictionaryInit(var class, var self, var command, var arguments, var
 }
 
 
-static var MLDictionaryDestroy(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryDestroy(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryCount(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryCount(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryContains(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryContains(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryContainsAll(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryContainsAll(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryContainsAny(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryContainsAny(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryIsEmpty(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryIsEmpty(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryIsInline(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryIsInline(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryIsMutable(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryIsMutable(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryKeys(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryKeys(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryValues(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryValues(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryGet(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryGet(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryGetMany(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryGetMany(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryWithValue(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryWithValue(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryWithMany(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryWithMany(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryWithout(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryWithout(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryWithoutMany(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryWithoutMany(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryIsDictionary(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryIsDictionary(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLDictionaryDescription(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryDescription(var context, var self, var command, var arguments, var options) {
     MLWarning("TODO: implement method -description for dictionaries");
     return null;
 }
 
 
-static var MLDictionaryEquals(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryEquals(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryHash(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryHash(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryCopy(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryCopy(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLDictionaryMutableCopy(var class, var self, var command, var arguments, var options) {
+static var MLDictionaryMutableCopy(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
@@ -221,24 +221,24 @@ MLPointer MLInlineDictionaryMetaDefaultMethods[] = {
 };
 
 
-static var MLInlineDictionaryRetain(var class, var self, var command, var arguments, var options) {
+static var MLInlineDictionaryRetain(var context, var self, var command, var arguments, var options) {
     MLError("Can't retain an inline dictionary, you have to copy it");
     return null;
 }
 
 
-static var MLInlineDictionaryRetainCount(var class, var self, var command, var arguments, var options) {
+static var MLInlineDictionaryRetainCount(var context, var self, var command, var arguments, var options) {
     return N(-1);
 }
 
 
-static var MLInlineDictionaryRelease(var class, var self, var command, var arguments, var options) {
+static var MLInlineDictionaryRelease(var context, var self, var command, var arguments, var options) {
     MLError("Can't release an inline dictionary because it can't be retained in the first place");
     return null;
 }
 
 
-static var MLInlineDictionaryAutorelease(var class, var self, var command, var arguments, var options) {
+static var MLInlineDictionaryAutorelease(var context, var self, var command, var arguments, var options) {
     MLError("Can't autorelease an inline dictionary because it can't be retained in the first place");
     return null;
 }
@@ -258,25 +258,25 @@ MLPointer MLMutableDictionaryMetaDefaultMethods[] = {
 };
 
 
-static var MLMutableDictionaryPutValue(var class, var self, var command, var arguments, var options) {
+static var MLMutableDictionaryPutValue(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLMutableDictionaryPutMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableDictionaryPutMany(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLMutableDictionaryRemove(var class, var self, var command, var arguments, var options) {
+static var MLMutableDictionaryRemove(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLMutableDictionaryRemoveMany(var class, var self, var command, var arguments, var options) {
+static var MLMutableDictionaryRemoveMany(var context, var self, var command, var arguments, var options) {
     MLError("TODO: implement.");
     return null;
 }

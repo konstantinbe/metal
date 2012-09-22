@@ -26,7 +26,7 @@
 #define that MLObjectStructure(self)
 
 
-static var MLNullMetaCreate(var class, var self, var command, var arguments, var options) {
+static var MLNullMetaCreate(var context, var self, var command, var arguments, var options) {
     return null;
 }
 
@@ -37,53 +37,53 @@ MLPointer MLNullMetaDefaultMethods[] = {
 };
 
 
-static var MLNullDestroy(var class, var self, var command, var arguments, var options) {
+static var MLNullDestroy(var context, var self, var command, var arguments, var options) {
     return null;
 }
 
 
-static var MLNullIsNull(var class, var self, var command, var arguments, var options) {
+static var MLNullIsNull(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLNullIsTruthy(var class, var self, var command, var arguments, var options) {
+static var MLNullIsTruthy(var context, var self, var command, var arguments, var options) {
     return no;
 }
 
 
-static var MLNullIsFalsy(var class, var self, var command, var arguments, var options) {
+static var MLNullIsFalsy(var context, var self, var command, var arguments, var options) {
     return yes;
 }
 
 
-static var MLNullDescription(var class, var self, var command, var arguments, var options) {
+static var MLNullDescription(var context, var self, var command, var arguments, var options) {
     return S("null");
 }
 
 
-static var MLNullEquals(var class, var self, var command, var arguments, var options) {
+static var MLNullEquals(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     return MLSend(object, IS("is-null?"), null, null);
 }
 
 
-static var MLNullHash(var class, var self, var command, var arguments, var options) {
+static var MLNullHash(var context, var self, var command, var arguments, var options) {
     return W(0xffffffffffffffffull);
 }
 
 
-static var MLNullCopy(var class, var self, var command, var arguments, var options) {
+static var MLNullCopy(var context, var self, var command, var arguments, var options) {
     return self;
 }
 
 
-static var MLNullMutableCopy(var class, var self, var command, var arguments, var options) {
+static var MLNullMutableCopy(var context, var self, var command, var arguments, var options) {
     return self;
 }
 
 
-static var MLNullPerformArgumentsOptionsBlock(var class, var self, var command, var arguments, var options) {
+static var MLNullPerformArgumentsOptionsBlock(var context, var self, var command, var arguments, var options) {
     return null;
 }
 
