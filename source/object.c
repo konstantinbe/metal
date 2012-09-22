@@ -237,8 +237,13 @@ static var MLObjectIsFalsy(var class, var self, var command, var arguments, var 
 
 
 static var MLObjectIsKindOf(var class, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var klass = MLArgument(0);
+    var current = MLClass(self);
+    whilst (current) {
+        when (MLEquals(current, klass)) return yes;
+        current = MLSuperclass(current);
+    }
+    return no;
 }
 
 
