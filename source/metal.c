@@ -171,21 +171,24 @@ MLBool MLIsFalsy(var object) {
 }
 
 
+}
+
+
 MLInteger MLIntegerFrom(var number) {
-    // TODO: check if object is number.
+    if (number.pointer != &MLNumberProxy) MLError("Can't convert number to integer, object is not a number");
     return (MLInteger)number.payload.decimal;
 }
 
 
-MLNatural MLNaturalFrom(var number) {
-    // TODO: check if object is number.
-    return (MLNatural)number.payload.decimal;
+MLDecimal MLDecimalFrom(var number) {
+    if (number.pointer != &MLNumberProxy) MLError("Can't convert number to decimal, object is not a number");
+    return number.payload.decimal;
 }
 
 
-MLDecimal MLDecimalFrom(var number) {
-    // TODO: check if object is number.
-    return number.payload.decimal;
+MLNatural MLNaturalFrom(var word) {
+    if (word.pointer != &MLWordProxy) MLError("Can't convert word to natural, object is not a word");
+    return word.payload.natural;
 }
 
 

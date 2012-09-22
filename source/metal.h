@@ -220,8 +220,8 @@ MLBool MLIsTruthy(var object);
 MLBool MLIsFalsy(var object);
 
 MLInteger MLIntegerFrom(var number);
-MLNatural MLNaturalFrom(var number);
 MLDecimal MLDecimalFrom(var number);
+MLNatural MLNaturalFrom(var number);
 
 var MLBlockMake(MLCode code);
 var MLBooleanMake(MLBool boolean);
