@@ -297,8 +297,10 @@ static var MLObjectSendArgumentsOptionsBlock(var context, var self, var command,
 
 
 static var MLObjectRespondsTo(var context, var self, var command, var arguments, var options) {
-    MLError("TODO: implement.");
-    return null;
+    var commandToLookup = MLArgument(0);
+    var class = MLClass(self);
+    var method = MLLookup(class, commandToLookup, NULL);
+    return MLIsTruthy(method);
 }
 
 
