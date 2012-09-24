@@ -63,7 +63,7 @@ static var MLStringInit(var context, var self, var command, var arguments, var o
 
 static var MLStringInitWithString(var context, var self, var command, var arguments, var options) {
     var string = MLArgument(0);
-    self = MLSuper(command, arguments, options);
+    self = MLSuper(IS("init"), arguments, options);
     when (self) {
         const var count = MLCount(string);
         const MLInteger countInteger = MLIntegerFrom(count);
@@ -496,6 +496,7 @@ MLPointer MLStringDefaultMethods[] = {
     "hash", MLStringHash,
     "copy", MLStringCopy,
     "mutable-copy", MLStringMutableCopy,
+
     NULL
 };
 
