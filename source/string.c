@@ -31,7 +31,7 @@
 
 
 static var MLStringMetaCreate(var context, var self, var command, var arguments, var options) {
-    return MLStringMake(MLAllocate(MLStringSize), MLString, 1, 0, 0, NULL);
+    return MLStringMake(MLAllocate(MLStringSize), self, 1, 0, 0, NULL);
 }
 
 
