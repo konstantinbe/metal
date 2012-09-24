@@ -284,9 +284,8 @@ static var MLObjectPerformArgumentsOptionsBlock(var context, var self, var comma
     var commandToPerform = MLArgument(0);
     var argumentsToPass = MLArgument(1);
     var optionsToPass = MLArgument(2);
-    var class = MLClass(self);
-    var className = MLName(class);
-    MLError("Can't perform command, %s doesn't respond to \"%s\"", MLStringStructure(className).characters, MLStringStructure(commandToPerform).characters);
+    var name = MLName(context);
+    MLError("Can't perform command, %s doesn't respond to \"%s\"", MLStringStructure(name).characters, MLStringStructure(commandToPerform).characters);
     return null;
 }
 
