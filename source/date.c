@@ -20,6 +20,7 @@
 // THE SOFTWARE.
 
 #include "date.h"
+#include "time.h"
 
 
 #define meta MLClassStructure(self)
@@ -69,8 +70,9 @@ static var MLDateIsDate(var context, var self, var command, var arguments, var o
 static var MLDateDescription(var context, var self, var command, var arguments, var options) {
     const int stringCount = 1024 * 1024;
     char* string = MLInline(stringCount + 1);
-    // TODO: format date in ISO 8601 format
-    snprintf(string, stringCount, "Date(%f)", self.payload.decimal);
+    time_t time = (time_t)self.payload.decimal;
+    struct tm* tm = gmtime(&time);
+    strftime(string, stringCount, "%FT%TZ", tm);
     return S(string);
 }
 
