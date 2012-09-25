@@ -105,8 +105,6 @@
 #define whilst(expression) while (MLIsObjectTruthy(expression))
 #define until(expression) while (!MLIsObjectTruthy(expression))
 
-#define send(self, command, ...) MLSend(self, IS(command), IA(__VA_ARGS__), null)
-
 typedef double MLDecimal;
 typedef long long MLInteger;
 typedef unsigned long long MLNatural;
