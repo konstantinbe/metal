@@ -69,7 +69,6 @@ static var MLStringInitWithString(var context, var self, var command, var argume
         const MLInteger countInteger = MLIntegerFrom(count);
         const MLInteger integerCapacity = countInteger;
 
-        that.retainCount = 1;
         that.capacity = integerCapacity;
         that.count = countInteger;
         that.characters = NULL;
@@ -560,7 +559,7 @@ MLPointer MLInlineStringDefaultMethods[] = {
 
 
 static var MLMutableStringMetaCreate(var context, var self, var command, var arguments, var options) {
-    return MLStringMake(MLAllocate(MLStringSize), MLMutableString, 1, 0, 0, NULL);
+    return MLStringMake(MLAllocate(MLStringSize), self, 1, 0, 0, NULL);
 }
 
 
