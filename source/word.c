@@ -48,10 +48,12 @@ static var MLWordIsWord(var context, var self, var command, var arguments, var o
 
 
 static var MLWordDescription(var context, var self, var command, var arguments, var options) {
-    const int stringCount = 1024 * 1024;
-    char* string = MLInline(stringCount + 1);
-    snprintf(string, stringCount, "%llx", self.payload.natural);
-    return S(string);
+    const int bufferSize = 1024 * 1024;
+    char buffer[bufferSize + 1];
+    const int count = snprintf(buffer, bufferSize + 1, "%llx", self.payload.natural);
+    char *characters = strncpy(MLAllocate(count + 1), buffer, count + 1);
+    var description = MLStringMake(MLAllocate(MLStringSize), MLString, 1, count, count, characters);
+    return MLAutorelease(description);
 }
 
 
