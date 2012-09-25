@@ -68,12 +68,15 @@ static var MLDateIsDate(var context, var self, var command, var arguments, var o
 
 
 static var MLDateDescription(var context, var self, var command, var arguments, var options) {
-    const int count = 20;
-    char characters[count + 1];
+    const int bufferSize = 1024 * 1024;
+    char buffer[bufferSize + 1];
     time_t time = (time_t)self.payload.decimal;
     struct tm* tm = gmtime(&time);
-    strftime(characters, count + 1, "%FT%TZ", tm);
-    return S(characters);
+    // TODO: print milliseconds
+    const size_t count = strftime(buffer, bufferSize + 1, "%FT%TZ", tm);
+    char *characters = strncpy(MLAllocate(count + 1), buffer, count + 1);
+    var description = MLStringMake(MLAllocate(MLStringSize), MLString, 1, count, count, characters);
+    return MLAutorelease(description);
 }
 
 
