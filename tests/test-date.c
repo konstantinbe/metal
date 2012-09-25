@@ -22,6 +22,12 @@
 #include "test.h"
 
 
+void MLTestDateDescription() {
+    var date = MLDateMake(1348505068.0);
+    MLAssertEquals(MLDescription(date), IS("2012-09-24T16:44:28Z"), "A new date with the timestamp 1348505068 should return description '2012-09-24T16:44:28Z'");
+}
+
+
 void MLTestDate() {
-    // TODO: implement.
+   MLTestDateDescription();
 }
