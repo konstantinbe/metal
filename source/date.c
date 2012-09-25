@@ -68,12 +68,12 @@ static var MLDateIsDate(var context, var self, var command, var arguments, var o
 
 
 static var MLDateDescription(var context, var self, var command, var arguments, var options) {
-    const int stringCount = 1024 * 1024;
-    char* string = MLInline(stringCount + 1);
+    const int count = 20;
+    char characters[count + 1];
     time_t time = (time_t)self.payload.decimal;
     struct tm* tm = gmtime(&time);
-    strftime(string, stringCount, "%FT%TZ", tm);
-    return S(string);
+    strftime(characters, count + 1, "%FT%TZ", tm);
+    return S(characters);
 }
 
 
