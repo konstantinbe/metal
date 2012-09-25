@@ -48,8 +48,7 @@ static var MLBlockIsBlock(var context, var self, var command, var arguments, var
 
 
 static var MLBlockDescription(var context, var self, var command, var arguments, var options) {
-    MLWarning("TODO: implement method -description for blocks");
-    return null;
+    return S("<Block>");
 }
 
 
