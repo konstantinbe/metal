@@ -19,9 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include <string.h>
 #include "number.h"
 #include "math.h"
-#include "string.h"
 
 
 #define meta MLClassStructure(self)

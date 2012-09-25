@@ -21,6 +21,7 @@
 
 #include "array.h"
 #include "helper.h"
+#include <string.h>
 
 
 #define MLMutableArrayMinCapacity 16
