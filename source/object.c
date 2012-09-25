@@ -96,12 +96,14 @@ static var MLObjectClass(var context, var self, var command, var arguments, var 
 
 
 static var MLObjectDescription(var context, var self, var command, var arguments, var options) {
-    const int maxNumberOfCharacters = 1024 * 1024;
-    char* description = MLInline(maxNumberOfCharacters + 1);
+    const int bufferSize = 1024 * 1024;
+    char buffer[bufferSize + 1];
     var class = MLClass(self);
     var className = MLName(class);
-    snprintf(description, maxNumberOfCharacters, "<%s>", MLStringStructure(className).characters);
-    return S(description);
+    const int count = snprintf(buffer, bufferSize + 1, "<%s>", MLStringStructure(className).characters);
+    char *characters = strncpy(MLAllocate(count + 1), buffer, count + 1);
+    var description = MLStringMake(MLAllocate(MLStringSize), MLString, 1, count, count, characters);
+    return MLAutorelease(description);
 }
 
 
