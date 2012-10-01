@@ -54,9 +54,9 @@ $configs['clang'] = {:title => "Clang", :compiler => "clang", :flags => "-Wall -
 $configs['gcc'] = {:title => "GCC", :compiler => "gcc", :flags => "-Wall -std=c99 -Wno-unused-function -Wno-unused-variable"}
 $configs['icc'] = {:title => "ICC", :compiler => "icc", :flags => "-Wall -std=c99 -Wno-unused-function -Wno-unused-variable"}
 
-$configs['clang:debug'] = {:title => "Clang", :compiler => "clang", :flags => "-Wall -g -DDEBUG=1 -std=c99 -Wno-unused-function -Wno-unused-variable"}
-$configs['gcc:debug'] = {:title => "GCC", :compiler => "gcc", :flags => "-Wall -g -DDEBUG=1 -std=c99 -Wno-unused-function -Wno-unused-variable"}
-$configs['icc:debug'] = {:title => "ICC", :compiler => "icc", :flags => "-Wall -g -DDEBUG=1 -std=c99 -Wno-unused-function -Wno-unused-variable"}
+$configs['clang:debug'] = {:title => "Clang", :compiler => "clang", :flags => "-Wall -g -DDEBUG=1 -std=c99 -Wno-unused-function -Wno-unused-variable -O0"}
+$configs['gcc:debug'] = {:title => "GCC", :compiler => "gcc", :flags => "-Wall -g -DDEBUG=1 -std=c99 -Wno-unused-function -Wno-unused-variable -O0"}
+$configs['icc:debug'] = {:title => "ICC", :compiler => "icc", :flags => "-Wall -g -DDEBUG=1 -std=c99 -Wno-unused-function -Wno-unused-variable -O0"}
 
 $configs['clang:profile'] = {:title => "Clang", :compiler => "clang", :flags => "-Wall -fprofile-arcs -ftest-coverage -std=c99 -Wno-unused-function -Wno-unused-variable"}
 
