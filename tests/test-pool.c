@@ -35,4 +35,5 @@ void MLTestPool() {
 
     MLDrain(pool);
     MLAssertEquals(MLRetainCount(object), N(1), "After draining the pool the retain count of an autoreleased object should be decreased by 1");
+    MLRelease(object);
 }

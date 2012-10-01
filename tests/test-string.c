@@ -36,6 +36,7 @@ void MLTestStringInitWithString() {
     var string = IS("test");
     var new = MLInitWithString(MLCreate(MLString), string);
     MLAssertEquals(string, string, "A newly string initialized with string 'test' should that string");
+    MLRelease(new);
 }
 
 
