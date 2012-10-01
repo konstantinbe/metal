@@ -59,7 +59,7 @@ static var MLBlockEquals(var context, var self, var command, var arguments, var 
 
 
 static var MLBlockHash(var context, var self, var command, var arguments, var options) {
-    return W((MLNatural)self.payload.code);
+    return W((size_t)self.payload.code);
 }
 
 

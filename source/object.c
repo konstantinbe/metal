@@ -114,7 +114,7 @@ static var MLObjectEquals(var context, var self, var command, var arguments, var
 
 
 static var MLObjectHash(var context, var self, var command, var arguments, var options) {
-    return W((MLNatural)self.pointer);
+    return W((size_t)self.pointer);
 }
 
 
