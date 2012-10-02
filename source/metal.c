@@ -341,7 +341,7 @@ var MLLookup(var class, var command, var* foundInClass) {
             const MLBool isKeyAString = !MLIsObjectNull(key) && MLObjectStructure(key).class == &MLStringClass;
             const MLBool isValueABlock = !MLIsObjectNull(value) && MLObjectStructure(value).class == &MLBlockClass;
 
-            MLAssert(isValueABlock, "Key should be a string");
+            MLAssert(isKeyAString, "Key should be a string");
             MLAssert(isValueABlock, "Value should be a block");
 
             const MLBool found = strcmp(MLStringStructure(key).characters, MLStringStructure(command).characters) == 0;
