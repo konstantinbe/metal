@@ -101,7 +101,7 @@ var MLHelperCreateArrayWithObjects(var objects[]) {
     struct MLArray* array = MLAllocateAndClear(MLArraySize);
     MLNatural count = 0;
     whilst (objects[count]) count += 1;
-    var* objectsCopy = MLAllocateAndClear(sizeof(var) * count);
+    var* objectsCopy = MLAllocateAndClear(MLVariableSize * count);
     for (MLNatural index = 0; index < count; index += 1) {
         objectsCopy[index] = objects[index];
     }
