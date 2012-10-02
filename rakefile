@@ -217,6 +217,19 @@ task :debug => [:prepare] do
   puts OK
 end
 
+task :valgrind => [:prepare] do
+  configure 'icc:debug' if ICC_INSTALLED
+  configure 'gcc:debug' if GCC_INSTALLED
+  configure 'clang:debug' if CLANG_INSTALLED
+
+  invoke 'build:library'
+  invoke 'build:tests'
+
+  put "Running Metal with Valgrind ... "
+  run "valgrind build/test"
+  puts OK
+end
+
 task :benchmark => [:prepare, 'build:benchmarks'] do
   put "Running Metal Benchmarks (#{$config[:title]}) ... "
   run "build/benchmark"
