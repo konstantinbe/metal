@@ -226,7 +226,7 @@ task :valgrind => [:prepare] do
   invoke 'build:tests'
 
   put "Running Metal with Valgrind ... "
-  run "valgrind build/test"
+  run "valgrind --leak-check=full --track-origins=yes build/test"
   puts OK
 end
 
