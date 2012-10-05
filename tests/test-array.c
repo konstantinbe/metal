@@ -536,7 +536,19 @@ void MLTestMutableArrayRemoveMany() {
 
 
 void MLTestMutableArrayRemoveAt() {
-    // TODO: implement.
+    var array = MA(N(1), N(2), N(3), N(4));
+    MLRemoveAt(array, N(-1));
+    MLAssertEquals(array, IA(N(1), N(2), N(3), N(4)), "Removing an object at an index < 0 should not change the array");
+    MLRemoveAt(array, N(4));
+    MLAssertEquals(array, IA(N(1), N(2), N(3), N(4)), "Removing an object at in index > count should not change the array");
+    MLRemoveAt(array, N(3));
+    MLAssertEquals(array, IA(N(1), N(2), N(3)), "Removing an object at the last index should remove the last object from the array");
+    MLRemoveAt(array, N(1));
+    MLAssertEquals(array, IA(N(1), N(3)), "Removing an object at some index inbetween should remove the object from the array");
+    MLRemoveAt(array, N(0));
+    MLAssertEquals(array, IA(N(3)), "Removing an object at index 0 should remove the first object from the array");
+    MLRemoveAt(array, N(0));
+    MLAssertEquals(array, IA(), "Removing an object at index 0 from an array with just one element should remove that object resulting in an empty array");
 }
 
 
