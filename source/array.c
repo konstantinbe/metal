@@ -25,7 +25,7 @@
 
 
 #define MLMutableArrayMinCapacity 16
-
+#define MLMarking (void*)1
 
 #define meta MLClassStructure(self)
 #define that MLArrayStructure(self)
@@ -873,8 +873,28 @@ static var MLMutableArrayRemoveAt(var context, var self, var command, var argume
 
 static var MLMutableArrayRemoveAtMany(var context, var self, var command, var arguments, var options) {
     var indexes = MLArgument(0);
-    MLError("TODO: implement.");
-    return null;
+    MLInteger count = 0;
+
+    each (i, j, indexes) {
+        MLInteger index = MLIntegerFrom(i);
+        if (index < 0 || index >= that.count) continue;
+        var object = that.objects[index];
+        if (object.pointer != MLMarking) MLAutorelease(object);
+        that.objects[index].pointer = MLMarking;
+    }
+
+    for (MLInteger index = 0; index < that.count; index += 1) {
+        if (that.objects[index].pointer == MLMarking) continue;
+        that.objects[count] = that.objects[index];
+        count += 1;
+    }
+
+    for (MLInteger index = count; index < that.count; index += 1) {
+        that.objects[index] = null;
+    }
+
+    that.count = count;
+    return self;
 }
 
 
