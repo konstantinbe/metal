@@ -541,7 +541,11 @@ void MLTestMutableArrayRemoveAt() {
 
 
 void MLTestMutableArrayRemoveAtMany() {
-    // TODO: implement.
+    var array = MA(N(1), N(2), N(3), N(4), N(5), N(6));
+    MLRemoveAtMany(array, IA(N(1), N(3), N(5)));
+    MLAssertEquals(array, IA(N(1), N(3), N(5)), "[1, 2, 3, 4, 5, 6] remove-at-many [1, 3, 5] should change array to [1, 3, 5]");
+    MLRemoveAtMany(array, IA(N(7), N(8), N(9)));
+    MLAssertEquals(array, IA(N(1), N(3), N(5)), "[1, 3, 5] remove-at-many [7, 8, 9] should not change the array and leave it as [1, 3, 5]");
 }
 
 
