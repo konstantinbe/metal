@@ -352,31 +352,29 @@ var MLLookup(var class, var command, var* foundInClass) {
         }
     }
 
+    // TODO: optimize by converting recursive call of MLLookup to an iterative
+    // version.
     var superclass = MLClassStructure(class).superclass;
     return MLLookup(superclass, command, foundInClass);
 }
 
 
 var MLDispatch(var context, var self, var command, var arguments, var options) {
-    if (self.pointer == NULL) {
-        MLError("Can't dispatch command  %s for something that is not a proper object (pointer is NULL)", MLStringStructure(command).characters);
-    }
+    unless (context) context = (var){.pointer = MLObjectStructure(self).class, .payload.natural = 0};
 
-    unless (context) context = MLReference(MLObjectStructure(self).class);
+    // TODO: implement fast cache lookup.
 
     var foundInClass = null;
 
-    MLAssert(!MLIsObjectNull(context), "Context must be a class and not null");
-
     var method = MLLookup(context, command, &foundInClass);
     when (method) {
-        // TODO: cache this method.
+        // TODO: cache this method and its context.
         return method.payload.code(foundInClass, self, command, arguments, options);
     }
 
     var fallback = MLLookup(context, IS("perform*arguments*options*"), &foundInClass);
     when (fallback) {
-        // TODO: cache this method.
+        // TODO: cache this method and its context.
         return fallback.payload.code(foundInClass, self, IS("perform*arguments*options*"), IA(command, arguments, options), null);
     }
 
