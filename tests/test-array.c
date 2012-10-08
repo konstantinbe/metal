@@ -567,7 +567,9 @@ void MLTestMutableArrayRemoveAtCount() {
 
 
 void MLTestMutableArrayRemoveAll() {
-    // TODO: implement.
+    var array = MA(N(1), N(2), N(3), N(4));
+    MLRemoveAll(array);
+    MLAssertEquals(array, IA(), "Removing all from an array should equal an empty array");
 }
 
 
