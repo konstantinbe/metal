@@ -901,8 +901,37 @@ static var MLMutableArrayRemoveAtMany(var context, var self, var command, var ar
 static var MLMutableArrayRemoveAtCount(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var count = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+
+    MLInteger integerIndex = MLIntegerFrom(index);
+    MLInteger integerCount = MLIntegerFrom(count);
+
+    MLAssert(integerCount >= 0, "Can't remove objects at index, count is < 0");
+
+    if (integerIndex < 0) {
+        integerCount += integerIndex;
+        integerIndex = 0;
+    }
+
+    if (integerCount <= 0) {
+        return self;
+    }
+
+    if (integerIndex + integerCount > that.count) {
+        integerCount = that.count - integerIndex;
+    }
+
+    for (MLInteger i = integerIndex; i < integerIndex + integerCount; i += 1) {
+        MLAutorelease(that.objects[i]);
+    }
+
+    for (MLInteger j = integerIndex + integerCount; j < that.count; j += 1) {
+        const MLInteger i = j - integerCount;
+        that.objects[j - integerCount] = that.objects[j];
+        that.objects[j] = null;
+    }
+
+    that.count -= integerCount;
+    return self;
 }
 
 
