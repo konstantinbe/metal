@@ -526,7 +526,13 @@ void MLTestMutableArrayReplaceAtCountWithMany() {
 
 
 void MLTestMutableArrayRemove() {
-    // TODO: implement.
+    var array = MA(N(1), N(2), N(3), N(4), N(3));
+    MLRemove(array, N(2));
+    MLAssertEquals(array, IA(N(1), N(3), N(4), N(3)), "MutableArray -remove* removes an object from the array");
+    MLRemove(array, N(9));
+    MLAssertEquals(array, array, "MutableArray -remove* doesn't modify the array if the passed object is not contained in it");
+    MLRemove(array, N(3));
+    MLAssertEquals(array, IA(N(1), N(4)), "MutableArray -remove* removes all occurences of an object if it is contained multiple times");
 }
 
 
