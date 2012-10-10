@@ -229,7 +229,12 @@ void MLTestArrayThird() {
 
 
 void MLTestArrayRest() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(5));
+    var array3 = IA(N(4), N(5), N(6));
+    MLAssertEquals(MLRest(array1), IA(), "Array -rest returns an empty array if receiver is empty");
+    MLAssertEquals(MLRest(array2), IA(), "Array -rest returns an empty array if receiver contains only one object");
+    MLAssertEquals(MLRest(array3), IA(N(5), N(6)), "Array -rest returns an array containing all but the first object");
 }
 
 
