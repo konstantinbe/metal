@@ -239,7 +239,8 @@ void MLTestArrayRest() {
 
 
 void MLTestArrayWith() {
-    // TODO: implement.
+    var array = IA(N(1), N(2));
+    MLAssertEquals(MLWith(array, N(3)), IA(N(1), N(2), N(3)), "Array -with* returns a new array by adding one object");
 }
 
 
