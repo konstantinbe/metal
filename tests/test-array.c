@@ -537,7 +537,15 @@ void MLTestMutableArrayRemove() {
 
 
 void MLTestMutableArrayRemoveMany() {
-    // TODO: implement.
+    var array = MA(N(1), N(2), N(3), N(4), N(3));
+    MLRemoveMany(array, IA(N(2)));
+    MLAssertEquals(array, IA(N(1), N(3), N(4), N(3)), "MutableArray -remove-many* removes each passed object from the array");
+    MLRemoveMany(array, IA());
+    MLAssertEquals(array, array, "MutableArray -remove-many* doesn't modify the array if no objects were passed");
+    MLRemoveMany(array, IA(N(1), N(9)));
+    MLAssertEquals(array, IA(N(3), N(4), N(3)), "MutableArray -remove-many* ignores objects that are not contained in the array");
+    MLRemoveMany(array, IA(N(3)));
+    MLAssertEquals(array, IA(N(4)), "MutableArray -remove-many* removes all occurences of an object");
 }
 
 
