@@ -245,7 +245,9 @@ void MLTestArrayWith() {
 
 
 void MLTestArrayWithMany() {
-    // TODO: implement.
+    var array = IA(N(1), N(2));
+    MLAssertEquals(MLWithMany(array, IA(N(3), N(4))), IA(N(1), N(2), N(3), N(4)), "Array -with-many* returns a new array by adding many objects");
+    MLAssertEquals(MLWithMany(array, IA()), array, "Array -with-many* returns self without modifying it when passing no objects (empty array)");
 }
 
 
