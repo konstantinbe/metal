@@ -840,8 +840,9 @@ static var MLMutableArrayReplaceAtCountWithMany(var context, var self, var comma
     var index = MLArgument(0);
     var count = MLArgument(1);
     var replacements = MLArgument(2);
-    MLError("TODO: implement.");
-    return null;
+    MLRemoveAtCount(self, index, count);
+    MLInsertManyAt(self, replacements, index);
+    return self;
 }
 
 
