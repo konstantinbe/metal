@@ -808,8 +808,22 @@ static var MLMutableArrayReplaceWith(var context, var self, var command, var arg
 static var MLMutableArrayReplaceWithMany(var context, var self, var command, var arguments, var options) {
     var object = MLArgument(0);
     var replacements = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    var mutable = MLNewWithCapacity(MLMutableArray, MLCount(self));
+
+    each (currentObject, indexOfCurrentObject, self) {
+        var shouldReplaceCurrent = MLEquals(currentObject, object);
+        when (shouldReplaceCurrent) {
+            MLAddMany(self, replacements);
+        } else {
+            MLAdd(self, currentObject);
+        }
+    }
+
+    MLRemoveAll(self);
+    MLAddMany(self, mutable);
+    MLRelease(mutable);
+
+    return self;
 }
 
 
