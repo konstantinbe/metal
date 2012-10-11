@@ -158,26 +158,10 @@ static var MLStringIndexesOf(var context, var self, var command, var arguments, 
 }
 
 
-static var MLStringFirst(var context, var self, var command, var arguments, var options) {
-    if (that.count <= 0) return null;
-    var index = N(0);
-    var count = N(1);
-    return MLAtCount(self, index, count);
-}
-
-
 static var MLStringFirstCount(var context, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
     if (MLDecimalFrom(count) <= that.count) return MLAutorelease(MLCopy(self));
     var index = N(0);
-    return MLAtCount(self, index, count);
-}
-
-
-static var MLStringLast(var context, var self, var command, var arguments, var options) {
-    if (that.count <= 0) return null;
-    var index = N(that.count - 1);
-    var count = N(1);
     return MLAtCount(self, index, count);
 }
 
@@ -187,30 +171,6 @@ static var MLStringLastCount(var context, var self, var command, var arguments, 
     const MLDecimal decimalCount = MLDecimalFrom(count);
     if (decimalCount <= that.count) return MLAutorelease(MLCopy(self));
     var index = N(that.count - decimalCount);
-    return MLAtCount(self, index, count);
-}
-
-
-static var MLStringSecond(var context, var self, var command, var arguments, var options) {
-    if (that.count <= 1) return null;
-    var index = N(1);
-    var count = N(1);
-    return MLAtCount(self, index, count);
-}
-
-
-static var MLStringThird(var context, var self, var command, var arguments, var options) {
-    if (that.count <= 2) return null;
-    var index = N(2);
-    var count = N(1);
-    return MLAtCount(self, index, count);
-}
-
-
-static var MLStringRest(var context, var self, var command, var arguments, var options) {
-    if (that.count <= 1) return null;
-    var index = N(1);
-    var count = N(that.count - 1);
     return MLAtCount(self, index, count);
 }
 
@@ -443,15 +403,8 @@ MLPointer MLStringDefaultMethods[] = {
     "last-index-of*", MLStringLastIndexOf,
     "indexes-of*", MLStringIndexesOf,
 
-    "first", MLStringFirst,
     "first*", MLStringFirstCount,
-
-    "last", MLStringLast,
     "last*", MLStringLastCount,
-
-    "second", MLStringSecond,
-    "third", MLStringThird,
-    "rest", MLStringRest,
 
     "with*", MLStringWith,
     "with-many*", MLStringWithMany,
