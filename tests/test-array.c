@@ -262,7 +262,14 @@ void MLTestArrayWithAt() {
 
 
 void MLTestArrayWithManyAt() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA();
+    var array3 = IA(N(4), N(8));
+    var array4 = IA(N(4), N(5), N(6), N(7), N(8));
+    MLAssertEquals(MLWithManyAt(array1, IA(), N(0)), IA(), "Array -with-many*at*, when array is empty and no objects are passed, returns an empty array");
+    MLAssertEquals(MLWithManyAt(array2, IA(N(4), N(8)), N(0)), IA(N(4), N(8)), "Array -with-many*at*, when array is empty and objects are passed, returns an array containing only that objects");
+    MLAssertEquals(MLWithManyAt(array3, IA(N(5), N(6), N(7)), N(1)), IA(N(4), N(5), N(6), N(7), N(8)), "Array -with-many*at*, when array has objects and objects are passed, returns a new array by inserting the passed objects at the specified index");
+    MLAssertEquals(MLWithManyAt(array4, IA(), N(2)), IA(N(4), N(5), N(6), N(7), N(8)), "Array -with-many*at*, when array has objects and no objects are passed, returns an exact copy of the array");
 }
 
 
