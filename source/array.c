@@ -823,8 +823,9 @@ static var MLMutableArrayReplaceAtWith(var context, var self, var command, var a
 static var MLMutableArrayReplaceAtWithMany(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     var replacements = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    MLRemoveAt(self, index);
+    MLInsertManyAt(self, replacements, index);
+    return self;
 }
 
 
