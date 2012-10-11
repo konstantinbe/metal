@@ -252,7 +252,12 @@ void MLTestArrayWithMany() {
 
 
 void MLTestArrayWithAt() {
-    // TODO: implement.
+    var array1 = IA();
+    var array2 = IA(N(4));
+    var array3 = IA(N(4), N(6));
+    MLAssertEquals(MLWithAt(array1, N(4), N(0)), IA(N(4)), "Array -with*at* returns a new array containing only the object when array is empty");
+    MLAssertEquals(MLWithAt(array2, N(6), N(1)), IA(N(4), N(6)), "Array -with*at* returns a new array by inserting the object at the end if index = count");
+    MLAssertEquals(MLWithAt(array3, N(5), N(1)), IA(N(4), N(5), N(6)), "Array -with*at* returns a new array by inserting the passed object at the specified index");
 }
 
 
