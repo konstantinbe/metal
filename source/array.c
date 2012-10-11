@@ -341,8 +341,9 @@ static var MLArrayWithReplacing(var context, var self, var command, var argument
 static var MLArrayWithManyReplacing(var context, var self, var command, var arguments, var options) {
     var replacements = MLArgument(0);
     var object = MLArgument(1);
-    MLError("TODO: implement.");
-    return null;
+    var mutable = MLMutableCopy(self);
+    MLReplaceWithMany(mutable, object, replacements);
+    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
