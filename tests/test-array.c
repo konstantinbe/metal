@@ -274,7 +274,17 @@ void MLTestArrayWithManyAt() {
 
 
 void MLTestArrayWithBefore() {
-    // TODO: implement.
+    var array = IA();
+    array = MLWithBefore(array, N(6), N(9));
+    MLAssertEquals(array, IA(N(6)), "[] with 6 before 9 should return [6]");
+    array = MLWithBefore(array, N(4), N(9));
+    MLAssertEquals(array, IA(N(4), N(6)), "[6] with 4 before 9 should return [4, 6]");
+    array = MLWithBefore(array, N(5), N(6));
+    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[4, 6] with 5 before 6 should return [4, 5, 6]");
+    array = MLWithBefore(array, N(5), N(4));
+    MLAssertEquals(array, IA(N(5), N(4), N(5), N(6)), "[4, 5, 6] with 5 before 4 should return [5, 4, 5, 6]");
+    array = MLWithBefore(array, N(6), N(5));
+    MLAssertEquals(array, IA(N(6), N(5), N(4), N(5), N(6)), "[5, 4, 5, 6] with 6 before 5 should return [6, 5, 4, 5, 6]");
 }
 
 
