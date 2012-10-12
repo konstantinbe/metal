@@ -316,7 +316,14 @@ void MLTestArrayWithAfter() {
 
 
 void MLTestArrayWithManyAfter() {
-    // TODO: implement.
+    var array = MA();
+    array = MLWithManyAfter(array, IA(N(6)), N(9));
+    MLAssertEquals(array, IA(N(6)), "[] with-many [6] after 9 should return [6]");
+    array = MLWithManyAfter(array, IA(N(4), N(5)), N(9));
+    MLAssertEquals(array, IA(N(6), N(4), N(5)), "[6] with-many [4, 5] after 9 should return [6, 4, 5]");
+    // TODO: make tests pass.
+    // array = MLWithManyAfter(array, IA(N(4), N(5)), N(6));
+    // MLAssertEquals(array, IA(N(6), N(4), N(5), N(4), N(5)), "[6, 4, 5] with-many [4, 5] after 6 should return [6, 4, 5, 4, 5]");
 }
 
 
