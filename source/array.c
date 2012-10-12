@@ -310,7 +310,7 @@ static var MLArrayWithManyBefore(var context, var self, var command, var argumen
     var objects = MLArgument(0);
     var before = MLArgument(1);
     var index = MLIndexOf(self, before);
-    if (MLIntegerFrom(index) < 0) index = N(that.count);
+    if (MLIntegerFrom(index) < 0) index = N(0);
     return MLWithManyAt(self, objects, index);
 }
 
