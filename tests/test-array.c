@@ -289,7 +289,13 @@ void MLTestArrayWithBefore() {
 
 
 void MLTestArrayWithManyBefore() {
-    // TODO: implement.
+    var array = IA();
+    array = MLWithManyBefore(array, IA(N(6)), N(9));
+    MLAssertEquals(array, IA(N(6)), "[] with-many [6] before 9 should return [6]");
+    array = MLWithManyBefore(array, IA(N(4), N(5)), N(9));
+    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[6] with-many [4, 5] before 9 should return [4, 5, 6]");
+    array = MLWithManyBefore(array, IA(N(4), N(5)), N(6));
+    MLAssertEquals(array, IA(N(4), N(5), N(4), N(5), N(6)), "[4, 5, 6] with-many [4, 5] before 6 should return [4, 5, 4, 5, 6]");
 }
 
 
