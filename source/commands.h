@@ -114,11 +114,11 @@
 #define MLWithAt(self, object, index) MLSend(self, IS("with*at*"), IA(object, index), null)
 #define MLWithManyAt(self, objects, index) MLSend(self, IS("with-many*at*"), IA(objects, index), null)
 
-#define MLWithBefore(self, object, beforeObject) MLSend(self, IS("with*before*"), IA(object, beforeObject), null)
-#define MLWithManyBefore(self, objects, beforeObject) MLSend(self, IS("with-many*before*"), IA(objects, beforeObject), null)
+#define MLWithBefore(self, object, before) MLSend(self, IS("with*before*"), IA(object, before), null)
+#define MLWithManyBefore(self, objects, before) MLSend(self, IS("with-many*before*"), IA(objects, before), null)
 
-#define MLWithAfter(self, object, afterObject) MLSend(self, IS("with*after*"), IA(object, afterObject), null)
-#define MLWithManyAfter(self, objects, afterObject) MLSend(self, IS("with-many*after*"), IA(objects, afterObject), null)
+#define MLWithAfter(self, object, after) MLSend(self, IS("with*after*"), IA(object, after), null)
+#define MLWithManyAfter(self, objects, after) MLSend(self, IS("with-many*after*"), IA(objects, after), null)
 
 #define MLWithReplacing(self, replacement, object) MLSend(self, IS("with*replacing*"), IA(replacement, object), null)
 #define MLWithManyReplacing(self, replacements, object) MLSend(self, IS("with-many*replacing*"), IA(replacements, object), null)
@@ -156,11 +156,11 @@
 #define MLInsertAt(self, object, index) MLSend(self, IS("insert*at*"), IA(object, index), null)
 #define MLInsertManyAt(self, objects, index) MLSend(self, IS("insert-many*at*"), IA(objects, index), null)
 
-#define MLInsertBefore(self, object, beforeObject) MLSend(self, IS("insert*before*"), IA(object, beforeObject), null)
-#define MLInsertManyBefore(self, objects, beforeObject) MLSend(self, IS("insert-many*before*"), IA(objects, beforeObject), null)
+#define MLInsertBefore(self, object, before) MLSend(self, IS("insert*before*"), IA(object, before), null)
+#define MLInsertManyBefore(self, objects, before) MLSend(self, IS("insert-many*before*"), IA(objects, before), null)
 
-#define MLInsertAfter(self, object, afterObject) MLSend(self, IS("insert*after*"), IA(object, afterObject), null)
-#define MLInsertManyAfter(self, object, afterObject) MLSend(self, IS("insert-many*after*"), IA(object, afterObject), null)
+#define MLInsertAfter(self, object, after) MLSend(self, IS("insert*after*"), IA(object, after), null)
+#define MLInsertManyAfter(self, object, after) MLSend(self, IS("insert-many*after*"), IA(object, after), null)
 
 #define MLReplaceWith(self, object, replacement) MLSend(self, IS("replace*with*"), IA(object, replacement), null)
 #define MLReplaceWithMany(self, object, replacements) MLSend(self, IS("replace*with_many*"), IA(object, replacements), null)
