@@ -814,9 +814,9 @@ static var MLMutableArrayReplaceWithMany(var context, var self, var command, var
     each (currentObject, indexOfCurrentObject, self) {
         var shouldReplaceCurrent = MLEquals(currentObject, object);
         when (shouldReplaceCurrent) {
-            MLAddMany(self, replacements);
+            MLAddMany(mutable, replacements);
         } else {
-            MLAdd(self, currentObject);
+            MLAdd(mutable, currentObject);
         }
     }
 
