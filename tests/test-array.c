@@ -300,18 +300,12 @@ void MLTestArrayWithManyBefore() {
 
 
 void MLTestArrayWithAfter() {
-    var array = IA();
-    // TODO: make tests pass.
-    // array = MLWithAfter(array, N(6), N(9));
-    // MLAssertEquals(array, IA(N(6)), "[] with 6 after 9 should return [6]");
-    // array = MLWithAfter(array, N(4), N(9));
-    // MLAssertEquals(array, IA(N(6), N(4)), "[6] with 4 after 9 should return [6, 4]");
-    // array = MLWithAfter(array, N(5), N(6));
-    // MLAssertEquals(array, IA(N(6), N(5), N(4)), "[6, 4] with 5 after 6 should return [6, 5, 4]");
-    // array = MLWithAfter(array, N(5), N(4));
-    // MLAssertEquals(array, IA(N(6), N(5), N(4), N(5)), "[6, 5, 4] with 5 after 4 should return [6, 5, 4, 5]");
-    // array = MLWithAfter(array, N(6), N(5));
-    // MLAssertEquals(array, IA(N(6), N(5), N(4), N(5), N(6)), "[6, 5, 4, 5] with 6 after 5 should return [6, 5, 4, 5, 6]");
+    var array1 = IA(N(1), N(2), N(3), N(2), N(4));
+    var array2 = IA(N(1), N(2), N(3));
+    var array3 = IA();
+    MLAssertEquals(MLWithAfter(array1, N(9), N(2)), IA(N(1), N(2), N(3), N(2), N(9), N(4)), "Array -with*after* returns a new array by inserting an object after the last occurence of the passed in object");
+    MLAssertEquals(MLWithAfter(array2, N(9), N(7)), IA(N(1), N(2), N(3), N(9)), "Array -with*after* returns a new array by adding an object at the end if object after which to be inserted is not contained in the array");
+    MLAssertEquals(MLWithAfter(array3, N(9), N(7)), IA(N(9)), "Array -with*after* returns a new array containing the object to be inserted if array is empty");
 }
 
 
