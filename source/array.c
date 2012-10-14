@@ -325,9 +325,11 @@ static var MLArrayWithAfter(var context, var self, var command, var arguments, v
 static var MLArrayWithManyAfter(var context, var self, var command, var arguments, var options) {
     var objects = MLArgument(0);
     var after = MLArgument(1);
-    var index = MLLastIndexOf(self, after);
-    if (MLIntegerFrom(index) < 0) index = N(that.count);
-    return MLWithManyAt(self, objects, index);
+    var lastIndex = MLLastIndexOf(self, after);
+    const MLInteger integerLastIndex = MLIntegerFrom(lastIndex);
+    const MLInteger integerInsertionIndex = integerLastIndex >= 0 ? integerLastIndex + 1 : that.count;
+    var insertionIndex = N(integerInsertionIndex);
+    return MLWithManyAt(self, objects, insertionIndex);
 }
 
 
