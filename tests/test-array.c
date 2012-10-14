@@ -563,7 +563,15 @@ void MLTestMutableArrayReplaceWith() {
 
 
 void MLTestMutableArrayReplaceWithMany() {
-    // TODO: implement.
+    var array1 = MA(N(1), N(2), N(3), N(2), N(4));
+    var array2 = MA(N(1));
+    var array3 = MA();
+    MLReplaceWithMany(array1, N(2), IA(N(8), N(9)));
+    MLReplaceWithMany(array2, N(2), IA(N(3)));
+    MLReplaceWithMany(array3, N(1), IA(N(2)));
+    MLAssertEquals(array1, IA(N(1), N(8), N(9), N(3), N(8),  N(9), N(4)), "MutableArray -replace*with-many* replaces all occurences of an object with an array of objects");
+    MLAssertEquals(array2, IA(N(1)), "MutableArray -replace*with-many* doesn't change the array if object to be replaced is not contained in the array");
+    MLAssertEquals(array3, IA(), "MutableArray -replace*with-many* doesn't change the array if array is empty");
 }
 
 
