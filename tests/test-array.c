@@ -550,7 +550,15 @@ void MLTestMutableArrayInsertManyAfter() {
 
 
 void MLTestMutableArrayReplaceWith() {
-    // TODO: implement.
+    var array1 = MA(N(1), N(2), N(3), N(2), N(4));
+    var array2 = MA(N(1));
+    var array3 = MA();
+    MLReplaceWith(array1, N(2), N(9));
+    MLReplaceWith(array2, N(2), N(3));
+    MLReplaceWith(array3, N(1), N(2));
+    MLAssertEquals(array1, IA(N(1), N(9), N(3), N(9), N(4)), "MutableArray -replace*with* replaces all occurences of an object with another object");
+    MLAssertEquals(array2, IA(N(1)), "MutableArray -replace*with* doesn't change the array if object to be replaced is not contained in the array");
+    MLAssertEquals(array3, IA(), "MutableArray -replace*with* doesn't change the array if array is empty");
 }
 
 
