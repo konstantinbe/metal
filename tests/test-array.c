@@ -310,14 +310,12 @@ void MLTestArrayWithAfter() {
 
 
 void MLTestArrayWithManyAfter() {
-    var array = MA();
-    array = MLWithManyAfter(array, IA(N(6)), N(9));
-    MLAssertEquals(array, IA(N(6)), "[] with-many [6] after 9 should return [6]");
-    array = MLWithManyAfter(array, IA(N(4), N(5)), N(9));
-    MLAssertEquals(array, IA(N(6), N(4), N(5)), "[6] with-many [4, 5] after 9 should return [6, 4, 5]");
-    // TODO: make tests pass.
-    // array = MLWithManyAfter(array, IA(N(4), N(5)), N(6));
-    // MLAssertEquals(array, IA(N(6), N(4), N(5), N(4), N(5)), "[6, 4, 5] with-many [4, 5] after 6 should return [6, 4, 5, 4, 5]");
+    var array1 = IA(N(1), N(2), N(3), N(2), N(4));
+    var array2 = IA(N(1), N(2), N(3));
+    var array3 = IA();
+    MLAssertEquals(MLWithManyAfter(array1, IA(N(8), N(9)), N(2)), IA(N(1), N(2), N(3), N(2), N(8), N(9), N(4)), "Array -with-many*after* returns a new array by inserting an array of objects after the last occurence of the passed in object");
+    MLAssertEquals(MLWithManyAfter(array2, IA(N(8), N(9)), N(7)), IA(N(1), N(2), N(3), N(8), N(9)), "Array -with-many*after* returns a new array by adding an array of objects at the end if object after which to be inserted is not contained in the array");
+    MLAssertEquals(MLWithManyAfter(array3, IA(N(8), N(9)), N(7)), IA(N(8), N(9)), "Array -with-many*after* returns a new array containing only the objects to be inserted if array is empty");
 }
 
 
