@@ -568,7 +568,9 @@ void MLTestMutableArrayReplaceWithMany() {
 
 
 void MLTestMutableArrayReplaceAtWith() {
-    // TODO: implement.
+    var array1 = MA(N(1), N(2), N(3), N(2), N(4));
+    MLReplaceAtWith(array1, N(1), N(9));
+    MLAssertEquals(array1, IA(N(1), N(9), N(3), N(2), N(4)), "MutableArray -replace-at*with* replaces object at the specified index  with another object");
 }
 
 
