@@ -42,9 +42,15 @@
 
 #define MLDebug(message, ...) printf("[DEBUG] " message "\n", ## __VA_ARGS__)
 #define MLInfo(message, ...) printf("[INFO] " message "\n", ## __VA_ARGS__)
-#define MLWarning(message, ...) printf("[WARNING] " message "\n", ## __VA_ARGS__)
-#define MLError(message, ...) { printf("[ERROR] %s:%d | %s() | " message "\n", __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__); exit(1); }
+#define MLWarning(message, ...) fprintf(stderr, "[WARNING] " message "\n", ## __VA_ARGS__)
+#define MLError(message, ...) { fprintf(stderr, "[ERROR] %s:%d | %s() | " message "\n", __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__); MLDereferenceNullPointer(); }
 #define MLAssert(condition, message, ...) if (!(condition)) { MLError(message, ## __VA_ARGS__); }
+
+#if DEBUG && !(defined __clang_analyzer__)
+    #define MLDereferenceNullPointer() { MLInteger *pointer = NULL; *pointer = 0; }
+#else
+    #define MLDereferenceNullPointer() { /* Do nothing. */ }
+#endif
 
 #define MLInline(number_of_bytes) alloca(number_of_bytes)
 #define MLInlineAndClear(number_of_bytes) memset(alloca(number_of_bytes), 0, number_of_bytes)
