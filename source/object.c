@@ -29,6 +29,7 @@
 
 static var MLObjectMetaCreate(var context, var self, var command, var arguments, var options) {
     MLError("Can't create an instance of Object, object is either abstract or doesn't implement -create");
+    return null;
 }
 
 
