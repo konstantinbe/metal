@@ -123,11 +123,11 @@
 #define MLWithReplacing(self, replacement, object) MLSend(self, IS("with*replacing*"), IA(replacement, object), null)
 #define MLWithManyReplacing(self, replacements, object) MLSend(self, IS("with-many*replacing*"), IA(replacements, object), null)
 
-#define MLWithReplacingAt(self, replacement, index) MLSend(self, IS("with*replacing_at*"), IA(replacement, index), null)
-#define MLWithManyReplacingAt(self, replacements, index) MLSend(self, IS("with-many*replacing_at*"), IA(replacements, index), null)
+#define MLWithReplacingAt(self, replacement, index) MLSend(self, IS("with*replacing-at*"), IA(replacement, index), null)
+#define MLWithManyReplacingAt(self, replacements, index) MLSend(self, IS("with-many*replacing-at*"), IA(replacements, index), null)
 
-#define MLWithReplacingAtCount(self, replacement, index, count) MLSend(self, IS("with*replacing_at*count*"), IA(replacement, index, count), null)
-#define MLWithManyReplacingAtCount(self, replacements, index, count) MLSend(self, IS("with-many*replacing_at*count*"), IA(replacements, index, count), null)
+#define MLWithReplacingAtCount(self, replacement, index, count) MLSend(self, IS("with*replacing-at*count*"), IA(replacement, index, count), null)
+#define MLWithManyReplacingAtCount(self, replacements, index, count) MLSend(self, IS("with-many*replacing-at*count*"), IA(replacements, index, count), null)
 
 #define MLWithout(self, object) MLSend(self, IS("without*"), IA(object), null)
 #define MLWithoutMany(self, object) MLSend(self, IS("without-many*"), IA(object), null)
@@ -163,13 +163,13 @@
 #define MLInsertManyAfter(self, object, after) MLSend(self, IS("insert-many*after*"), IA(object, after), null)
 
 #define MLReplaceWith(self, object, replacement) MLSend(self, IS("replace*with*"), IA(object, replacement), null)
-#define MLReplaceWithMany(self, object, replacements) MLSend(self, IS("replace*with_many*"), IA(object, replacements), null)
+#define MLReplaceWithMany(self, object, replacements) MLSend(self, IS("replace*with-many*"), IA(object, replacements), null)
 
 #define MLReplaceAtWith(self, index, replacement) MLSend(self, IS("replace-at*with*"), IA(index, replacement), null)
-#define MLReplaceAtWithMany(self, index, replacements) MLSend(self, IS("replace-at*with_many*"), IA(index, replacements), null)
+#define MLReplaceAtWithMany(self, index, replacements) MLSend(self, IS("replace-at*with-many*"), IA(index, replacements), null)
 
 #define MLReplaceAtCountWith(self, index, count, replacement) MLSend(self, IS("replace-at*count*with*"), IA(index, replacement, count), null)
-#define MLReplaceAtCountWithMany(self, index, count, replacements) MLSend(self, IS("replace-at*count*with_many*"), IA(index, count, replacements), null)
+#define MLReplaceAtCountWithMany(self, index, count, replacements) MLSend(self, IS("replace-at*count*with-many*"), IA(index, count, replacements), null)
 
 #define MLRemove(self, object) MLSend(self, IS("remove*"), IA(object), null)
 #define MLRemoveMany(self, objects) MLSend(self, IS("remove-many*"), IA(objects), null)

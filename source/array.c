@@ -550,11 +550,11 @@ MLPointer MLArrayDefaultMethods[] = {
     "with*replacing*", MLArrayWithReplacing,
     "with-many*replacing*", MLArrayWithManyReplacing,
 
-    "with*replacing_at*", MLArrayWithReplacingAt,
-    "with-many*replacing_at*", MLArrayWithManyReplacingAt,
+    "with*replacing-at*", MLArrayWithReplacingAt,
+    "with-many*replacing-at*", MLArrayWithManyReplacingAt,
 
-    "with*replacing_at*count*", MLArrayWithReplacingAtCount,
-    "with-many*replacing_at*count*", MLArrayWithManyReplacingAtCount,
+    "with*replacing-at*count*", MLArrayWithReplacingAtCount,
+    "with-many*replacing-at*count*", MLArrayWithManyReplacingAtCount,
 
     "without*", MLArrayWithout,
     "without-many*", MLArrayWithoutMany,
@@ -1022,13 +1022,13 @@ MLPointer MLMutableArrayDefaultMethods[] = {
     "insert-many*after*", MLMutableArrayInsertManyAfter,
 
     "replace*with*", MLMutableArrayReplaceWith,
-    "replace*with_many*", MLMutableArrayReplaceWithMany,
+    "replace*with-many*", MLMutableArrayReplaceWithMany,
 
     "replace-at*with*", MLMutableArrayReplaceAtWith,
-    "replace-at*with_many*", MLMutableArrayReplaceAtWithMany,
+    "replace-at*with-many*", MLMutableArrayReplaceAtWithMany,
 
     "replace-at*count*with*", MLMutableArrayReplaceAtCountWith,
-    "replace-at*count*with_many*", MLMutableArrayReplaceAtCountWithMany,
+    "replace-at*count*with-many*", MLMutableArrayReplaceAtCountWithMany,
 
     "remove*", MLMutableArrayRemove,
     "remove-many*", MLMutableArrayRemoveMany,
