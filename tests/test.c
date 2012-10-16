@@ -32,13 +32,13 @@ static const char* RESET = "\x1B[0m";
 static MLInteger MLTotalNumberOfExamples = 0;
 static MLInteger MLNumberOfFailedExamples = 0;
 static char* MLFailedExamples[1000000];
-static time_t MLTestBeganAt = 0;
-static time_t MLTestEndedAt = 0;
+static double MLTestBeganAt = 0;
+static double MLTestEndedAt = 0;
 
 
 void MLTestBegin() {
     printf("\n");
-    time(&MLTestBeganAt);
+    MLTestBeganAt = (double)clock();
 }
 
 
@@ -47,8 +47,8 @@ void MLTestEnd() {
     if (MLNumberOfFailedExamples <= 0) color = GREEN;
     if (MLNumberOfFailedExamples >= 1) color = RED;
 
-    time(&MLTestEndedAt);
-    const double duration = difftime(MLTestEndedAt, MLTestBeganAt);
+    MLTestEndedAt = (double)clock();
+    const double duration = (MLTestEndedAt - MLTestBeganAt) / (double)CLOCKS_PER_SEC;
 
     printf("\n\n");
     if (MLNumberOfFailedExamples > 0) {
@@ -56,7 +56,7 @@ void MLTestEnd() {
         printf("\n");
     }
 
-    printf("Finished in %.1f seconds\n", duration);
+    printf("Finished in %.3f seconds\n", duration);
     printf("%lld examples, %s%lld failures%s\n\n", MLTotalNumberOfExamples, color, MLNumberOfFailedExamples,  RESET);
 }
 
