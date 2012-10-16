@@ -350,7 +350,10 @@ void MLTestArrayWithManyReplacingAtCount() {
 
 
 void MLTestArrayWithout() {
-    // TODO: implement.
+    var array1 = IA(N(1), N(2), N(3), N(2));
+    var array2 = IA(N(1), N(2), N(3));
+    MLAssertEquals(MLWithout(array1, N(2)), IA(N(1), N(3)), "Array -without* returns a new array by removing all occurences of the passed in object");
+    MLAssertEquals(MLWithout(array2, N(9)), IA(N(1), N(2), N(3)), "Array -without* returns an exact copy if passed in object is not contained in the array");
 }
 
 
