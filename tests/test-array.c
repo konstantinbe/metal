@@ -587,7 +587,12 @@ void MLTestMutableArrayReplaceAtCountWith() {
 
 
 void MLTestMutableArrayReplaceAtCountWithMany() {
-    // TODO: implement.
+    var array1 = MA(N(1), N(2), N(3), N(4), N(5));
+    var array2 = MA();
+    MLReplaceAtCountWithMany(array1, N(1), N(3), IA(N(7), N(8), N(9)));
+    MLReplaceAtCountWithMany(array2, N(0), N(0), IA());
+    MLAssertEquals(array1, IA(N(1), N(7), N(8), N(9), N(5)), "MutableArray -replace-at*count*with-many* replaces N objects at the specified index with other objects");
+    MLAssertEquals(array2, IA(), "MutableArray -replace-at*count*with-many* doesn't change the array when count is 0 and replacements array is empty");
 }
 
 
