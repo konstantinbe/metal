@@ -358,7 +358,12 @@ void MLTestArrayWithout() {
 
 
 void MLTestArrayWithoutMany() {
-    // TODO: implement.
+    var array1 = IA(N(1), N(2), N(3), N(2), N(5), N(6));
+    var array2 = IA(N(1), N(2), N(3));
+    var array3 = IA(N(1), N(2), N(3));
+    MLAssertEquals(MLWithoutMany(array1, IA(N(2), N(5))), IA(N(1), N(3), N(6)), "Array -without-many* returns a new array by removing all occurences of all passed in objects");
+    MLAssertEquals(MLWithoutMany(array2, IA(N(2), N(5))), IA(N(1), N(3)), "Array -without-many* ignores objects that aren't contained in the array");
+    MLAssertEquals(MLWithoutMany(array3, IA()), array3, "Array -without-many* returns an exact copy if passed in objects array is empty");
 }
 
 
