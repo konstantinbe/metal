@@ -382,7 +382,10 @@ void MLTestArrayWithoutAtMany() {
 
 
 void MLTestArrayWithoutAtCount() {
-    // TODO: implement.
+    var array1 = IA(N(1), N(2), N(3), N(4), N(5));
+    var array2 = IA(N(1), N(2), N(3));
+    MLAssertEquals(MLWithoutAtCount(array1, N(1), N(3)), IA(N(1), N(5)), "Array -without-at*count* returns a new array by removing count objects starting at `index`");
+    MLAssertEquals(MLWithoutAtCount(array2, N(1), N(0)), array2, "Array -without-at*count* returns an exact copy if `count` is 0");
 }
 
 
