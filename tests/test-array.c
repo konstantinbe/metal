@@ -374,7 +374,10 @@ void MLTestArrayWithoutAt() {
 
 
 void MLTestArrayWithoutAtMany() {
-    // TODO: implement.
+    var array1 = IA(N(1), N(2), N(3), N(4), N(5));
+    var array2 = IA(N(1), N(2), N(3));
+    MLAssertEquals(MLWithoutAtMany(array1, IA(N(1), N(3))), IA(N(1), N(3), N(5)), "Array -without-at-many* returns a new array by removing objects at the passed in indexes");
+    MLAssertEquals(MLWithoutAtMany(array2, IA()), array2, "Array -without-at-many* returns an exact copy if indexes array is empty");
 }
 
 
