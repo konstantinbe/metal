@@ -368,7 +368,8 @@ void MLTestArrayWithoutMany() {
 
 
 void MLTestArrayWithoutAt() {
-    // TODO: implement.
+    var array1 = IA(N(1), N(2), N(3), N(2));
+    MLAssertEquals(MLWithoutAt(array1, N(1)), IA(N(1), N(3), N(2)), "Array -without-at* returns a new array by removing object at the passed in index");
 }
 
 
