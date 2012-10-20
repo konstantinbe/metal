@@ -25,35 +25,35 @@
 void MLTestArrayCount() {
     var array = IA(N(1), N(2), N(3));
     var count = MLCount(array);
-    MLAssertEquals(count, N(3), "[1, 2, 3] should have count 3");
+    MLAssertEquals(count, N(3), "Array -count returns the number of objects contained in the array");
 }
 
 
 void MLTestArrayContains() {
     var array = IA(N(1), N(2), N(3));
-    MLAssertFalse(MLContains(array, N(0)), "[1, 2, 3] should not contain 0");
-    MLAssertTrue(MLContains(array, N(1)), "[1, 2, 3] should contain 1");
-    MLAssertTrue(MLContains(array, N(2)), "[1, 2, 3] should contain 2");
-    MLAssertTrue(MLContains(array, N(3)), "[1, 2, 3] should contain 3");
-    MLAssertFalse(MLContains(array, N(4)), "[1, 2, 3] should not contain 4");
+    MLAssertFalse(MLContains(array, N(0)), "Array -contains* returns no if object is not in array");
+    MLAssertTrue(MLContains(array, N(1)), "Array -contains* yes if object is contained in array");
+    MLAssertTrue(MLContains(array, N(2)), "Array -contains* yes if object is contained in array");
+    MLAssertTrue(MLContains(array, N(3)), "Array -contains* yes if object is contained in array");
+    MLAssertFalse(MLContains(array, N(4)), "Array -contains* returns no if object is not in array");
 }
 
 
 void MLTestArrayContainsAny() {
     var array = IA(N(1), N(2), N(3));
-    MLAssertFalse(MLContainsAny(array, IA()), "[1, 2, 3] should not contain any of []");
-    MLAssertFalse(MLContainsAny(array, IA(N(0), N(4))), "[1, 2, 3] should not contain any of [0, 4]");
-    MLAssertTrue(MLContainsAny(array, IA(N(0), N(3))), "[1, 2, 3] should contain any of [0, 3]");
-    MLAssertTrue(MLContainsAny(array, IA(N(1), N(3))), "[1, 2, 3] should contain any of [1, 3]");
+    MLAssertFalse(MLContainsAny(array, IA()), "Array contains-any* returns no if passed in objects array is empty");
+    MLAssertFalse(MLContainsAny(array, IA(N(0), N(4))), "Array -contains-any* returns no if none of the passed in objects is contained in array");
+    MLAssertTrue(MLContainsAny(array, IA(N(0), N(3))), "Array -contains-any* returns yes if all of the passed in objects are contained in array");
+    MLAssertTrue(MLContainsAny(array, IA(N(1), N(3))), "Array -contains-any* returns yes of at least one of the passed in objects is contained in array");
 }
 
 
 void MLTestArrayContainsAll() {
     var array = IA(N(1), N(2), N(3));
-    MLAssertFalse(MLContainsAll(array, IA(N(0), N(4))), "[1, 2, 3] should not contain all of [0, 4]");
-    MLAssertFalse(MLContainsAll(array, IA(N(1), N(4))), "[1, 2, 3] should not contain all of [1, 4]");
-    MLAssertTrue(MLContainsAll(array, IA(N(1), N(3))), "[1, 2, 3] should contain all of [1, 3]");
-    MLAssertTrue(MLContainsAll(array, IA()), "[1, 2, 3] should contain all of []");
+    MLAssertFalse(MLContainsAll(array, IA(N(0), N(4))), "Array -contains-all* returns no if none of the passed in objects are contained in array");
+    MLAssertFalse(MLContainsAll(array, IA(N(1), N(4))), "Array -contains-all* returns no if at least one of the passed in objects is not contained in array");
+    MLAssertTrue(MLContainsAll(array, IA(N(1), N(3))), "Array -contains-all* returns yes if all of the passed in objects are contained in array");
+    MLAssertTrue(MLContainsAll(array, IA()), "Array -contains-all* returns yes if the passed in array if objects is empty");
 }
 
 
@@ -61,9 +61,9 @@ void MLTestArrayIsEmpty() {
     var arrayWithNoObjects = IA();
     var arrayWithOneObject = IA(N(1));
     var arrayWithManyObjects = IA(N(1), N(2), N(3));
-    MLAssertTrue(MLIsEmpty(arrayWithNoObjects), "[] should be empty");
-    MLAssertFalse(MLIsEmpty(arrayWithOneObject), "[1] should not be empty");
-    MLAssertFalse(MLIsEmpty(arrayWithManyObjects), "[1, 2, 3] should not be empty");
+    MLAssertTrue(MLIsEmpty(arrayWithNoObjects), "Array -is-empty? returns yes if array doesn't contain any objects");
+    MLAssertFalse(MLIsEmpty(arrayWithOneObject), "Array -is-empty? returns no if array contains one object");
+    MLAssertFalse(MLIsEmpty(arrayWithManyObjects), "Array -is-empty? returns no if array contains more than one object");
 }
 
 
@@ -71,9 +71,9 @@ void MLTestArrayIsInline() {
     var array = A();
     var inlineArray = IA();
     var mutableArray = MA();
-    MLAssertFalse(MLIsInline(array), "A regular array should not be inline");
-    MLAssertTrue(MLIsInline(inlineArray), "An inline array should be inline");
-    MLAssertFalse(MLIsInline(mutableArray), "A mutable array should not be inline");
+    MLAssertFalse(MLIsInline(array), "Array -is-inline? returns no if array is of type Array");
+    MLAssertTrue(MLIsInline(inlineArray), "Array -is-inline? returns yes if array is of type InlineArray");
+    MLAssertFalse(MLIsInline(mutableArray), "Array -is-inline? returns no if array is of type MutableArray");
 }
 
 
@@ -81,70 +81,68 @@ void MLTestArrayIsMutable() {
     var array = A();
     var inlineArray = IA();
     var mutableArray = MA();
-    MLAssertFalse(MLIsMutable(array), "A regular array should not be mutable");
-    MLAssertFalse(MLIsMutable(inlineArray), "An inline array should not be mutable");
-    MLAssertTrue(MLIsMutable(mutableArray), "A mutable array should be mutable");
+    MLAssertFalse(MLIsMutable(array), "Array -is-mutable? returns no if array is of type Array");
+    MLAssertFalse(MLIsMutable(inlineArray), "Array -is-mutable? returns no if array is of type InlineArray");
+    MLAssertTrue(MLIsMutable(mutableArray), "Array -is-mutable? returns yes if array is of type MutableArray");
 }
 
 
 void MLTestArrayAt() {
     var array = IA(N(1), N(2), N(3));
-    MLAssertNull(MLAt(array, N(-1)), "[1, 2, 3] should return null for indexes < 0");
-    MLAssertEquals(MLAt(array, N(0)), N(1), "Array [1, 2, 3] should have 1 at index 0");
-    MLAssertEquals(MLAt(array, N(1)), N(2), "Array [1, 2, 3] should have 2 at index 1");
-    MLAssertEquals(MLAt(array, N(2)), N(3), "Array [1, 2, 3] should have 3 at index 2");
-    MLAssertNull(MLAt(array, N(3)), "[1, 2, 3] should return null for indexes >= count");
+    MLAssertNull(MLAt(array, N(-1)), "Array -at* returns null if index is < 0");
+    MLAssertEquals(MLAt(array, N(0)), N(1), "Array -at* returns the first object in array if index = 0");
+    MLAssertEquals(MLAt(array, N(1)), N(2), "Array -at* returns the object at index if index is within bounds");
+    MLAssertEquals(MLAt(array, N(2)), N(3), "Array -at* returns the last object if index = count - 1");
+    MLAssertNull(MLAt(array, N(3)), "Array -at* returns null if index is >= count");
 }
 
 
 void MLTestArrayAtMany() {
     var array = IA(N(4), N(5), N(6));
-    MLAssertEquals(MLAtMany(array, IA()), IA(), "[4, 5, 6] at-many [] should return []");
-    MLAssertEquals(MLAtMany(array, IA(N(-1))), IA(), "[4, 5, 6] at-many [-1] (invalid index) should return []");
-    MLAssertEquals(MLAtMany(array, IA(N(9))), IA(), "[4, 5, 6] at-many [9] (invalid index) should return []");
-    MLAssertEquals(MLAtMany(array, IA(N(1))), IA(N(5)), "[4, 5, 6] at-many [1] should return [5]");
-    MLAssertEquals(MLAtMany(array, IA(N(0), N(1), N(2))), array, "[4, 5, 6] at-many [0, 1, 2] should return the same array");
-    MLAssertEquals(MLAtMany(array, IA(N(-1), N(0), N(1), N(2))), array, "[4, 5, 6] at-many [-1, 0, 1, 2] (one invalid index) should return the same array");
-    MLAssertEquals(MLAtMany(array, IA(N(0), N(1), N(2), N(3))), array, "[4, 5, 6] at-many [0, 1, 2, 3] (one invalid index) should return the same array");
+    MLAssertEquals(MLAtMany(array, IA()), IA(), "Array -at-many* returns an empty array if passed indexes array is empty");
+    MLAssertEquals(MLAtMany(array, IA(N(-1))), IA(), "Array -at-many* returns an empty array if passed indexes are all < 0");
+    MLAssertEquals(MLAtMany(array, IA(N(9))), IA(), "Array -at-many* returns an empty array if passed in indexes are all >= count");
+    MLAssertEquals(MLAtMany(array, IA(N(1))), IA(N(5)), "Array -at-many* returns an array containing the object when passing one index");
+    MLAssertEquals(MLAtMany(array, IA(N(0), N(1), N(2))), array, "Array -at-many* returns an exact copy if passing all indexes that the array contains sorted ascending");
+    MLAssertEquals(MLAtMany(array, IA(N(-1), N(0), N(1), N(2))), array, "Array -at-many* ignores indexes < 0");
+    MLAssertEquals(MLAtMany(array, IA(N(0), N(1), N(2), N(3))), array, "Array -at-many* ignores indexes >= count");
 }
 
 
 void MLTestArrayAtCount() {
     var array = IA(N(4), N(5), N(6));
-    MLAssertEquals(MLAtCount(array, N(0), N(0)), IA(), "[4, 5, 6] at 0 count 0 should return []");
-    MLAssertEquals(MLAtCount(array, N(0), N(1)), IA(N(4)), "[4, 5, 6] at 0 count 1 should return [4]");
-    MLAssertEquals(MLAtCount(array, N(0), N(3)), array, "[4, 5, 6] at 0 count 3 should return the same array");
-    MLAssertEquals(MLAtCount(array, N(0), N(9)), array, "[4, 5, 6] at 0 count 9 (more than array contains) should return the same array");
-    MLAssertEquals(MLAtCount(array, N(1), N(2)), IA(N(5), N(6)), "[4, 5, 6] at 1 count 2 should return [5, 6]");
-    MLAssertEquals(MLAtCount(array, N(2), N(2)), IA(N(6)), "[4, 5, 6] at 2 count 2 should return [6]");
-    MLAssertEquals(MLAtCount(array, N(9), N(0)), IA(), "[4, 5, 6] at 9 count 0 should return []");
-    MLAssertEquals(MLAtCount(array, N(9), N(8)), IA(), "[4, 5, 6] at 9 count 8 should return []");
+    MLAssertEquals(MLAtCount(array, N(0), N(0)), IA(), "Array -at*count* returns an empty array if count = 0");
+    MLAssertEquals(MLAtCount(array, N(0), N(1)), IA(N(4)), "Array -at*count* returns an array containing the first object if index = 0, and count = 1");
+    MLAssertEquals(MLAtCount(array, N(0), N(3)), array, "Array -at*count* returns an array with first `count` elements if index = 0");
+    MLAssertEquals(MLAtCount(array, N(0), N(9)), array, "Array -at*count* ignores rest if count >= number of objects in array and index = 0y");
+    MLAssertEquals(MLAtCount(array, N(1), N(2)), IA(N(5), N(6)), "Array at*count* returns an array with count elements starting at index");
+    MLAssertEquals(MLAtCount(array, N(2), N(2)), IA(N(6)), "Array -at*count* ignores rest if index + count >= number of objects in array and index > 0");
+    MLAssertEquals(MLAtCount(array, N(9), N(0)), IA(), "Array -at*count* returns an empty array if index >= number of objects in array and count = 0");
+    MLAssertEquals(MLAtCount(array, N(9), N(8)), IA(), "Array -at*count* returns an empty array if index >= number of objects in array and count > 0");
 }
 
 
 void MLTestArrayIndexOf() {
     var array = IA(N(4), N(5), N(6), N(4), N(6));
-    MLAssertEquals(MLIndexOf(array, N(4)), N(0), "[4, 5, 6, 4, 6] index-of 4 should return 0");
-    MLAssertEquals(MLIndexOf(array, N(5)), N(1), "[4, 5, 6, 4, 6] index-of 5 should return 1");
-    MLAssertEquals(MLIndexOf(array, N(6)), N(2), "[4, 5, 6, 4, 6] index-of 6 should return 2");
-    MLAssertEquals(MLIndexOf(array, N(7)), N(-1), "[4, 5, 6, 4, 6] index-of 7 should return -1");
+    MLAssertEquals(MLIndexOf(array, N(5)), N(1), "Array -index-of* returns the index of object if object is contained only once");
+    MLAssertEquals(MLIndexOf(array, N(6)), N(2), "Array -index-of* returns the index of the first occurence of passed in object if object is contained multiple times");
+    MLAssertEquals(MLIndexOf(array, N(7)), N(-1), "Array -index-of* returns -1 if object is not in array");
 }
 
 
 void MLTestArrayLastIndexOf() {
     var array = IA(N(4), N(5), N(6), N(4), N(6));
-    MLAssertEquals(MLLastIndexOf(array, N(4)), N(3), "[4, 5, 6, 4, 6] last-index-of 4 should return 3");
-    MLAssertEquals(MLLastIndexOf(array, N(5)), N(1), "[4, 5, 6, 4, 6] last-index-of 5 should return 1");
-    MLAssertEquals(MLLastIndexOf(array, N(6)), N(4), "[4, 5, 6, 4, 6] last-index-of 6 should return 4");
-    MLAssertEquals(MLLastIndexOf(array, N(7)), N(-1), "[4, 5, 6, 4, 6] last-index-of 7 should return -1");
+    MLAssertEquals(MLLastIndexOf(array, N(4)), N(3), "Array -last-index-of* returns the index of object if object is contained only once");
+    MLAssertEquals(MLLastIndexOf(array, N(6)), N(4), "Array -last-index-of* returns the index of the last occurence of object if object is contained multiple times");
+    MLAssertEquals(MLLastIndexOf(array, N(7)), N(-1), "Array -last-index-of* returns -1 if object is not in array");
 }
 
 
 void MLTestArrayIndexesOf() {
     var array = IA(N(4), N(5), N(6), N(4), N(6), N(4));
-    MLAssertEquals(MLIndexesOf(array, N(5)), IA(N(1)), "[4, 5, 6, 4, 6, 4] indexes-of 5 should return [1]");
-    MLAssertEquals(MLIndexesOf(array, N(4)), IA(N(0), N(3), N(5)), "[4, 5, 6, 4, 6, 4] indexes-of 4 should return [0, 3, 5]");
-    MLAssertEquals(MLIndexesOf(array, N(9)), IA(), "[4, 5, 6, 4, 6, 4] indexes-of 9 should return []");
+    MLAssertEquals(MLIndexesOf(array, N(5)), IA(N(1)), "Array -indexes-of* returns an array with the index of object if object is contained only once");
+    MLAssertEquals(MLIndexesOf(array, N(4)), IA(N(0), N(3), N(5)), "Array -indexes-of* returns an array with indexes of all occurences of object if it is contained multiple times");
+    MLAssertEquals(MLIndexesOf(array, N(9)), IA(), "Array -indexes-of* returns an empty array of object is not contained in array");
 }
 
 
@@ -152,9 +150,9 @@ void MLTestArrayFirst() {
     var array1 = IA();
     var array2 = IA(N(5));
     var array3 = IA(N(4), N(5), N(6));
-    MLAssertNull(MLFirst(array1), "[] first should be null");
-    MLAssertEquals(MLFirst(array2), N(5), "[5] first should be 5");
-    MLAssertEquals(MLFirst(array3), N(4), "[4, 5, 6] first should be 4");
+    MLAssertNull(MLFirst(array1), "Array -first returns null if array is empty");
+    MLAssertEquals(MLFirst(array2), N(5), "Array -first returns the first object when array has only one");
+    MLAssertEquals(MLFirst(array3), N(4), "Array -first returns the first object when array has more than one");
 }
 
 
@@ -182,9 +180,9 @@ void MLTestArrayLast() {
     var array1 = IA();
     var array2 = IA(N(5));
     var array3 = IA(N(4), N(5), N(6));
-    MLAssertNull(MLLast(array1), "[] last should be null");
-    MLAssertEquals(MLLast(array2), N(5), "[5] last should be 5");
-    MLAssertEquals(MLLast(array3), N(6), "[4, 5, 6] last should be 6");
+    MLAssertNull(MLLast(array1), "Array -last returns null if array is empty");
+    MLAssertEquals(MLLast(array2), N(5), "Array -last returns the last object when array has only one");
+    MLAssertEquals(MLLast(array3), N(6), "Array -last returns the last object when array has more than one");
 }
 
 
@@ -212,9 +210,9 @@ void MLTestArraySecond() {
     var array1 = IA();
     var array2 = IA(N(5));
     var array3 = IA(N(4), N(5), N(6));
-    MLAssertNull(MLSecond(array1), "[] second should be null");
-    MLAssertNull(MLSecond(array2), "[5] second should be null");
-    MLAssertEquals(MLSecond(array3), N(5), "[4, 5, 6] second should be 5");
+    MLAssertNull(MLSecond(array1), "Array -second returns null if array is empty");
+    MLAssertNull(MLSecond(array2), "Array -second returns null if array has only one object");
+    MLAssertEquals(MLSecond(array3), N(5), "Array -second returns the second if array has more than one object");
 }
 
 
@@ -222,9 +220,9 @@ void MLTestArrayThird() {
     var array1 = IA();
     var array2 = IA(N(5));
     var array3 = IA(N(4), N(5), N(6));
-    MLAssertNull(MLThird(array1), "[] third should be null");
-    MLAssertNull(MLThird(array2), "[5] third should be null");
-    MLAssertEquals(MLThird(array3), N(6), "[4, 5, 6] third should be 6");
+    MLAssertNull(MLThird(array1), "Array -third returns null if array is empty");
+    MLAssertNull(MLThird(array2), "Array -third returns null if array contains less than 3 objects");
+    MLAssertEquals(MLThird(array3), N(6), "Array -third returns the third object if array contains at least 3 objects");
 }
 
 
@@ -393,9 +391,9 @@ void MLTestArrayReversed() {
     var array1 = IA(N(1));
     var array2 = IA(N(1), N(2));
     var array3 = IA(N(1), N(2), N(3));
-    MLAssertEquals(MLReversed(array1), array1, "[1] reversed should return same array");
-    MLAssertEquals(MLReversed(array2), IA(N(2), N(1)), "[1, 2] reversed should return [2, 1]");
-    MLAssertEquals(MLReversed(array3), IA(N(3), N(2), N(1)), "[1, 2, 3] reverse should return [3, 2, 1]");
+    MLAssertEquals(MLReversed(array1), array1, "Array -reversed returns an exact copy if array contains only one object");
+    MLAssertEquals(MLReversed(array2), IA(N(2), N(1)), "Array -reversed returns a new array with objects beeing in reversed order when array has even number of objects");
+    MLAssertEquals(MLReversed(array3), IA(N(3), N(2), N(1)), "Array -reversed returns a new array with objects beeing in reversed order when array has odd number of objects");
 }
 
 
@@ -403,80 +401,80 @@ void MLTestArraySorted() {
     var array1 = IA(N(1));
     var array2 = IA(N(2), N(1));
     var array3 = IA(N(3), N(2), N(1), N(4), N(6), N(5));
-    MLAssertEquals(MLSorted(array1), IA(N(1)), "[1] sorted should return the same array");
-    MLAssertEquals(MLSorted(array2), IA(N(1), N(2)), "[2, 1] sorted should return [1, 2]");
-    MLAssertEquals(MLSorted(array3), IA(N(1), N(2), N(3), N(4), N(5), N(6)), "[3, 2, 1, 4, 6, 5] sorted should return [1, 2, 3, 4, 5, 6]");
+    MLAssertEquals(MLSorted(array1), IA(N(1)), "Array -sorted returns an exact copy if array contains only one object");
+    MLAssertEquals(MLSorted(array2), IA(N(1), N(2)), "Array -sorted returns a new array with objects beeing sorted in ascending order when array contains 2 objects");
+    MLAssertEquals(MLSorted(array3), IA(N(1), N(2), N(3), N(4), N(5), N(6)), "Array -sorted returns a new array with objects beeing sorted in ascending order when array any number of objects");
 }
 
 
 void MLTestArrayPluck() {
     var numbers = IA(N(1), N(2), N(3));
-    MLAssertEquals(MLPluck(numbers, IS("is-number?")), IA(yes, yes, yes), "[1, 2, 3] pluck 'is-number?' should return [yes, yes, yes]");
-    MLAssertEquals(MLPluck(numbers, IS("is-boolean?")), IA(no, no, no), "[1, 2, 3] pluck 'is-boolean?' should return [no, no, no]");
+    MLAssertEquals(MLPluck(numbers, IS("is-number?")), IA(yes, yes, yes), "Array -pluck returns a new array containing the return values by sending the passed in command to each object (1/2)");
+    MLAssertEquals(MLPluck(numbers, IS("is-boolean?")), IA(no, no, no), "Array -pluck returns a new array containing the return values by sending the passed in command to each object (2/2)");
 }
 
 
 void MLTestArrayMin() {
     var array1 = IA();
     var array2 = IA(N(2), N(-1), N(3));
-    MLAssertNull(MLMin(array1), "[] min should be null");
-    MLAssertEquals(MLMin(array2), N(-1), "[2, -1, 3] min should be -1");
+    MLAssertNull(MLMin(array1), "Array -min returns null if array is empty");
+    MLAssertEquals(MLMin(array2), N(-1), "Array -min returns the smallest object in array");
 }
 
 
 void MLTestArrayMax() {
     var array1 = IA();
     var array2 = IA(N(2), N(-1), N(3));
-    MLAssertNull(MLMax(array1), "[] max should be null");
-    MLAssertEquals(MLMax(array2), N(3), "[2, -1, 3] max should be 3");
+    MLAssertNull(MLMax(array1), "Array -max returns null if array if empty");
+    MLAssertEquals(MLMax(array2), N(3), "Array -max returns the greatest object in array");
 }
 
 
 void MLTestMutableArrayAdd() {
     var array = MA();
     MLAdd(array, N(4));
-    MLAssertEquals(array, IA(N(4)), "[] add 4 should change array to [4]");
+    MLAssertEquals(array, IA(N(4)), "MutableArray -add* adds the object at the end (when array is empty)");
     MLAdd(array, N(5));
-    MLAssertEquals(array, IA(N(4), N(5)), "[4] add 5 should change array to [4, 5]");
+    MLAssertEquals(array, IA(N(4), N(5)), "MutableArray -add* adds the object at the end (when array contains one object)");
     MLAdd(array, N(6));
-    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[4, 5] add 6 should change array to [4, 5, 6]");
+    MLAssertEquals(array, IA(N(4), N(5), N(6)), "MutableArray -add* adds the object at the end (when array contains multiple objects)");
 }
 
 
 void MLTestMutableArrayAddMany() {
     var array = MA();
     MLAddMany(array, IA());
-    MLAssertEquals(array, IA(), "[] add-many [] should not change array and leave it as []");
+    MLAssertEquals(array, IA(), "MutableArray -add-many* doesn't change the array if passed in objects array is empty (when array is empty)");
     MLAddMany(array, IA(N(4), N(5)));
-    MLAssertEquals(array, IA(N(4), N(5)), "[] add-many [4, 5] should change array to [4, 5]");
+    MLAssertEquals(array, IA(N(4), N(5)), "MutableArray -add-many* adds many objects at the end (when array is empty)");
     MLAddMany(array, IA(N(6), N(7), N(8)));
-    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] add-many [6, 7, 8] should change array to [4, 5, 6, 7, 8]");
+    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "MutableArray -add-many* adds many objects at the end (when array is not empty)");
     MLAddMany(array, IA());
-    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5, 6, 7, 8] add-many [] should not change the array and leave it as [4, 5, 6, 7, 8]");
+    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "MutableArray -add-many* doesn't change the array if passed in objects array is empty (when array is not empty)");
 }
 
 
 void MLTestMutableArrayInsert() {
     var array = MA();
     MLInsert(array, N(6));
-    MLAssertEquals(array, IA(N(6)), "[] insert 4 should change array to [6]");
+    MLAssertEquals(array, IA(N(6)), "MutableArray -insert* inserts the object at the beginning (when array is empty)");
     MLInsert(array, N(5));
-    MLAssertEquals(array, IA(N(5), N(6)), "[6] insert 5 should change array to [5, 6]");
+    MLAssertEquals(array, IA(N(5), N(6)), "MutableArray -insert* inserts the object at the beginning (when array contains one object)");
     MLInsert(array, N(4));
-    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[5, 6] insert 4 should change array to [4, 5, 6]");
+    MLAssertEquals(array, IA(N(4), N(5), N(6)), "MutableArray -insert* inserts the object at the beginning (when array contains more than one object)");
 }
 
 
 void MLTestMutableArrayInsertMany() {
     var array = MA();
     MLInsertMany(array, IA());
-    MLAssertEquals(array, IA(), "[] insert-many [] should not change array and leave it as []");
+    MLAssertEquals(array, IA(), "MutableArray -insert-many* doesn't change the array of passed in objects array is empty (when array is empty)");
     MLInsertMany(array, IA(N(5), N(4)));
-    MLAssertEquals(array, IA(N(5), N(4)), "[] insert-many [5, 4] should change array to [5, 4]");
+    MLAssertEquals(array, IA(N(5), N(4)), "MutableArray -insert-many* inserts objects at the beginning if the array (when array is empty)");
     MLInsertMany(array, IA(N(8), N(7), N(6)));
-    MLAssertEquals(array, IA(N(8), N(7), N(6), N(5), N(4)), "[5, r] insert-many [8, 7, 6] should change array to [8, 7, 6, 5, 4]");
+    MLAssertEquals(array, IA(N(8), N(7), N(6), N(5), N(4)), "MutableArray -insert-many* inserts objects at the beginning if the array (when array is not empty)");
     MLInsertMany(array, IA());
-    MLAssertEquals(array, IA(N(8), N(7), N(6), N(5), N(4)), "[4, 5, 6, 7, 8] insert-many [] should not change the array and leave it as [8, 7, 6, 5, 4]");
+    MLAssertEquals(array, IA(N(8), N(7), N(6), N(5), N(4)), "MutableArray -insert-many* doesn't change the array of passed in objects array is empty (when array is not empty)");
 }
 
 
