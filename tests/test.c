@@ -113,6 +113,13 @@ void MLAssertNotEquals(var subject, var actual, char* message) {
 }
 
 
+bool MLAssertThrowsBlockCatch(var exceptionToCatch, char* message) {
+    var thrownException = MLTryCatchBlockStackPop()->exception;
+    MLAssertNotNull(thrownException, message);
+    return false;
+}
+
+
 int main(int argumentsCount, char const* arguments[]) {
     var pool = MLNew(MLPool);
     MLTestBegin();

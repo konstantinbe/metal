@@ -28,6 +28,10 @@
 #include <metal/metal.h>
 #include <metal/helper.h>
 
+#define MLAssertThrows(exceptionToCatch, message) MLTryCatchBlockStackPush(); for (bool assertThrowsBlockExecuted = false; (!setjmp(MLTryCatchBlockStackTop()->destination) && assertThrowsBlockExecuted == false) || MLAssertThrowsBlockCatch(exceptionToCatch, message); assertThrowsBlockExecuted = true)
+
+bool MLAssertThrowsBlockCatch(var exceptionToCatch, char* message);
+
 void MLTestBegin();
 void MLTestEnd();
 
