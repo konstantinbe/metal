@@ -186,8 +186,8 @@ static var MLArrayAtCount(var context, var self, var command, var arguments, var
     var mutable = MLNewWithCapacity(MLMutableArray, count);
     MLInteger integerIndex = MLIntegerFrom(index);
     MLInteger integerCount = MLIntegerFrom(count);
+    if (integerIndex < 0 || integerIndex >= that.count) throw("index-out-of-bounds");
     if (integerIndex + integerCount > that.count) integerCount = that.count - integerIndex;
-    if (integerIndex < 0) throw("index-out-of-bounds");
     for (MLInteger i = integerIndex; i < integerIndex + integerCount; i += 1) MLAdd(mutable, that.objects[i]);
     return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
@@ -232,7 +232,9 @@ static var MLArrayFirst(var context, var self, var command, var arguments, var o
 
 static var MLArrayFirstCount(var context, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
-    if (MLDecimalFrom(count) >= that.count) return MLAutorelease(MLCopy(self));
+    const MLInteger integerCount = MLIntegerFrom(count);
+    if (that.count == 0) return A();
+    if (that.count <= integerCount) return MLAutorelease(MLCopy(self));
     var index = N(0);
     return MLAtCount(self, index, count);
 }
@@ -246,9 +248,10 @@ static var MLArrayLast(var context, var self, var command, var arguments, var op
 
 static var MLArrayLastCount(var context, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
-    const MLDecimal decimalCount = MLDecimalFrom(count);
-    if (decimalCount >= that.count) return MLAutorelease(MLCopy(self));
-    var index = N(that.count - decimalCount);
+    const MLInteger integerCount = MLIntegerFrom(count);
+    if (that.count == 0) return A();
+    if (that.count <= integerCount) return MLAutorelease(MLCopy(self));
+    var index = N(that.count - integerCount);
     return MLAtCount(self, index, count);
 }
 
@@ -749,7 +752,7 @@ static var MLMutableArrayInsertManyAt(var context, var self, var command, var ar
 
     const MLInteger integerIndex = MLIntegerFrom(index);
     const bool isIndexOutOfBounds = integerIndex < 0 || integerIndex > that.count;
-    if (isIndexOutOfBounds) MLError("Can't insert many objects at index, index is out of bounds");
+    if (isIndexOutOfBounds) throw("index-out-of-bounds");
 
     const MLInteger numberOfObjects = MLIntegerFrom(MLCount(objects));
     const MLInteger capacity = that.count + numberOfObjects;
@@ -898,7 +901,7 @@ static var MLMutableArrayRemoveAtMany(var context, var self, var command, var ar
 
     each (i, j, indexes) {
         MLInteger index = MLIntegerFrom(i);
-        if (index < 0 || index >= that.count) continue;
+        if (index < 0 || index >= that.count) throw("index-out-of-bounds");
         var object = that.objects[index];
         if (object.pointer != MLMarking) MLAutorelease(object);
         that.objects[index].pointer = MLMarking;
