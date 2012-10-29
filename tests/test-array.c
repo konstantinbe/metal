@@ -114,7 +114,7 @@ void MLTestArrayAtCount() {
     MLAssertEquals(MLAtCount(array, N(0), N(0)), IA(), "Array -at*count* returns an empty array if count = 0");
     MLAssertEquals(MLAtCount(array, N(0), N(1)), IA(N(4)), "Array -at*count* returns an array containing the first object if index = 0, and count = 1");
     MLAssertEquals(MLAtCount(array, N(0), N(3)), array, "Array -at*count* returns an array with first `count` elements if index = 0");
-    MLAssertEquals(MLAtCount(array, N(0), N(9)), array, "Array -at*count* ignores rest if count >= number of objects in array and index = 0y");
+    MLAssertEquals(MLAtCount(array, N(0), N(9)), array, "Array -at*count* ignores rest if count >= number of objects in array and index = 0");
     MLAssertEquals(MLAtCount(array, N(1), N(2)), IA(N(5), N(6)), "Array at*count* returns an array with count elements starting at index");
     MLAssertEquals(MLAtCount(array, N(2), N(2)), IA(N(6)), "Array -at*count* ignores rest if index + count >= number of objects in array and index > 0");
     MLAssertEquals(MLAtCount(array, N(9), N(0)), IA(), "Array -at*count* returns an empty array if index >= number of objects in array and count = 0");

@@ -186,8 +186,8 @@ static var MLArrayAtCount(var context, var self, var command, var arguments, var
     var mutable = MLNewWithCapacity(MLMutableArray, count);
     MLInteger integerIndex = MLIntegerFrom(index);
     MLInteger integerCount = MLIntegerFrom(count);
-    if (integerIndex < 0) MLError("Index < 0");
     if (integerIndex + integerCount > that.count) integerCount = that.count - integerIndex;
+    if (integerIndex < 0) throw("index-out-of-bounds");
     for (MLInteger i = integerIndex; i < integerIndex + integerCount; i += 1) MLAdd(mutable, that.objects[i]);
     return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
