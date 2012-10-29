@@ -157,7 +157,7 @@ static var MLArrayAt(var context, var self, var command, var arguments, var opti
     var index = MLArgument(0);
     MLInteger integerIndex = MLIntegerFrom(index);
     if (integerIndex < 0 || integerIndex >= that.count)
-        throw(S("Array -at* can't return object at index, index out of bounds"));
+        throw("index-out-of-bounds");
     return that.objects[integerIndex];
 }
 
@@ -169,7 +169,7 @@ static var MLArrayAtMany(var context, var self, var command, var arguments, var 
     each (index, indexOfIndex, indexes) {
         const MLInteger integerIndex = MLIntegerFrom(index);
         if (integerIndex < 0 || integerIndex >= that.count)
-            throw(S("Array -at-many* can't return object at index, one of the indexes if out of bounds"));
+            throw("index-out-of-bounds");
         var object = MLAt(self, index);
         MLAdd(objects, object);
     }
