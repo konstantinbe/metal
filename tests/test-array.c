@@ -89,23 +89,23 @@ void MLTestArrayIsMutable() {
 
 void MLTestArrayAt() {
     var array = IA(N(1), N(2), N(3));
-    MLAssertNull(MLAt(array, N(-1)), "Array -at* returns null if index is < 0");
     MLAssertEquals(MLAt(array, N(0)), N(1), "Array -at* returns the first object in array if index = 0");
     MLAssertEquals(MLAt(array, N(1)), N(2), "Array -at* returns the object at index if index is within bounds");
     MLAssertEquals(MLAt(array, N(2)), N(3), "Array -at* returns the last object if index = count - 1");
-    MLAssertNull(MLAt(array, N(3)), "Array -at* returns null if index is >= count");
+    MLAssertThrows(null, "Array -at* throws if index < 0") MLAt(array, N(-1));
+    MLAssertThrows(null, "Array -at* throws if index = count") MLAt(array, N(3));
+    MLAssertThrows(null, "Array -at* throws if index > count") MLAt(array, N(9));
 }
 
 
 void MLTestArrayAtMany() {
     var array = IA(N(4), N(5), N(6));
     MLAssertEquals(MLAtMany(array, IA()), IA(), "Array -at-many* returns an empty array if passed indexes array is empty");
-    MLAssertEquals(MLAtMany(array, IA(N(-1))), IA(), "Array -at-many* returns an empty array if passed indexes are all < 0");
-    MLAssertEquals(MLAtMany(array, IA(N(9))), IA(), "Array -at-many* returns an empty array if passed in indexes are all >= count");
     MLAssertEquals(MLAtMany(array, IA(N(1))), IA(N(5)), "Array -at-many* returns an array containing the object when passing one index");
     MLAssertEquals(MLAtMany(array, IA(N(0), N(1), N(2))), array, "Array -at-many* returns an exact copy if passing all indexes that the array contains sorted ascending");
-    MLAssertEquals(MLAtMany(array, IA(N(-1), N(0), N(1), N(2))), array, "Array -at-many* ignores indexes < 0");
-    MLAssertEquals(MLAtMany(array, IA(N(0), N(1), N(2), N(3))), array, "Array -at-many* ignores indexes >= count");
+    MLAssertThrows(null, "Array -at-many* throws if any of the indexes is < 0") MLAtMany(array, IA(N(-1), N(0), N(1), N(2)));
+    MLAssertThrows(null, "Array -at-many* throws if any of the indexes is = count") MLAtMany(array, IA(N(0), N(1), N(3)));
+    MLAssertThrows(null, "Array -at-many* throws if any of the indexes is > count") MLAtMany(array, IA(N(0), N(1), N(9)));
 }
 
 

@@ -156,7 +156,8 @@ static var MLArrayIsMutable(var context, var self, var command, var arguments, v
 static var MLArrayAt(var context, var self, var command, var arguments, var options) {
     var index = MLArgument(0);
     MLInteger integerIndex = MLIntegerFrom(index);
-    if (integerIndex < 0 || integerIndex >= that.count) return null;
+    if (integerIndex < 0 || integerIndex >= that.count)
+        throw(S("Array -at* can't return object at index, index out of bounds"));
     return that.objects[integerIndex];
 }
 
@@ -167,7 +168,8 @@ static var MLArrayAtMany(var context, var self, var command, var arguments, var 
     MLInitWithCapacity(objects, MLCount(indexes));
     each (index, indexOfIndex, indexes) {
         const MLInteger integerIndex = MLIntegerFrom(index);
-        if (integerIndex < 0 || integerIndex >= that.count) continue;
+        if (integerIndex < 0 || integerIndex >= that.count)
+            throw(S("Array -at-many* can't return object at index, one of the indexes if out of bounds"));
         var object = MLAt(self, index);
         MLAdd(objects, object);
     }
