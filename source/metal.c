@@ -39,6 +39,10 @@
 #include "pool.h"
 
 
+static struct MLTryCatchBlock MLTryCatchBlockStack[1000];
+static MLInteger MLTryCatchBlockStackCount = 0;
+
+
 static struct MLClass MLObjectClass = {.retainCount = MLRetainCountMax};
 static struct MLClass MLNullClass = {.retainCount = MLRetainCountMax};
 static struct MLClass MLBlockClass = {.retainCount = MLRetainCountMax};
@@ -182,6 +186,28 @@ MLDecimal MLDecimalFrom(var number) {
 MLNatural MLNaturalFrom(var word) {
     if (word.pointer != &MLWordProxy) MLError("Can't convert word to natural, object is not a word");
     return word.payload.natural;
+}
+
+
+struct MLTryCatchBlock* MLTryCatchBlockStackPush() {
+    const MLInteger index = MLTryCatchBlockStackCount;
+    MLTryCatchBlockStackCount += 1;
+    MLTryCatchBlockStack[index].executed = false;
+    MLTryCatchBlockStack[index].exception = null;
+    return &MLTryCatchBlockStack[index];
+}
+
+
+struct MLTryCatchBlock* MLTryCatchBlockStackTop() {
+    if (MLTryCatchBlockStackCount <= 0) return NULL;
+    return &MLTryCatchBlockStack[MLTryCatchBlockStackCount - 1];
+}
+
+
+struct MLTryCatchBlock* MLTryCatchBlockStackPop() {
+    if (MLTryCatchBlockStackCount <= 0) MLError("Can't pop exception from try catch block stack, stack is empty");
+    MLTryCatchBlockStackCount -= 1;
+    return &MLTryCatchBlockStack[MLTryCatchBlockStackCount];
 }
 
 

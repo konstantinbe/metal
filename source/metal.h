@@ -22,12 +22,13 @@
 #ifndef ML_METAL_H
 #define ML_METAL_H
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <alloca.h>
 #include <string.h>
 #include <assert.h>
+#include <setjmp.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "commands.h"
@@ -111,6 +112,10 @@
 #define whilst(expression) while (MLIsObjectTruthy(expression))
 #define until(expression) while (!MLIsObjectTruthy(expression))
 
+#define try for (MLTryCatchBlockStackPush(); !setjmp(MLTryCatchBlockStackTop()->destination); MLTryCatchBlockStackPop())
+#define catch else for (var exception = MLTryCatchBlockStackPop()->exception, executed = no; !MLBoolFrom(executed); executed = yes)
+#define throw(object) { if (MLTryCatchBlockStackTop() == NULL) MLError("Exception thrown but not catched"); MLTryCatchBlockStackTop()->exception = object; longjmp(MLTryCatchBlockStackTop()->destination, 1); }
+
 typedef double MLDecimal;
 typedef long long MLInteger;
 typedef unsigned long long MLNatural;
@@ -190,6 +195,12 @@ struct MLPool {
     var objects;
 };
 
+struct MLTryCatchBlock {
+    bool executed;
+    jmp_buf destination;
+    var exception;
+};
+
 extern const var MLObject;
 extern const var MLNull;
 extern const var MLBlock;
@@ -224,6 +235,10 @@ MLBool MLBoolFrom(var boolean);
 MLInteger MLIntegerFrom(var number);
 MLDecimal MLDecimalFrom(var number);
 MLNatural MLNaturalFrom(var number);
+
+struct MLTryCatchBlock* MLTryCatchBlockStackPush();
+struct MLTryCatchBlock* MLTryCatchBlockStackTop();
+struct MLTryCatchBlock* MLTryCatchBlockStackPop();
 
 var MLBlockMake(MLCode code);
 var MLBooleanMake(MLBool boolean);
