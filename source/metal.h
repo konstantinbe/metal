@@ -112,9 +112,11 @@
 #define whilst(expression) while (MLIsObjectTruthy(expression))
 #define until(expression) while (!MLIsObjectTruthy(expression))
 
+#define collect for (var pool = MLNew(MLPool); MLIsObjectTruthy(pool); pool = MLDrain(pool))
 #define try for (MLTryCatchBlockStackPush(); !setjmp(MLTryCatchBlockStackTop()->destination); MLTryCatchBlockStackPop())
 #define catch else for (var exception = MLTryCatchBlockStackPop()->exception, executed = no; !MLBoolFrom(executed); executed = yes)
 #define throw(name) { if (MLTryCatchBlockStackTop() == NULL) MLError("Exception thrown but not catched"); MLTryCatchBlockStackTop()->exception = S(name); longjmp(MLTryCatchBlockStackTop()->destination, 1); }
+
 
 typedef double MLDecimal;
 typedef long long MLInteger;

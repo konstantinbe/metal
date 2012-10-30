@@ -121,24 +121,22 @@ bool MLAssertThrowsBlockCatch(var exceptionToCatch, char* message) {
 
 
 int main(int argumentsCount, char const* arguments[]) {
-    var pool = MLNew(MLPool);
-    MLTestBegin();
-
-    MLTestMetal();
-    MLTestObject();
-    MLTestNull();
-    MLTestBlock();
-    MLTestBoolean();
-    MLTestNumber();
-    MLTestWord();
-    MLTestDate();
-    MLTestData();
-    MLTestArray();
-    MLTestString();
-    MLTestDictionary();
-    MLTestPool();
-
-    MLTestEnd();
-    MLDrain(pool);
+    collect {
+        MLTestBegin();
+        MLTestMetal();
+        MLTestObject();
+        MLTestNull();
+        MLTestBlock();
+        MLTestBoolean();
+        MLTestNumber();
+        MLTestWord();
+        MLTestDate();
+        MLTestData();
+        MLTestArray();
+        MLTestString();
+        MLTestDictionary();
+        MLTestPool();
+        MLTestEnd();
+    }
     return MLNumberOfFailedExamples > 0 ? 1 : 0;
 }
