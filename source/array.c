@@ -751,8 +751,7 @@ static var MLMutableArrayInsertManyAt(var context, var self, var command, var ar
     var index = MLArgument(1);
 
     const MLInteger integerIndex = MLIntegerFrom(index);
-    const bool isIndexOutOfBounds = integerIndex < 0 || integerIndex > that.count;
-    if (isIndexOutOfBounds) throw("index-out-of-bounds");
+    if (integerIndex < 0 || integerIndex > that.count) throw("index-out-of-bounds");
 
     const MLInteger numberOfObjects = MLIntegerFrom(MLCount(objects));
     const MLInteger capacity = that.count + numberOfObjects;
