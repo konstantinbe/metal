@@ -164,18 +164,16 @@ static var MLArrayAt(var context, var self, var command, var arguments, var opti
 
 static var MLArrayAtMany(var context, var self, var command, var arguments, var options) {
     var indexes = MLArgument(0);
-    var objects = MLCreate(MLMutableArray);
-    MLInitWithCapacity(objects, MLCount(indexes));
+    var mutable = MLCreate(MLMutableArray);
+    MLInitWithCapacity(mutable, MLCount(indexes));
     each (index, indexOfIndex, indexes) {
         const MLInteger integerIndex = MLIntegerFrom(index);
         if (integerIndex < 0 || integerIndex >= that.count)
             throw("index-out-of-bounds");
         var object = MLAt(self, index);
-        MLAdd(objects, object);
+        MLAdd(mutable, object);
     }
-    var copy = MLCopy(objects);
-    MLRelease(objects);
-    return MLAutorelease(copy);
+    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
