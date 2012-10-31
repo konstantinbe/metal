@@ -168,8 +168,10 @@ static var MLArrayAtMany(var context, var self, var command, var arguments, var 
     MLInitWithCapacity(mutable, MLCount(indexes));
     each (index, indexOfIndex, indexes) {
         const MLInteger integerIndex = MLIntegerFrom(index);
-        if (integerIndex < 0 || integerIndex >= that.count)
+        if (integerIndex < 0 || integerIndex >= that.count) {
+            MLRelease(mutable);
             throw("index-out-of-bounds");
+        }
         var object = MLAt(self, index);
         MLAdd(mutable, object);
     }
@@ -184,7 +186,10 @@ static var MLArrayAtCount(var context, var self, var command, var arguments, var
     var mutable = MLNewWithCapacity(MLMutableArray, count);
     MLInteger integerIndex = MLIntegerFrom(index);
     MLInteger integerCount = MLIntegerFrom(count);
-    if (integerIndex < 0 || integerIndex >= that.count) throw("index-out-of-bounds");
+    if (integerIndex < 0 || integerIndex >= that.count) {
+        MLRelease(mutable);
+        throw("index-out-of-bounds");
+    }
     if (integerIndex + integerCount > that.count) integerCount = that.count - integerIndex;
     for (MLInteger i = integerIndex; i < integerIndex + integerCount; i += 1) MLAdd(mutable, that.objects[i]);
     return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
