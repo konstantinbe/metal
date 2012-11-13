@@ -236,7 +236,7 @@ static var MLArrayFirst(var context, var self, var command, var arguments, var o
 static var MLArrayFirstCount(var context, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
     const MLInteger integerCount = MLIntegerFrom(count);
-    if (that.count == 0) return A();
+    if (that.count == 0 || integerCount == 0) return A();
     if (that.count <= integerCount) return MLAutorelease(MLCopy(self));
     var index = N(0);
     return MLAtCount(self, index, count);
@@ -252,7 +252,7 @@ static var MLArrayLast(var context, var self, var command, var arguments, var op
 static var MLArrayLastCount(var context, var self, var command, var arguments, var options) {
     var count = MLArgument(0);
     const MLInteger integerCount = MLIntegerFrom(count);
-    if (that.count == 0) return A();
+    if (that.count == 0 || integerCount == 0) return A();
     if (that.count <= integerCount) return MLAutorelease(MLCopy(self));
     var index = N(that.count - integerCount);
     return MLAtCount(self, index, count);

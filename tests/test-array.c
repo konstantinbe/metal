@@ -193,11 +193,11 @@ void MLTestArrayLastCount() {
     MLAssertEquals(MLLastCount(array1, N(0)), IA(), "Array last* returns an empty array if array is empty and count = 0");
     MLAssertEquals(MLLastCount(array1, N(1)), IA(), "Array last* returns an empty array if array is empty and count > 0 (here: count = 1)");
     MLAssertEquals(MLLastCount(array1, N(9)), IA(), "Array last* returns an empty array if array is empty and count > 0 (here: count = 9)");
-    // MLAssertEquals(MLLastCount(array2, N(0)), IA(), "Array last* returns an empty array if array is not empty but count = 0");
+    MLAssertEquals(MLLastCount(array2, N(0)), IA(), "Array last* returns an empty array if array is not empty but count = 0");
     MLAssertEquals(MLLastCount(array2, N(1)), IA(N(5)), "Array last* returns an exacy copy if array contains 1 object and count = 1");
     MLAssertEquals(MLLastCount(array2, N(2)), IA(N(5)), "Array last* returns an exacy copy if array contains 1 object and count > 1 (here: count = 2)");
     MLAssertEquals(MLLastCount(array2, N(9)), IA(N(5)), "Array last* returns an exacy copy if array contains 1 object and count > 1 (here: count = 9)");
-    // MLAssertEquals(MLLastCount(array3, N(0)), IA(), "Array last* returns an empty array if array contains many objects and count = 0");
+    MLAssertEquals(MLLastCount(array3, N(0)), IA(), "Array last* returns an empty array if array contains many objects and count = 0");
     MLAssertEquals(MLLastCount(array3, N(1)), IA(N(6)), "Array last* returns an array containing just the last object if array contains many objects and count = 1");
     MLAssertEquals(MLLastCount(array3, N(2)), IA(N(5), N(6)), "Array last* returns an array containing just the last N objects if array contains many objects and count = N (here: N = 2)");
     MLAssertEquals(MLLastCount(array3, N(3)), IA(N(4), N(5), N(6)), "Array first* returns an exacy copy if array contains N objects and count = N (here: N = 3)");
