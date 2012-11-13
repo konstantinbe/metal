@@ -272,28 +272,27 @@ void MLTestArrayWithManyAt() {
 
 
 void MLTestArrayWithBefore() {
-    var array = IA();
-    array = MLWithBefore(array, N(6), N(9));
-    MLAssertEquals(array, IA(N(6)), "[] with 6 before 9 should return [6]");
-    array = MLWithBefore(array, N(4), N(9));
-    MLAssertEquals(array, IA(N(4), N(6)), "[6] with 4 before 9 should return [4, 6]");
-    array = MLWithBefore(array, N(5), N(6));
-    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[4, 6] with 5 before 6 should return [4, 5, 6]");
-    array = MLWithBefore(array, N(5), N(4));
-    MLAssertEquals(array, IA(N(5), N(4), N(5), N(6)), "[4, 5, 6] with 5 before 4 should return [5, 4, 5, 6]");
-    array = MLWithBefore(array, N(6), N(5));
-    MLAssertEquals(array, IA(N(6), N(5), N(4), N(5), N(6)), "[5, 4, 5, 6] with 6 before 5 should return [6, 5, 4, 5, 6]");
+    // TODO: fix test descriptions.
+    var array1 = IA();
+    var array2 = IA(N(6));
+    var array3 = IA(N(4), N(6));
+    var array4 = IA(N(4), N(5), N(6));
+    var array5 = IA(N(5), N(4), N(5), N(6));
+    MLAssertEquals(MLWithBefore(array1, N(6), N(9)), IA(N(6)), "[] with 6 before 9 should return [6]");
+    MLAssertEquals(MLWithBefore(array2, N(4), N(9)), IA(N(4), N(6)), "[6] with 4 before 9 should return [4, 6]");
+    MLAssertEquals(MLWithBefore(array3, N(5), N(6)), IA(N(4), N(5), N(6)), "[4, 6] with 5 before 6 should return [4, 5, 6]");
+    MLAssertEquals(MLWithBefore(array4, N(5), N(4)), IA(N(5), N(4), N(5), N(6)), "[4, 5, 6] with 5 before 4 should return [5, 4, 5, 6]");
+    MLAssertEquals(MLWithBefore(array5, N(6), N(5)), IA(N(6), N(5), N(4), N(5), N(6)), "[5, 4, 5, 6] with 6 before 5 should return [6, 5, 4, 5, 6]");
 }
 
 
 void MLTestArrayWithManyBefore() {
-    var array = IA();
-    array = MLWithManyBefore(array, IA(N(6)), N(9));
-    MLAssertEquals(array, IA(N(6)), "[] with-many [6] before 9 should return [6]");
-    array = MLWithManyBefore(array, IA(N(4), N(5)), N(9));
-    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[6] with-many [4, 5] before 9 should return [4, 5, 6]");
-    array = MLWithManyBefore(array, IA(N(4), N(5)), N(6));
-    MLAssertEquals(array, IA(N(4), N(5), N(4), N(5), N(6)), "[4, 5, 6] with-many [4, 5] before 6 should return [4, 5, 4, 5, 6]");
+    var array1 = IA();
+    var array2 = IA(N(6));
+    var array3 = IA(N(4), N(5), N(6));
+    MLAssertEquals(MLWithManyBefore(array1, IA(N(6)), N(9)), IA(N(6)), "[] with-many [6] before 9 should return [6]");
+    MLAssertEquals(MLWithManyBefore(array2, IA(N(4), N(5)), N(9)), IA(N(4), N(5), N(6)), "[6] with-many [4, 5] before 9 should return [4, 5, 6]");
+    MLAssertEquals(MLWithManyBefore(array3, IA(N(4), N(5)), N(6)), IA(N(4), N(5), N(4), N(5), N(6)), "[4, 5, 6] with-many [4, 5] before 6 should return [4, 5, 4, 5, 6]");
 }
 
 
@@ -431,128 +430,159 @@ void MLTestArrayMax() {
 
 
 void MLTestMutableArrayAdd() {
-    var array = MA();
-    MLAdd(array, N(4));
-    MLAssertEquals(array, IA(N(4)), "MutableArray -add* adds the object at the end (when array is empty)");
-    MLAdd(array, N(5));
-    MLAssertEquals(array, IA(N(4), N(5)), "MutableArray -add* adds the object at the end (when array contains one object)");
-    MLAdd(array, N(6));
-    MLAssertEquals(array, IA(N(4), N(5), N(6)), "MutableArray -add* adds the object at the end (when array contains multiple objects)");
+    var array1 = MA();
+    var array2 = MA(N(4));
+    var array3 = MA(N(4), N(5));
+    MLAdd(array1, N(4));
+    MLAdd(array2, N(5));
+    MLAdd(array3, N(6));
+    MLAssertEquals(array1, IA(N(4)), "MutableArray -add* adds the object at the end (when array is empty)");
+    MLAssertEquals(array2, IA(N(4), N(5)), "MutableArray -add* adds the object at the end (when array contains one object)");
+    MLAssertEquals(array3, IA(N(4), N(5), N(6)), "MutableArray -add* adds the object at the end (when array contains multiple objects)");
 }
 
 
 void MLTestMutableArrayAddMany() {
-    var array = MA();
-    MLAddMany(array, IA());
-    MLAssertEquals(array, IA(), "MutableArray -add-many* doesn't change the array if passed in objects array is empty (when array is empty)");
-    MLAddMany(array, IA(N(4), N(5)));
-    MLAssertEquals(array, IA(N(4), N(5)), "MutableArray -add-many* adds many objects at the end (when array is empty)");
-    MLAddMany(array, IA(N(6), N(7), N(8)));
-    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "MutableArray -add-many* adds many objects at the end (when array is not empty)");
-    MLAddMany(array, IA());
-    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "MutableArray -add-many* doesn't change the array if passed in objects array is empty (when array is not empty)");
+    var array1 = MA();
+    var array2 = MA();
+    var array3 = MA(N(4), N(5));
+    var array4 = MA(N(4), N(5), N(6), N(7), N(8));
+    MLAddMany(array1, IA());
+    MLAddMany(array2, IA(N(4), N(5)));
+    MLAddMany(array3, IA(N(6), N(7), N(8)));
+    MLAddMany(array4, IA());
+    MLAssertEquals(array1, IA(), "MutableArray -add-many* doesn't change the array if passed in objects array is empty (when array is empty)");
+    MLAssertEquals(array2, IA(N(4), N(5)), "MutableArray -add-many* adds many objects at the end (when array is empty)");
+    MLAssertEquals(array3, IA(N(4), N(5), N(6), N(7), N(8)), "MutableArray -add-many* adds many objects at the end (when array is not empty)");
+    MLAssertEquals(array4, IA(N(4), N(5), N(6), N(7), N(8)), "MutableArray -add-many* doesn't change the array if passed in objects array is empty (when array is not empty)");
 }
 
 
 void MLTestMutableArrayInsert() {
-    var array = MA();
-    MLInsert(array, N(6));
-    MLAssertEquals(array, IA(N(6)), "MutableArray -insert* inserts the object at the beginning (when array is empty)");
-    MLInsert(array, N(5));
-    MLAssertEquals(array, IA(N(5), N(6)), "MutableArray -insert* inserts the object at the beginning (when array contains one object)");
-    MLInsert(array, N(4));
-    MLAssertEquals(array, IA(N(4), N(5), N(6)), "MutableArray -insert* inserts the object at the beginning (when array contains more than one object)");
+    var array1 = MA();
+    var array2 = MA(N(6));
+    var array3 = MA(N(5), N(6));
+    MLInsert(array1, N(6));
+    MLInsert(array2, N(5));
+    MLInsert(array3, N(4));
+    MLAssertEquals(array1, IA(N(6)), "MutableArray -insert* inserts the object at the beginning (when array is empty)");
+    MLAssertEquals(array2, IA(N(5), N(6)), "MutableArray -insert* inserts the object at the beginning (when array contains one object)");
+    MLAssertEquals(array3, IA(N(4), N(5), N(6)), "MutableArray -insert* inserts the object at the beginning (when array contains more than one object)");
 }
 
 
 void MLTestMutableArrayInsertMany() {
-    var array = MA();
-    MLInsertMany(array, IA());
-    MLAssertEquals(array, IA(), "MutableArray -insert-many* doesn't change the array of passed in objects array is empty (when array is empty)");
-    MLInsertMany(array, IA(N(5), N(4)));
-    MLAssertEquals(array, IA(N(5), N(4)), "MutableArray -insert-many* inserts objects at the beginning if the array (when array is empty)");
-    MLInsertMany(array, IA(N(8), N(7), N(6)));
-    MLAssertEquals(array, IA(N(8), N(7), N(6), N(5), N(4)), "MutableArray -insert-many* inserts objects at the beginning if the array (when array is not empty)");
-    MLInsertMany(array, IA());
-    MLAssertEquals(array, IA(N(8), N(7), N(6), N(5), N(4)), "MutableArray -insert-many* doesn't change the array of passed in objects array is empty (when array is not empty)");
+    var array1 = MA();
+    var array2 = MA();
+    var array3 = MA(N(5), N(4));
+    var array4 = MA(N(8), N(7), N(6), N(5), N(4));
+    MLInsertMany(array1, IA());
+    MLInsertMany(array2, IA(N(5), N(4)));
+    MLInsertMany(array3, IA(N(8), N(7), N(6)));
+    MLInsertMany(array4, IA());
+    MLAssertEquals(array1, IA(), "MutableArray -insert-many* doesn't change the array of passed in objects array is empty (when array is empty)");
+    MLAssertEquals(array2, IA(N(5), N(4)), "MutableArray -insert-many* inserts objects at the beginning if the array (when array is empty)");
+    MLAssertEquals(array3, IA(N(8), N(7), N(6), N(5), N(4)), "MutableArray -insert-many* inserts objects at the beginning if the array (when array is not empty)");
+    MLAssertEquals(array4, IA(N(8), N(7), N(6), N(5), N(4)), "MutableArray -insert-many* doesn't change the array of passed in objects array is empty (when array is not empty)");
 }
 
 
 void MLTestMutableArrayInsertAt() {
+    // TODO: fix test descriptions.
     var array1 = MA();
     var array2 = MA(N(4));
     var array3 = MA(N(4), N(6));
     MLInsertAt(array1, N(4), N(0));
-    MLAssertEquals(array1, IA(N(4)), "[] insert 4 at 0 should change array to [4]");
     MLInsertAt(array2, N(6), N(1));
-    MLAssertEquals(array2, IA(N(4), N(6)), "[4] insert 6 at 1 should change array to [4, 6]");
     MLInsertAt(array3, N(5), N(1));
+    MLAssertEquals(array1, IA(N(4)), "[] insert 4 at 0 should change array to [4]");
+    MLAssertEquals(array2, IA(N(4), N(6)), "[4] insert 6 at 1 should change array to [4, 6]");
     MLAssertEquals(array3, IA(N(4), N(5), N(6)), "[4, 6] insert 4 at 1 should change array to [4, 5, 6]");
 }
 
 
 void MLTestMutableArrayInsertManyAt() {
-    var array = MA();
-    MLInsertManyAt(array, IA(), N(0));
-    MLAssertEquals(array, IA(), "[] insert-many [] at 0 should not change array and leave it as []");
-    MLInsertManyAt(array, IA(N(4), N(8)), N(0));
-    MLAssertEquals(array, IA(N(4), N(8)), "[] insert-many [4, 8] at 0 should change array to [4, 8]");
-    MLInsertManyAt(array, IA(N(5), N(6), N(7)), N(1));
-    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 8] insert-many [5, 6, 7] at 1 should change array to [4, 5, 6, 7, 8]");
-    MLInsertManyAt(array, IA(), N(2));
-    MLAssertEquals(array, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] insert-many [] at 2 should not change the array and leave it as [4, 5, 6, 7, 8]");
+    // TODO: fix test descriptions.
+    var array1 = MA();
+    var array2 = MA();
+    var array3 = MA(N(4), N(8));
+    var array4 = MA(N(4), N(5), N(6), N(7), N(8));
+    MLInsertManyAt(array1, IA(), N(0));
+    MLInsertManyAt(array2, IA(N(4), N(8)), N(0));
+    MLInsertManyAt(array3, IA(N(5), N(6), N(7)), N(1));
+    MLInsertManyAt(array4, IA(), N(2));
+    MLAssertEquals(array1, IA(), "[] insert-many [] at 0 should not change array and leave it as []");
+    MLAssertEquals(array2, IA(N(4), N(8)), "[] insert-many [4, 8] at 0 should change array to [4, 8]");
+    MLAssertEquals(array3, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 8] insert-many [5, 6, 7] at 1 should change array to [4, 5, 6, 7, 8]");
+    MLAssertEquals(array4, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] insert-many [] at 2 should not change the array and leave it as [4, 5, 6, 7, 8]");
 }
 
 
 void MLTestMutableArrayInsertBefore() {
-    var array = MA();
-    MLInsertBefore(array, N(6), N(9));
-    MLAssertEquals(array, IA(N(6)), "[] insert 6 before 9 should change array to [6]");
-    MLInsertBefore(array, N(4), N(9));
-    MLAssertEquals(array, IA(N(4), N(6)), "[6] insert 4 before 9 should change array to [4, 6]");
-    MLInsertBefore(array, N(5), N(6));
-    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[4, 6] insert 5 before 6 should change array to [4, 5, 6]");
-    MLInsertBefore(array, N(5), N(4));
-    MLAssertEquals(array, IA(N(5), N(4), N(5), N(6)), "[4, 5, 6] insert 5 before 4 should change array to [5, 4, 5, 6]");
-    MLInsertBefore(array, N(6), N(5));
-    MLAssertEquals(array, IA(N(6), N(5), N(4), N(5), N(6)), "[5, 4, 5, 6] insert 6 before 5 should change array to [6, 5, 4, 5, 6]");
+    // TODO: fix test descriptions.
+    var array1 = MA();
+    var array2 = MA(N(6));
+    var array3 = MA(N(4), N(6));
+    var array4 = MA(N(4), N(5), N(6));
+    var array5 = MA(N(5), N(4), N(5), N(6));
+    MLInsertBefore(array1, N(6), N(9));
+    MLInsertBefore(array2, N(4), N(9));
+    MLInsertBefore(array3, N(5), N(6));
+    MLInsertBefore(array4, N(5), N(4));
+    MLInsertBefore(array5, N(6), N(5));
+    MLAssertEquals(array1, IA(N(6)), "[] insert 6 before 9 should change array to [6]");
+    MLAssertEquals(array2, IA(N(4), N(6)), "[6] insert 4 before 9 should change array to [4, 6]");
+    MLAssertEquals(array3, IA(N(4), N(5), N(6)), "[4, 6] insert 5 before 6 should change array to [4, 5, 6]");
+    MLAssertEquals(array4, IA(N(5), N(4), N(5), N(6)), "[4, 5, 6] insert 5 before 4 should change array to [5, 4, 5, 6]");
+    MLAssertEquals(array5, IA(N(6), N(5), N(4), N(5), N(6)), "[5, 4, 5, 6] insert 6 before 5 should change array to [6, 5, 4, 5, 6]");
 }
 
 
 void MLTestMutableArrayInsertManyBefore() {
-    var array = MA();
-    MLInsertManyBefore(array, IA(N(6)), N(9));
-    MLAssertEquals(array, IA(N(6)), "[] insert-many [6] before 9 should change array to [6]");
-    MLInsertManyBefore(array, IA(N(4), N(5)), N(9));
-    MLAssertEquals(array, IA(N(4), N(5), N(6)), "[6] insert-many [4, 5] before 9 should change array to [4, 5, 6]");
-    MLInsertManyBefore(array, IA(N(4), N(5)), N(6));
-    MLAssertEquals(array, IA(N(4), N(5), N(4), N(5), N(6)), "[4, 5, 6] insert-many [4, 5] before 6 should change array to [4, 5, 4, 5, 6]");
+    // TODO: fix test descriptions.
+    var array1 = MA();
+    var array2 = MA(N(6));
+    var array3 = MA(N(4), N(5), N(6));
+    MLInsertManyBefore(array1, IA(N(6)), N(9));
+    MLInsertManyBefore(array2, IA(N(4), N(5)), N(9));
+    MLInsertManyBefore(array3, IA(N(4), N(5)), N(6));
+    MLAssertEquals(array1, IA(N(6)), "[] insert-many [6] before 9 should change array to [6]");
+    MLAssertEquals(array2, IA(N(4), N(5), N(6)), "[6] insert-many [4, 5] before 9 should change array to [4, 5, 6]");
+    MLAssertEquals(array3, IA(N(4), N(5), N(4), N(5), N(6)), "[4, 5, 6] insert-many [4, 5] before 6 should change array to [4, 5, 4, 5, 6]");
 }
 
 
 void MLTestMutableArrayInsertAfter() {
-    var array = MA();
-    MLInsertAfter(array, N(6), N(9));
-    MLAssertEquals(array, IA(N(6)), "[] insert 6 after 9 should change array to [6]");
-    MLInsertAfter(array, N(4), N(9));
-    MLAssertEquals(array, IA(N(6), N(4)), "[6] insert 4 after 9 should change array to [6, 4]");
-    MLInsertAfter(array, N(5), N(6));
-    MLAssertEquals(array, IA(N(6), N(5), N(4)), "[6, 4] insert 5 after 6 should change array to [6, 5, 4]");
-    MLInsertAfter(array, N(5), N(4));
-    MLAssertEquals(array, IA(N(6), N(5), N(4), N(5)), "[6, 5, 4] insert 5 after 4 should change array to [6, 5, 4, 5]");
-    MLInsertAfter(array, N(6), N(5));
-    MLAssertEquals(array, IA(N(6), N(5), N(4), N(5), N(6)), "[6, 5, 4, 5] insert 6 after 5 should change array to [6, 5, 4, 5, 6]");
+    // TODO: fix test descriptions.
+    var array1 = MA();
+    var array2 = MA(N(6));
+    var array3 = MA(N(6), N(4));
+    var array4 = MA(N(6), N(5), N(4));
+    var array5 = MA(N(6), N(5), N(4), N(5));
+    MLInsertAfter(array1, N(6), N(9));
+    MLInsertAfter(array2, N(4), N(9));
+    MLInsertAfter(array3, N(5), N(6));
+    MLInsertAfter(array4, N(5), N(4));
+    MLInsertAfter(array5, N(6), N(5));
+    MLAssertEquals(array1, IA(N(6)), "[] insert 6 after 9 should change array to [6]");
+    MLAssertEquals(array2, IA(N(6), N(4)), "[6] insert 4 after 9 should change array to [6, 4]");
+    MLAssertEquals(array3, IA(N(6), N(5), N(4)), "[6, 4] insert 5 after 6 should change array to [6, 5, 4]");
+    MLAssertEquals(array4, IA(N(6), N(5), N(4), N(5)), "[6, 5, 4] insert 5 after 4 should change array to [6, 5, 4, 5]");
+    MLAssertEquals(array5, IA(N(6), N(5), N(4), N(5), N(6)), "[6, 5, 4, 5] insert 6 after 5 should change array to [6, 5, 4, 5, 6]");
 }
 
 
 void MLTestMutableArrayInsertManyAfter() {
-    var array = MA();
-    MLInsertManyAfter(array, IA(N(6)), N(9));
-    MLAssertEquals(array, IA(N(6)), "[] insert-many [6] after 9 should change array to [6]");
-    MLInsertManyAfter(array, IA(N(4), N(5)), N(9));
-    MLAssertEquals(array, IA(N(6), N(4), N(5)), "[6] insert-many [4, 5] after 9 should change array to [6, 4, 5]");
-    MLInsertManyAfter(array, IA(N(4), N(5)), N(6));
-    MLAssertEquals(array, IA(N(6), N(4), N(5), N(4), N(5)), "[6, 4, 5] insert-many [4, 5] after 6 should change array to [6, 4, 5, 4, 5]");
+    // TODO: fix test descriptions.
+    var array1 = MA();
+    var array2 = MA(N(6));
+    var array3 = MA(N(6), N(4), N(5));
+    MLInsertManyAfter(array1, IA(N(6)), N(9));
+    MLInsertManyAfter(array2, IA(N(4), N(5)), N(9));
+    MLInsertManyAfter(array3, IA(N(4), N(5)), N(6));
+    MLAssertEquals(array1, IA(N(6)), "[] insert-many [6] after 9 should change array to [6]");
+    MLAssertEquals(array2, IA(N(6), N(4), N(5)), "[6] insert-many [4, 5] after 9 should change array to [6, 4, 5]");
+    MLAssertEquals(array3, IA(N(6), N(4), N(5), N(4), N(5)), "[6, 4, 5] insert-many [4, 5] after 6 should change array to [6, 4, 5, 4, 5]");
 }
 
 
@@ -614,40 +644,48 @@ void MLTestMutableArrayReplaceAtCountWithMany() {
 
 
 void MLTestMutableArrayRemove() {
-    var array = MA(N(1), N(2), N(3), N(4), N(3));
-    MLRemove(array, N(2));
-    MLAssertEquals(array, IA(N(1), N(3), N(4), N(3)), "MutableArray -remove* removes an object from the array");
-    MLRemove(array, N(9));
-    MLAssertEquals(array, array, "MutableArray -remove* doesn't modify the array if the passed object is not contained in it");
-    MLRemove(array, N(3));
-    MLAssertEquals(array, IA(N(1), N(4)), "MutableArray -remove* removes all occurences of an object if it is contained multiple times");
+    var array1 = MA(N(1), N(2), N(3), N(4), N(3));
+    var array2 = MA(N(1), N(3), N(4), N(3));
+    var array3 = MA(N(1), N(3), N(4), N(3));
+    MLRemove(array1, N(2));
+    MLRemove(array2, N(9));
+    MLRemove(array3, N(3));
+    MLAssertEquals(array1, IA(N(1), N(3), N(4), N(3)), "MutableArray -remove* removes an object from the array");
+    MLAssertEquals(array2, IA(N(1), N(3), N(4), N(3)), "MutableArray -remove* doesn't modify the array if the passed object is not contained in it");
+    MLAssertEquals(array3, IA(N(1), N(4)), "MutableArray -remove* removes all occurences of an object if it is contained multiple times");
 }
 
 
 void MLTestMutableArrayRemoveMany() {
-    var array = MA(N(1), N(2), N(3), N(4), N(3));
-    MLRemoveMany(array, IA(N(2)));
-    MLAssertEquals(array, IA(N(1), N(3), N(4), N(3)), "MutableArray -remove-many* removes each passed object from the array");
-    MLRemoveMany(array, IA());
-    MLAssertEquals(array, array, "MutableArray -remove-many* doesn't modify the array if no objects were passed");
-    MLRemoveMany(array, IA(N(1), N(9)));
-    MLAssertEquals(array, IA(N(3), N(4), N(3)), "MutableArray -remove-many* ignores objects that are not contained in the array");
-    MLRemoveMany(array, IA(N(3)));
-    MLAssertEquals(array, IA(N(4)), "MutableArray -remove-many* removes all occurences of an object");
+    var array1 = MA(N(1), N(2), N(3), N(4), N(3));
+    var array2 = MA(N(1), N(3), N(4), N(3));
+    var array3 = MA(N(1), N(3), N(4), N(3));
+    var array4 = MA(N(3), N(4), N(3));
+    MLRemoveMany(array1, IA(N(2)));
+    MLRemoveMany(array2, IA());
+    MLRemoveMany(array3, IA(N(1), N(9)));
+    MLRemoveMany(array4, IA(N(3)));
+    MLAssertEquals(array1, IA(N(1), N(3), N(4), N(3)), "MutableArray -remove-many* removes each passed object from the array");
+    MLAssertEquals(array2, IA(N(1), N(3), N(4), N(3)), "MutableArray -remove-many* doesn't modify the array if no objects were passed");
+    MLAssertEquals(array3, IA(N(3), N(4), N(3)), "MutableArray -remove-many* ignores objects that are not contained in the array");
+    MLAssertEquals(array4, IA(N(4)), "MutableArray -remove-many* removes all occurences of an object");
 }
 
 
 void MLTestMutableArrayRemoveAt() {
-    var array = MA(N(1), N(2), N(3), N(4));
-    MLRemoveAt(array, N(3));
-    MLAssertEquals(array, IA(N(1), N(2), N(3)), "Removing an object at the last index should remove the last object from the array");
-    MLRemoveAt(array, N(1));
-    MLAssertEquals(array, IA(N(1), N(3)), "Removing an object at some index inbetween should remove the object from the array");
-    MLRemoveAt(array, N(0));
-    MLAssertEquals(array, IA(N(3)), "Removing an object at index 0 should remove the first object from the array");
-    MLRemoveAt(array, N(0));
-    MLAssertEquals(array, IA(), "Removing an object at index 0 from an array with just one element should remove that object resulting in an empty array");
-
+    // TODO: fix test descriptions.
+    var array1 = MA(N(1), N(2), N(3), N(4));
+    var array2 = MA(N(1), N(2), N(3));
+    var array3 = MA(N(1), N(3));
+    var array4 = MA(N(3));
+    MLRemoveAt(array1, N(3));
+    MLRemoveAt(array2, N(1));
+    MLRemoveAt(array3, N(0));
+    MLRemoveAt(array4, N(0));
+    MLAssertEquals(array1, IA(N(1), N(2), N(3)), "Removing an object at the last index should remove the last object from the array");
+    MLAssertEquals(array2, IA(N(1), N(3)), "Removing an object at some index inbetween should remove the object from the array");
+    MLAssertEquals(array3, IA(N(3)), "Removing an object at index 0 should remove the first object from the array");
+    MLAssertEquals(array4, IA(), "Removing an object at index 0 from an array with just one element should remove that object resulting in an empty array");
     MLAssertThrows(null, "MutableArray remove-at* throws if index < 0") MLRemoveAt(MA(N(1), N(2), N(3)), N(-1));
     MLAssertThrows(null, "MutableArray remove-at* throws if index = count") MLRemoveAt(MA(N(1), N(2), N(3)), N(3));
     MLAssertThrows(null, "MutableArray remove-at* throws if index > count") MLRemoveAt(MA(N(1), N(2), N(3)), N(4));
@@ -655,10 +693,10 @@ void MLTestMutableArrayRemoveAt() {
 
 
 void MLTestMutableArrayRemoveAtMany() {
+    // TODO: fix test descriptions.
     var array = MA(N(1), N(2), N(3), N(4), N(5), N(6));
     MLRemoveAtMany(array, IA(N(1), N(3), N(5)));
     MLAssertEquals(array, IA(N(1), N(3), N(5)), "[1, 2, 3, 4, 5, 6] remove-at-many [1, 3, 5] should change array to [1, 3, 5]");
-
     MLAssertThrows(null, "MutableArray remove-at-many* throws if one of the indexes is < 0") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(-1)));
     MLAssertThrows(null, "MutableArray remove-at-many* throws if one of the indexes is = count") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(3)));
     MLAssertThrows(null, "MutableArray remove-at-many* throws if one of the indexes is > count") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(4)));
@@ -666,17 +704,22 @@ void MLTestMutableArrayRemoveAtMany() {
 
 
 void MLTestMutableArrayRemoveAtCount() {
-    var array = MA(N(1), N(2), N(3), N(4), N(5));
-    MLRemoveAtCount(array, N(0), N(0));
-    MLAssertEquals(array, array, "Removing 0 objects at an any index should not change the array");
-    MLRemoveAtCount(array, N(0), N(1));
-    MLAssertEquals(array, IA(N(2), N(3), N(4), N(5)), "Removing 1 object at an index 0 should remove the first object");
-    MLRemoveAtCount(array, N(1), N(2));
-    MLAssertEquals(array, IA(N(2), N(5)), "Removing some objects at an index inbetween should remove those objects");
-    MLRemoveAtCount(array, N(-2), N(2));
-    MLAssertEquals(array, array, "Removing N objects at an index <= -N should not change the array");
-    MLRemoveAtCount(array, N(2), N(2));
-    MLAssertEquals(array, array, "Removing N objects at an index >= count should not change the array");
+    // TODO: fix test descriptions.
+    var array1 = MA(N(1), N(2), N(3), N(4), N(5));
+    var array2 = MA(N(1), N(2), N(3), N(4), N(5));
+    var array3 = MA(N(2), N(3), N(4), N(5));
+    var array4 = MA(N(2), N(5));
+    var array5 = MA(N(2), N(5));
+    MLRemoveAtCount(array1, N(0), N(0));
+    MLRemoveAtCount(array2, N(0), N(1));
+    MLRemoveAtCount(array3, N(1), N(2));
+    MLRemoveAtCount(array4, N(-2), N(2));
+    MLRemoveAtCount(array5, N(2), N(2));
+    MLAssertEquals(array1, IA(N(1), N(2), N(3), N(4), N(5)), "Removing 0 objects at an any index should not change the array");
+    MLAssertEquals(array2, IA(N(2), N(3), N(4), N(5)), "Removing 1 object at an index 0 should remove the first object");
+    MLAssertEquals(array3, IA(N(2), N(5)), "Removing some objects at an index inbetween should remove those objects");
+    MLAssertEquals(array4, IA(N(2), N(5)), "Removing N objects at an index <= -N should not change the array");
+    MLAssertEquals(array5, IA(N(2), N(5)), "Removing N objects at an index >= count should not change the array");
 }
 
 
@@ -688,6 +731,7 @@ void MLTestMutableArrayRemoveAll() {
 
 
 void MLTestMutableArrayReverse() {
+    // TODO: fix test descriptions.
     var array1 = MA(N(1));
     var array2 = MA(N(1), N(2));
     var array3 = MA(N(1), N(2), N(3));
@@ -701,6 +745,7 @@ void MLTestMutableArrayReverse() {
 
 
 void MLTestMutableArraySort() {
+    // TODO: fix test descriptions.
     var array1 = MA(N(1));
     var array2 = MA(N(2), N(1));
     var array3 = MA(N(3), N(2), N(1), N(4), N(6), N(5));
