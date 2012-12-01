@@ -532,16 +532,15 @@ void MLTestMutableArrayInsertBefore() {
 
 
 void MLTestMutableArrayInsertManyBefore() {
-    // TODO: fix test descriptions.
-    var array1 = MA();
-    var array2 = MA(N(6));
-    var array3 = MA(N(4), N(5), N(6));
-    MLInsertManyBefore(array1, IA(N(6)), N(9));
-    MLInsertManyBefore(array2, IA(N(4), N(5)), N(9));
-    MLInsertManyBefore(array3, IA(N(4), N(5)), N(6));
-    MLAssertEquals(array1, IA(N(6)), "[] insert-many [6] before 9 should change array to [6]");
-    MLAssertEquals(array2, IA(N(4), N(5), N(6)), "[6] insert-many [4, 5] before 9 should change array to [4, 5, 6]");
-    MLAssertEquals(array3, IA(N(4), N(5), N(4), N(5), N(6)), "[4, 5, 6] insert-many [4, 5] before 6 should change array to [4, 5, 4, 5, 6]");
+    var array1 = MA(N(4), N(5), N(6));
+    var array2 = MA();
+    var array3 = MA(N(6));
+    MLInsertManyBefore(array1, IA(N(4), N(5)), N(6));
+    MLInsertManyBefore(array2, IA(N(6)), N(9));
+    MLInsertManyBefore(array3, IA(N(4), N(5)), N(9));
+    MLAssertEquals(array1, IA(N(4), N(5), N(4), N(5), N(6)), "MutableArray -insert-many*before* inserts many objects before the first occurence of the passed object");
+    MLAssertEquals(array2, IA(N(6)), "MutableArray -insert-many*before* ignores the before object and inserts at the beginning if array is empty");
+    MLAssertEquals(array3, IA(N(4), N(5), N(6)), "MutableArray -insert-many*before* inserts many objects at the beginning if before object isn't contained");
 }
 
 
