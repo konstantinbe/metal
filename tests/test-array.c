@@ -500,19 +500,18 @@ void MLTestMutableArrayInsertAt() {
 
 
 void MLTestMutableArrayInsertManyAt() {
-    // TODO: fix test descriptions.
-    var array1 = MA();
+    var array1 = MA(N(4), N(8));
     var array2 = MA();
-    var array3 = MA(N(4), N(8));
-    var array4 = MA(N(4), N(5), N(6), N(7), N(8));
-    MLInsertManyAt(array1, IA(), N(0));
+    var array3 = MA(N(4), N(5), N(6), N(7), N(8));
+    var array4 = MA();
+    MLInsertManyAt(array1, IA(N(5), N(6), N(7)), N(1));
     MLInsertManyAt(array2, IA(N(4), N(8)), N(0));
-    MLInsertManyAt(array3, IA(N(5), N(6), N(7)), N(1));
-    MLInsertManyAt(array4, IA(), N(2));
-    MLAssertEquals(array1, IA(), "[] insert-many [] at 0 should not change array and leave it as []");
-    MLAssertEquals(array2, IA(N(4), N(8)), "[] insert-many [4, 8] at 0 should change array to [4, 8]");
-    MLAssertEquals(array3, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 8] insert-many [5, 6, 7] at 1 should change array to [4, 5, 6, 7, 8]");
-    MLAssertEquals(array4, IA(N(4), N(5), N(6), N(7), N(8)), "[4, 5] insert-many [] at 2 should not change the array and leave it as [4, 5, 6, 7, 8]");
+    MLInsertManyAt(array3, IA(), N(2));
+    MLInsertManyAt(array4, IA(), N(0));
+    MLAssertEquals(array1, IA(N(4), N(5), N(6), N(7), N(8)), "MutableArray -insert-many*at* inserts objects at the specified index");
+    MLAssertEquals(array2, IA(N(4), N(8)), "MutableArray -insert-many*at* inserts 2 objects into an empty array at index 0");
+    MLAssertEquals(array3, IA(N(4), N(5), N(6), N(7), N(8)), "MutableArray -insert-many*at* doesn't change the array when passing an empty array of objects");
+    MLAssertEquals(array4, IA(), "MutableArray -insert-many*at* leaves the array empty when inserting no objects (empty array) into an empty array (at index 0)");
 }
 
 
