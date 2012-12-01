@@ -487,16 +487,15 @@ void MLTestMutableArrayInsertMany() {
 
 
 void MLTestMutableArrayInsertAt() {
-    // TODO: fix test descriptions.
     var array1 = MA();
     var array2 = MA(N(4));
     var array3 = MA(N(4), N(6));
     MLInsertAt(array1, N(4), N(0));
     MLInsertAt(array2, N(6), N(1));
     MLInsertAt(array3, N(5), N(1));
-    MLAssertEquals(array1, IA(N(4)), "[] insert 4 at 0 should change array to [4]");
-    MLAssertEquals(array2, IA(N(4), N(6)), "[4] insert 6 at 1 should change array to [4, 6]");
-    MLAssertEquals(array3, IA(N(4), N(5), N(6)), "[4, 6] insert 4 at 1 should change array to [4, 5, 6]");
+    MLAssertEquals(array1, IA(N(4)), "MutableArray -insert*at* inserts an object at index 0 into an empty array ");
+    MLAssertEquals(array2, IA(N(4), N(6)), "MutableArray -insert*at* inserts an object at the end when index = count");
+    MLAssertEquals(array3, IA(N(4), N(5), N(6)), "MutableArray -insert*at* inserts an object in the middle of an array when index is in the middle");
 }
 
 
