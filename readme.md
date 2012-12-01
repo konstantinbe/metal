@@ -1,7 +1,31 @@
 # Metal
 
-A fast and clean object model runtime supporting roles
-(traits). Inspired by Objective-C, Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
+A fast and clean object model runtime in C99. Inspired by Objective-C, Lua,
+and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
+
+## Getting Started
+
+* Install [GCC](http://gcc.gnu.org) or [Clang](http://clang.llvm.org)
+* Install [Ruby](http://www.ruby-lang.org/)
+* Install [Rake](http://rake.rubyforge.org)
+* Install [Git](http://git-scm.com)
+* Clone repo: `git clone git@github.com:konstantinbe/metal.git`
+* Build & test: `rake test`
+
+For debugging (optional):
+
+* Install [GDB](http://www.gnu.org/software/gdb/) or [LLDB](http://lldb.llvm.org)
+* Build & debug: `rake debug`
+
+For profiling (optional):
+
+* Install [Gcov](http://gcc.gnu.org/onlinedocs/gcc/Gcov.html)
+* Build & profile: `rake profile`
+
+For memory analysis (optional):
+
+* Install [Valgrind](http://valgrind.org)
+* Build & run memory analysis: `rake valgrind`
 
 ## Conventions
 
