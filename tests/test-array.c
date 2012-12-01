@@ -272,17 +272,16 @@ void MLTestArrayWithManyAt() {
 
 
 void MLTestArrayWithBefore() {
-    // TODO: fix test descriptions.
-    var array1 = IA();
+    var array1 = IA(N(4), N(6));
     var array2 = IA(N(6));
-    var array3 = IA(N(4), N(6));
+    var array3 = IA(N(5), N(4), N(5), N(6));
     var array4 = IA(N(4), N(5), N(6));
-    var array5 = IA(N(5), N(4), N(5), N(6));
-    MLAssertEquals(MLWithBefore(array1, N(6), N(9)), IA(N(6)), "[] with 6 before 9 should return [6]");
-    MLAssertEquals(MLWithBefore(array2, N(4), N(9)), IA(N(4), N(6)), "[6] with 4 before 9 should return [4, 6]");
-    MLAssertEquals(MLWithBefore(array3, N(5), N(6)), IA(N(4), N(5), N(6)), "[4, 6] with 5 before 6 should return [4, 5, 6]");
-    MLAssertEquals(MLWithBefore(array4, N(5), N(4)), IA(N(5), N(4), N(5), N(6)), "[4, 5, 6] with 5 before 4 should return [5, 4, 5, 6]");
-    MLAssertEquals(MLWithBefore(array5, N(6), N(5)), IA(N(6), N(5), N(4), N(5), N(6)), "[5, 4, 5, 6] with 6 before 5 should return [6, 5, 4, 5, 6]");
+    var array5 = IA();
+    MLAssertEquals(MLWithBefore(array1, N(5), N(6)), IA(N(4), N(5), N(6)), "Array -with*before* returns a new array by inserting the passed in object before a given object");
+    MLAssertEquals(MLWithBefore(array2, N(4), N(9)), IA(N(4), N(6)), "Array -with*before* returns a new array by inserting the passing in object at the beginning if the object to isert before is not contained in the array");
+    MLAssertEquals(MLWithBefore(array3, N(6), N(5)), IA(N(6), N(5), N(4), N(5), N(6)), "Array -with*before* returns a new array by inserting the passed in object before the first occurence of a given object if the bofore object is contained more than once in the array");
+    MLAssertEquals(MLWithBefore(array4, N(5), N(4)), IA(N(5), N(4), N(5), N(6)), "Array -with*before* returns a new array by inserting the passed in object before a given object even if the passed in object is already in the array");
+    MLAssertEquals(MLWithBefore(array5, N(6), N(9)), IA(N(6)), "Array -with*before* returns a new array containing just the passed in object if array is empty ignoring the before object");
 }
 
 
