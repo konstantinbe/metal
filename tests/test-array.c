@@ -661,7 +661,6 @@ void MLTestMutableArrayRemoveMany() {
 
 
 void MLTestMutableArrayRemoveAt() {
-    // TODO: fix test descriptions.
     var array1 = MA(N(1), N(2), N(3), N(4));
     var array2 = MA(N(1), N(2), N(3));
     var array3 = MA(N(1), N(3));
@@ -670,10 +669,10 @@ void MLTestMutableArrayRemoveAt() {
     MLRemoveAt(array2, N(1));
     MLRemoveAt(array3, N(0));
     MLRemoveAt(array4, N(0));
-    MLAssertEquals(array1, IA(N(1), N(2), N(3)), "Removing an object at the last index should remove the last object from the array");
-    MLAssertEquals(array2, IA(N(1), N(3)), "Removing an object at some index inbetween should remove the object from the array");
-    MLAssertEquals(array3, IA(N(3)), "Removing an object at index 0 should remove the first object from the array");
-    MLAssertEquals(array4, IA(), "Removing an object at index 0 from an array with just one element should remove that object resulting in an empty array");
+    MLAssertEquals(array1, IA(N(1), N(2), N(3)), "MutableArray -remove-at*: removing an object at the last index should remove the last object from the array");
+    MLAssertEquals(array2, IA(N(1), N(3)), "MutableArray -remove-at*: removing an object at some index inbetween should remove the object from the array");
+    MLAssertEquals(array3, IA(N(3)), "MutableArray -remove-at*: removing an object at index 0 should remove the first object from the array");
+    MLAssertEquals(array4, IA(), "MutableArray -remove-at*: removing an object at index 0 from an array with just one element should remove that object resulting in an empty array");
     MLAssertThrows(null, "MutableArray remove-at* throws if index < 0") MLRemoveAt(MA(N(1), N(2), N(3)), N(-1));
     MLAssertThrows(null, "MutableArray remove-at* throws if index = count") MLRemoveAt(MA(N(1), N(2), N(3)), N(3));
     MLAssertThrows(null, "MutableArray remove-at* throws if index > count") MLRemoveAt(MA(N(1), N(2), N(3)), N(4));
