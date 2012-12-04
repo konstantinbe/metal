@@ -524,10 +524,10 @@ void MLTestMutableArrayInsertBefore() {
     MLInsertBefore(array2, N(4), N(9));
     MLInsertBefore(array3, N(6), N(9));
     MLInsertBefore(array4, N(5), N(4));
-    MLAssertEquals(array1, IA(N(4), N(5), N(6)), "MutableArray -insert*before* inserts an object before an passed in object");
+    MLAssertEquals(array1, IA(N(4), N(5), N(6)), "MutableArray -insert*before* inserts an object before a passed in object");
     MLAssertEquals(array2, IA(N(4), N(6)), "MutableArray -insert*before* inserts an object at the beginning if the before object is not contained");
     MLAssertEquals(array3, IA(N(6)), "MutableArray -insert*before* inserts an object into an empty array ignoring the passed in before object");
-    MLAssertEquals(array4, IA(N(5), N(4), N(5), N(6)), "MutableArray -insert*before* inserts an object at the beginning if the before an object is the first in the array");
+    MLAssertEquals(array4, IA(N(5), N(4), N(5), N(6)), "MutableArray -insert*before* inserts an object at the beginning if the before object is the first in the array");
 }
 
 
