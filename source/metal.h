@@ -257,8 +257,7 @@ var MLRequire(const char* name);
 var MLModule(const char* name);
 var MLImport(var module, const char* name);
 var MLExport(var module, const char* name, MLCode code);
-var MLDefine(const char* name);
-var MLExtends(var class, var superclass);
+var MLDefine(const char* name, var superclass);
 var MLMethod(var class, const char* command, MLCode code);
 
 var MLLookup(var class, var command, var* foundInClass);

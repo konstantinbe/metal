@@ -324,13 +324,7 @@ var MLExport(var module, const char* name, MLCode code) {
 }
 
 
-var MLDefine(const char* name) {
-    // TODO: implement.
-    return null;
-}
-
-
-var MLExtends(var class, var superclass) {
+var MLDefine(const char* name, var superclass) {
     // TODO: implement.
     return null;
 }
