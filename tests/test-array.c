@@ -692,7 +692,6 @@ void MLTestMutableArrayRemoveAtMany() {
 
 
 void MLTestMutableArrayRemoveAtCount() {
-    // TODO: fix test descriptions.
     var array1 = MA(N(1), N(2), N(3), N(4), N(5));
     var array2 = MA(N(1), N(2), N(3), N(4), N(5));
     var array3 = MA(N(2), N(3), N(4), N(5));
@@ -703,11 +702,11 @@ void MLTestMutableArrayRemoveAtCount() {
     MLRemoveAtCount(array3, N(1), N(2));
     MLRemoveAtCount(array4, N(-2), N(2));
     MLRemoveAtCount(array5, N(2), N(2));
-    MLAssertEquals(array1, IA(N(1), N(2), N(3), N(4), N(5)), "Removing 0 objects at an any index should not change the array");
-    MLAssertEquals(array2, IA(N(2), N(3), N(4), N(5)), "Removing 1 object at an index 0 should remove the first object");
-    MLAssertEquals(array3, IA(N(2), N(5)), "Removing some objects at an index inbetween should remove those objects");
-    MLAssertEquals(array4, IA(N(2), N(5)), "Removing N objects at an index <= -N should not change the array");
-    MLAssertEquals(array5, IA(N(2), N(5)), "Removing N objects at an index >= count should not change the array");
+    MLAssertEquals(array1, IA(N(1), N(2), N(3), N(4), N(5)), "MutableArray -remove-at*count* doesn't change the array and ignores the index if count = 0");
+    MLAssertEquals(array2, IA(N(2), N(3), N(4), N(5)), "MutableArray -remove-at*count* removes the first object if index = 0 and count = 1 and array contains at least 1 object");
+    MLAssertEquals(array3, IA(N(2), N(5)), "MutableArray -remove-at*count* removes N objects starting at a given index");
+    MLAssertEquals(array4, IA(N(2), N(5)), "MutableArray -remove-at*count* doesn't change the array when removing N objects at an index = -N");
+    MLAssertEquals(array5, IA(N(2), N(5)), "MutableArray -remove-at*count* doesn't change the array when removing N objects at an index >= count, ignores N");
 }
 
 
