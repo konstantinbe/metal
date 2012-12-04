@@ -259,7 +259,8 @@ var MLImport(var module, const char* name);
 var MLExport(var module, const char* name, MLCode code);
 var MLDefine(const char* name);
 var MLExtends(var class, var superclass);
-var MLResponds(var class, const char* command, MLCode code);
+var MLMethod(var class, const char* command, MLCode code);
+
 var MLLookup(var class, var command, var* foundInClass);
 var MLDispatch(var context, var self, var command, var arguments);
 

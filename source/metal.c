@@ -336,7 +336,7 @@ var MLExtends(var class, var superclass) {
 }
 
 
-var MLResponds(var class, const char* command, MLCode code) {
+var MLMethod(var class, const char* command, MLCode code) {
     // TODO: implement.
     return null;
 }
