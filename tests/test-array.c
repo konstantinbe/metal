@@ -681,13 +681,12 @@ void MLTestMutableArrayRemoveAt() {
 
 
 void MLTestMutableArrayRemoveAtMany() {
-    // TODO: fix test descriptions.
     var array = MA(N(1), N(2), N(3), N(4), N(5), N(6));
     MLRemoveAtMany(array, IA(N(1), N(3), N(5)));
-    MLAssertEquals(array, IA(N(1), N(3), N(5)), "[1, 2, 3, 4, 5, 6] remove-at-many [1, 3, 5] should change array to [1, 3, 5]");
-    MLAssertThrows(null, "MutableArray remove-at-many* throws if one of the indexes is < 0") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(-1)));
-    MLAssertThrows(null, "MutableArray remove-at-many* throws if one of the indexes is = count") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(3)));
-    MLAssertThrows(null, "MutableArray remove-at-many* throws if one of the indexes is > count") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(4)));
+    MLAssertEquals(array, IA(N(1), N(3), N(5)), "MutableArray -remove-at-many* removes the objects at the passed in indexes");
+    MLAssertThrows(null, "MutableArray -remove-at-many* throws if one of the indexes is < 0") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(-1)));
+    MLAssertThrows(null, "MutableArray -remove-at-many* throws if one of the indexes is = count") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(3)));
+    MLAssertThrows(null, "MutableArray -remove-at-many* throws if one of the indexes is > count") MLRemoveAtMany(MA(N(1), N(2), N(3)), IA(N(4)));
 }
 
 
