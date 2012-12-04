@@ -27,39 +27,39 @@
 #define that MLObjectStructure(self)
 
 
-static var MLObjectMetaCreate(var context, var self, var command, var arguments, var options) {
+static var MLObjectMetaCreate(var context, var self, var command, var arguments) {
     MLError("Can't create an instance of Object, object is either abstract or doesn't implement -create");
     return null;
 }
 
 
-static var MLObjectMetaNew(var context, var self, var command, var arguments, var options) {
+static var MLObjectMetaNew(var context, var self, var command, var arguments) {
     var object = MLCreate(self);
     return MLInit(object);
 }
 
 
-static var MLObjectMetaName(var context, var self, var command, var arguments, var options) {
+static var MLObjectMetaName(var context, var self, var command, var arguments) {
     return meta.name;
 }
 
 
-static var MLObjectMetaSuperclass(var context, var self, var command, var arguments, var options) {
+static var MLObjectMetaSuperclass(var context, var self, var command, var arguments) {
     return meta.superclass;
 }
 
 
-static var MLObjectMetaSubclasses(var context, var self, var command, var arguments, var options) {
+static var MLObjectMetaSubclasses(var context, var self, var command, var arguments) {
     return meta.subclasses;
 }
 
 
-static var MLObjectMetaMethods(var context, var self, var command, var arguments, var options) {
+static var MLObjectMetaMethods(var context, var self, var command, var arguments) {
     return meta.methods;
 }
 
 
-static var MLObjectMetaIsClass(var context, var self, var command, var arguments, var options) {
+static var MLObjectMetaIsClass(var context, var self, var command, var arguments) {
     return yes;
 }
 
@@ -79,24 +79,24 @@ MLPointer MLObjectMetaDefaultMethods[] = {
 };
 
 
-static var MLObjectInit(var context, var self, var command, var arguments, var options) {
+static var MLObjectInit(var context, var self, var command, var arguments) {
     return self;
 }
 
 
-static var MLObjectDestroy(var context, var self, var command, var arguments, var options) {
+static var MLObjectDestroy(var context, var self, var command, var arguments) {
     if (that.retainCount > 0) MLWarning("Destroying object with retain count > 0");
     MLFree(self.pointer);
     return null;
 }
 
 
-static var MLObjectClass(var context, var self, var command, var arguments, var options) {
+static var MLObjectClass(var context, var self, var command, var arguments) {
     return MLReference(that.class);
 }
 
 
-static var MLObjectDescription(var context, var self, var command, var arguments, var options) {
+static var MLObjectDescription(var context, var self, var command, var arguments) {
     const int bufferSize = 1024 * 1024;
     char buffer[bufferSize + 1];
     var class = MLClass(self);
@@ -108,36 +108,36 @@ static var MLObjectDescription(var context, var self, var command, var arguments
 }
 
 
-static var MLObjectEquals(var context, var self, var command, var arguments, var options) {
+static var MLObjectEquals(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     return B(self.pointer == object.pointer);
 }
 
 
-static var MLObjectHash(var context, var self, var command, var arguments, var options) {
+static var MLObjectHash(var context, var self, var command, var arguments) {
     return W((size_t)self.pointer);
 }
 
 
-static var MLObjectCopy(var context, var self, var command, var arguments, var options) {
+static var MLObjectCopy(var context, var self, var command, var arguments) {
     MLError("Object doesn't support copying");
     return null;
 }
 
 
-static var MLObjectMutableCopy(var context, var self, var command, var arguments, var options) {
+static var MLObjectMutableCopy(var context, var self, var command, var arguments) {
     MLError("Object doesn't support mutable copying");
     return null;
 }
 
 
-var MLObjectCompareTo(var context, var self, var command, var arguments, var options) {
+var MLObjectCompareTo(var context, var self, var command, var arguments) {
     MLError("Can't compare, object doesn't support comparing");
     return no;
 }
 
 
-var MLObjectIsLessThan(var context, var self, var command, var arguments, var options) {
+var MLObjectIsLessThan(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     var result = MLCompareTo(self, object);
     if (MLDecimalFrom(result) < 0) return yes;
@@ -145,7 +145,7 @@ var MLObjectIsLessThan(var context, var self, var command, var arguments, var op
 }
 
 
-var MLObjectIsLessThanOrEquals(var context, var self, var command, var arguments, var options) {
+var MLObjectIsLessThanOrEquals(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     var result = MLCompareTo(self, object);
     if (MLDecimalFrom(result) <= 0) return yes;
@@ -153,7 +153,7 @@ var MLObjectIsLessThanOrEquals(var context, var self, var command, var arguments
 }
 
 
-var MLObjectIsGreaterThan(var context, var self, var command, var arguments, var options) {
+var MLObjectIsGreaterThan(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     var result = MLCompareTo(self, object);
     if (MLDecimalFrom(result) > 0) return yes;
@@ -161,7 +161,7 @@ var MLObjectIsGreaterThan(var context, var self, var command, var arguments, var
 }
 
 
-var MLObjectIsGreaterThanOrEquals(var context, var self, var command, var arguments, var options) {
+var MLObjectIsGreaterThanOrEquals(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     var result = MLCompareTo(self, object);
     if (MLDecimalFrom(result) >= 0) return yes;
@@ -169,77 +169,77 @@ var MLObjectIsGreaterThanOrEquals(var context, var self, var command, var argume
 }
 
 
-static var MLObjectIsObject(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsObject(var context, var self, var command, var arguments) {
     return yes;
 }
 
 
-static var MLObjectIsClass(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsClass(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsNull(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsNull(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsBlock(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsBlock(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsBoolean(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsBoolean(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsNumber(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsNumber(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsWord(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsWord(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsDate(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsDate(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsData(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsData(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsArray(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsArray(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsString(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsString(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsDictionary(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsDictionary(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsTruthy(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsTruthy(var context, var self, var command, var arguments) {
     return yes;
 }
 
 
-static var MLObjectIsFalsy(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsFalsy(var context, var self, var command, var arguments) {
     return no;
 }
 
 
-static var MLObjectIsKindOf(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsKindOf(var context, var self, var command, var arguments) {
     var class = MLArgument(0);
     var current = MLClass(self);
     whilst (current) {
@@ -250,24 +250,24 @@ static var MLObjectIsKindOf(var context, var self, var command, var arguments, v
 }
 
 
-static var MLObjectIsInstanceOf(var context, var self, var command, var arguments, var options) {
+static var MLObjectIsInstanceOf(var context, var self, var command, var arguments) {
     var class = MLArgument(0);
     return MLEquals(MLClass(self), class);
 }
 
 
-static var MLObjectRetain(var context, var self, var command, var arguments, var options) {
+static var MLObjectRetain(var context, var self, var command, var arguments) {
     if (that.retainCount < MLRetainCountMax) that.retainCount += 1;
     return self;
 }
 
 
-static var MLObjectRetainCount(var context, var self, var command, var arguments, var options) {
+static var MLObjectRetainCount(var context, var self, var command, var arguments) {
     return N(that.retainCount);
 }
 
 
-static var MLObjectRelease(var context, var self, var command, var arguments, var options) {
+static var MLObjectRelease(var context, var self, var command, var arguments) {
     if (that.retainCount >= MLRetainCountMax) return self;
     if (that.retainCount <= 0) MLWarning("Releasing an object whose retain count is already 0");
     that.retainCount -= 1;
@@ -276,17 +276,16 @@ static var MLObjectRelease(var context, var self, var command, var arguments, va
 }
 
 
-static var MLObjectAutorelease(var context, var self, var command, var arguments, var options) {
+static var MLObjectAutorelease(var context, var self, var command, var arguments) {
     if (MLCurrentPool.pointer == NULL) MLError("Can't autorelease, no autorelase pool found");
     if (that.retainCount < MLRetainCountMax) MLAdd(MLCurrentPool, self);
     return self;
 }
 
 
-static var MLObjectPerformArgumentsOptionsBlock(var context, var self, var command, var arguments, var options) {
+static var MLObjectPerformArguments(var context, var self, var command, var arguments) {
     var commandToPerform = MLArgument(0);
     var argumentsToPass = MLArgument(1);
-    var optionsToPass = MLArgument(2);
     var class = MLClass(self);
     var className = MLName(class);
     MLError("Can't perform command, %s doesn't respond to \"%s\"", MLStringStructure(className).characters, MLStringStructure(commandToPerform).characters);
@@ -294,12 +293,12 @@ static var MLObjectPerformArgumentsOptionsBlock(var context, var self, var comma
 }
 
 
-static var MLObjectSendArgumentsOptionsBlock(var context, var self, var command, var arguments, var options) {
+static var MLObjectSendArguments(var context, var self, var command, var arguments) {
     return null;
 }
 
 
-static var MLObjectRespondsTo(var context, var self, var command, var arguments, var options) {
+static var MLObjectRespondsTo(var context, var self, var command, var arguments) {
     var commandToLookup = MLArgument(0);
     var class = MLClass(self);
     var method = MLLookup(class, commandToLookup, NULL);
@@ -350,8 +349,8 @@ MLPointer MLObjectDefaultMethods[] = {
     "release", MLObjectRelease,
     "autorelease", MLObjectAutorelease,
 
-    "perform*arguments*options*", MLObjectPerformArgumentsOptionsBlock,
-    "send*arguments*options*", MLObjectSendArgumentsOptionsBlock,
+    "perform*arguments*", MLObjectPerformArguments,
+    "send*arguments*", MLObjectSendArguments,
     "responds-to*?", MLObjectRespondsTo,
 
     NULL

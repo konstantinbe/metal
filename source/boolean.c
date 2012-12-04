@@ -26,7 +26,7 @@
 #define that MLBoolean(self)
 
 
-static var MLBooleanMetaCreate(var context, var self, var command, var arguments, var options) {
+static var MLBooleanMetaCreate(var context, var self, var command, var arguments) {
     return MLBooleanMake(false);
 }
 
@@ -37,37 +37,37 @@ MLPointer MLBooleanMetaDefaultMethods[] = {
 };
 
 
-static var MLBooleanDestroy(var context, var self, var command, var arguments, var options) {
+static var MLBooleanDestroy(var context, var self, var command, var arguments) {
     return null;
 }
 
 
-static var MLBooleanIsBoolean(var context, var self, var command, var arguments, var options) {
+static var MLBooleanIsBoolean(var context, var self, var command, var arguments) {
     return yes;
 }
 
 
-static var MLBooleanIsYes(var context, var self, var command, var arguments, var options) {
+static var MLBooleanIsYes(var context, var self, var command, var arguments) {
     return B(self.payload.boolean);
 }
 
 
-static var MLBooleanIsNo(var context, var self, var command, var arguments, var options) {
+static var MLBooleanIsNo(var context, var self, var command, var arguments) {
     return B(!self.payload.boolean);
 }
 
 
-static var MLBooleanIsTruthy(var context, var self, var command, var arguments, var options) {
+static var MLBooleanIsTruthy(var context, var self, var command, var arguments) {
     return B(self.payload.boolean);
 }
 
 
-static var MLBooleanIsFalsy(var context, var self, var command, var arguments, var options) {
+static var MLBooleanIsFalsy(var context, var self, var command, var arguments) {
     return B(!self.payload.boolean);
 }
 
 
-static var MLBooleanDescription(var context, var self, var command, var arguments, var options) {
+static var MLBooleanDescription(var context, var self, var command, var arguments) {
     when (self)
         return S("yes");
     else
@@ -75,7 +75,7 @@ static var MLBooleanDescription(var context, var self, var command, var argument
 }
 
 
-static var MLBooleanEquals(var context, var self, var command, var arguments, var options) {
+static var MLBooleanEquals(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     unless (MLIsBoolean(object)) return no;
     const bool isLeftYes = self.payload.boolean;
@@ -87,12 +87,12 @@ static var MLBooleanEquals(var context, var self, var command, var arguments, va
 }
 
 
-static var MLBooleanHash(var context, var self, var command, var arguments, var options) {
+static var MLBooleanHash(var context, var self, var command, var arguments) {
     return W((MLNatural)self.payload.boolean);
 }
 
 
-static var MLBooleanCopy(var context, var self, var command, var arguments, var options) {
+static var MLBooleanCopy(var context, var self, var command, var arguments) {
     return self;
 }
 

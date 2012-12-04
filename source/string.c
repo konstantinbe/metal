@@ -31,12 +31,12 @@
 #define that MLStringStructure(self)
 
 
-static var MLStringMetaCreate(var context, var self, var command, var arguments, var options) {
+static var MLStringMetaCreate(var context, var self, var command, var arguments) {
     return MLStringMake(MLAllocate(MLStringSize), self, 1, 0, 0, NULL);
 }
 
 
-static var MLStringMetaNewWithString(var context, var self, var command, var arguments, var options) {
+static var MLStringMetaNewWithString(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
     var new = MLCreate(self);
     return MLInitWithString(new, string);
@@ -50,8 +50,8 @@ MLPointer MLStringMetaDefaultMethods[] = {
 };
 
 
-static var MLStringInit(var context, var self, var command, var arguments, var options) {
-    self = MLSuper(command, arguments, options);
+static var MLStringInit(var context, var self, var command, var arguments) {
+    self = MLSuper(command, arguments);
     when (self) {
         that.retainCount = 1;
         that.capacity = 0;
@@ -62,9 +62,9 @@ static var MLStringInit(var context, var self, var command, var arguments, var o
 }
 
 
-static var MLStringInitWithString(var context, var self, var command, var arguments, var options) {
+static var MLStringInitWithString(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
-    self = MLSuper(IS("init"), arguments, options);
+    self = MLSuper(IS("init"), arguments);
     when (self) {
         const var count = MLCount(string);
         const MLInteger countInteger = MLIntegerFrom(count);
@@ -84,55 +84,55 @@ static var MLStringInitWithString(var context, var self, var command, var argume
 }
 
 
-static var MLStringDestroy(var context, var self, var command, var arguments, var options) {
+static var MLStringDestroy(var context, var self, var command, var arguments) {
     MLFree(that.characters);
     MLFree(&that);
     return null;
 }
 
 
-static var MLStringCount(var context, var self, var command, var arguments, var options) {
+static var MLStringCount(var context, var self, var command, var arguments) {
     return N(that.count);
 }
 
 
-static var MLStringContains(var context, var self, var command, var arguments, var options) {
+static var MLStringContains(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
     var index = MLIndexOf(self, string);
     return MLIsGreaterThanOrEquals(index, N(0));
 }
 
 
-static var MLStringIsEmpty(var context, var self, var command, var arguments, var options) {
+static var MLStringIsEmpty(var context, var self, var command, var arguments) {
     return B(that.count == 0);
 }
 
 
-static var MLStringIsInline(var context, var self, var command, var arguments, var options) {
+static var MLStringIsInline(var context, var self, var command, var arguments) {
     return B(that.class == MLInlineString.pointer);
 }
 
 
-static var MLStringIsMutable(var context, var self, var command, var arguments, var options) {
+static var MLStringIsMutable(var context, var self, var command, var arguments) {
     return B(that.class == MLMutableString.pointer);
 }
 
 
-static var MLStringAt(var context, var self, var command, var arguments, var options) {
+static var MLStringAt(var context, var self, var command, var arguments) {
     var index = MLArgument(0);
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringAtMany(var context, var self, var command, var arguments, var options) {
+static var MLStringAtMany(var context, var self, var command, var arguments) {
     var indexes = MLArgument(0);
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringAtCount(var context, var self, var command, var arguments, var options) {
+static var MLStringAtCount(var context, var self, var command, var arguments) {
     var index = MLArgument(0);
     var count = MLArgument(1);
     MLError("TODO: implement.");
@@ -140,25 +140,25 @@ static var MLStringAtCount(var context, var self, var command, var arguments, va
 }
 
 
-static var MLStringIndexOf(var context, var self, var command, var arguments, var options) {
+static var MLStringIndexOf(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringLastIndexOf(var context, var self, var command, var arguments, var options) {
+static var MLStringLastIndexOf(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringIndexesOf(var context, var self, var command, var arguments, var options) {
+static var MLStringIndexesOf(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringFirstCount(var context, var self, var command, var arguments, var options) {
+static var MLStringFirstCount(var context, var self, var command, var arguments) {
     var count = MLArgument(0);
     if (MLDecimalFrom(count) <= that.count) return MLAutorelease(MLCopy(self));
     var index = N(0);
@@ -166,7 +166,7 @@ static var MLStringFirstCount(var context, var self, var command, var arguments,
 }
 
 
-static var MLStringLastCount(var context, var self, var command, var arguments, var options) {
+static var MLStringLastCount(var context, var self, var command, var arguments) {
     var count = MLArgument(0);
     const MLDecimal decimalCount = MLDecimalFrom(count);
     if (decimalCount <= that.count) return MLAutorelease(MLCopy(self));
@@ -175,27 +175,27 @@ static var MLStringLastCount(var context, var self, var command, var arguments, 
 }
 
 
-static var MLStringWith(var context, var self, var command, var arguments, var options) {
+static var MLStringWith(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
     return MLWithMany(self, IA(string));
 }
 
 
-static var MLStringWithMany(var context, var self, var command, var arguments, var options) {
+static var MLStringWithMany(var context, var self, var command, var arguments) {
     var strings = MLArgument(0);
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringWithAt(var context, var self, var command, var arguments, var options) {
+static var MLStringWithAt(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
     var index = MLArgument(1);
     return MLWithManyAt(self, IA(string), index);
 }
 
 
-static var MLStringWithManyAt(var context, var self, var command, var arguments, var options) {
+static var MLStringWithManyAt(var context, var self, var command, var arguments) {
     var strings = MLArgument(0);
     var index = MLArgument(1);
     MLError("TODO: implement.");
@@ -203,14 +203,14 @@ static var MLStringWithManyAt(var context, var self, var command, var arguments,
 }
 
 
-static var MLStringWithBefore(var context, var self, var command, var arguments, var options) {
+static var MLStringWithBefore(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
     var before = MLArgument(1);
     return MLWithManyBefore(self, IA(string), before);
 }
 
 
-static var MLStringWithManyBefore(var context, var self, var command, var arguments, var options) {
+static var MLStringWithManyBefore(var context, var self, var command, var arguments) {
     var strings = MLArgument(0);
     var before = MLArgument(1);
     MLError("TODO: implement.");
@@ -218,14 +218,14 @@ static var MLStringWithManyBefore(var context, var self, var command, var argume
 }
 
 
-static var MLStringWithAfter(var context, var self, var command, var arguments, var options) {
+static var MLStringWithAfter(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
     var after = MLArgument(1);
     return MLWithManyAfter(self, IA(string), after);
 }
 
 
-static var MLStringWithManyAfter(var context, var self, var command, var arguments, var options) {
+static var MLStringWithManyAfter(var context, var self, var command, var arguments) {
     var strings = MLArgument(0);
     var after = MLArgument(1);
     MLError("TODO: implement.");
@@ -233,26 +233,26 @@ static var MLStringWithManyAfter(var context, var self, var command, var argumen
 }
 
 
-static var MLStringWithout(var context, var self, var command, var arguments, var options) {
+static var MLStringWithout(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
     return MLWithoutMany(self, IA(string));
 }
 
 
-static var MLStringWithoutMany(var context, var self, var command, var arguments, var options) {
+static var MLStringWithoutMany(var context, var self, var command, var arguments) {
     var strings = MLArgument(0);
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringWithoutAt(var context, var self, var command, var arguments, var options) {
+static var MLStringWithoutAt(var context, var self, var command, var arguments) {
     var index = MLArgument(0);
     return MLWithoutAtCount(self, index, N(1));
 }
 
 
-static var MLStringWithoutAtCount(var context, var self, var command, var arguments, var options) {
+static var MLStringWithoutAtCount(var context, var self, var command, var arguments) {
     var index = MLArgument(0);
     var count = MLArgument(1);
     MLError("TODO: implement.");
@@ -260,14 +260,14 @@ static var MLStringWithoutAtCount(var context, var self, var command, var argume
 }
 
 
-static var MLStringWithoutAtMany(var context, var self, var command, var arguments, var options) {
+static var MLStringWithoutAtMany(var context, var self, var command, var arguments) {
     var indexes = MLArgument(0);
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringCodeAt(var context, var self, var command, var arguments, var options) {
+static var MLStringCodeAt(var context, var self, var command, var arguments) {
     var index = MLArgument(0);
     const MLInteger integerIndex = MLIntegerFrom(index);
     if (integerIndex >= that.count) return null;
@@ -275,83 +275,83 @@ static var MLStringCodeAt(var context, var self, var command, var arguments, var
 }
 
 
-static var MLStringCodesAt(var context, var self, var command, var arguments, var options) {
+static var MLStringCodesAt(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringCharacters(var context, var self, var command, var arguments, var options) {
+static var MLStringCharacters(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringCodes(var context, var self, var command, var arguments, var options) {
+static var MLStringCodes(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringLines(var context, var self, var command, var arguments, var options) {
+static var MLStringLines(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringParagraphs(var context, var self, var command, var arguments, var options) {
+static var MLStringParagraphs(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringBeginsWith(var context, var self, var command, var arguments, var options) {
+static var MLStringBeginsWith(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringEndsWith(var context, var self, var command, var arguments, var options) {
+static var MLStringEndsWith(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringReversed(var context, var self, var command, var arguments, var options) {
+static var MLStringReversed(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringUppercased(var context, var self, var command, var arguments, var options) {
+static var MLStringUppercased(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringLowercased(var context, var self, var command, var arguments, var options) {
+static var MLStringLowercased(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringCapitalized(var context, var self, var command, var arguments, var options) {
+static var MLStringCapitalized(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringIsString(var context, var self, var command, var arguments, var options) {
+static var MLStringIsString(var context, var self, var command, var arguments) {
     return yes;
 }
 
 
-static var MLStringDescription(var context, var self, var command, var arguments, var options) {
+static var MLStringDescription(var context, var self, var command, var arguments) {
     return MLAutorelease(MLCopy(self));
 }
 
 
-static var MLStringEquals(var context, var self, var command, var arguments, var options) {
+static var MLStringEquals(var context, var self, var command, var arguments) {
     const var string = MLArgument(0);
     unless (MLIsString(string)) return no;
 
@@ -366,18 +366,18 @@ static var MLStringEquals(var context, var self, var command, var arguments, var
 }
 
 
-static var MLStringHash(var context, var self, var command, var arguments, var options) {
+static var MLStringHash(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLStringCopy(var context, var self, var command, var arguments, var options) {
+static var MLStringCopy(var context, var self, var command, var arguments) {
     return MLRetain(self);
 }
 
 
-static var MLStringMutableCopy(var context, var self, var command, var arguments, var options) {
+static var MLStringMutableCopy(var context, var self, var command, var arguments) {
     var mutableCopy = MLCreate(MLMutableString);
     return MLInitWithString(mutableCopy, self);
 }
@@ -454,7 +454,7 @@ MLPointer MLStringDefaultMethods[] = {
 };
 
 
-static var MLInlineStringMetaCreate(var context, var self, var command, var arguments, var options) {
+static var MLInlineStringMetaCreate(var context, var self, var command, var arguments) {
     MLError("Can't create an inline string, inline strings can only be inlined");
     return null;
 }
@@ -466,34 +466,34 @@ MLPointer MLInlineStringMetaDefaultMethods[] = {
 };
 
 
-static var MLInlineStringCopy(var context, var self, var command, var arguments, var options) {
+static var MLInlineStringCopy(var context, var self, var command, var arguments) {
     return MLNewWithString(MLString, self);
 }
 
 
-static var MLInlineStringMutableCopy(var context, var self, var command, var arguments, var options) {
+static var MLInlineStringMutableCopy(var context, var self, var command, var arguments) {
     return MLNewWithString(MLMutableString, self);
 }
 
 
-static var MLInlineStringRetain(var context, var self, var command, var arguments, var options) {
+static var MLInlineStringRetain(var context, var self, var command, var arguments) {
     MLError("Can't retain an inline string, you have to copy it");
     return null;
 }
 
 
-static var MLInlineStringRetainCount(var context, var self, var command, var arguments, var options) {
+static var MLInlineStringRetainCount(var context, var self, var command, var arguments) {
     return N(-1);
 }
 
 
-static var MLInlineStringRelease(var context, var self, var command, var arguments, var options) {
+static var MLInlineStringRelease(var context, var self, var command, var arguments) {
     MLError("Can't release an inline string because it can't be retained in the first place");
     return null;
 }
 
 
-static var MLInlineStringAutorelease(var context, var self, var command, var arguments, var options) {
+static var MLInlineStringAutorelease(var context, var self, var command, var arguments) {
     MLError("Can't autorelease an inline string because it can't be retained in the first place");
     return null;
 }
@@ -512,7 +512,7 @@ MLPointer MLInlineStringDefaultMethods[] = {
 };
 
 
-static var MLMutableStringMetaCreate(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringMetaCreate(var context, var self, var command, var arguments) {
     return MLStringMake(MLAllocate(MLStringSize), self, 1, 0, 0, NULL);
 }
 
@@ -522,9 +522,9 @@ MLPointer MLMutableStringMetaDefaultMethods[] = {
 };
 
 
-static var MLMutableStringInitWithCapacity(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringInitWithCapacity(var context, var self, var command, var arguments) {
     var capacity = MLArgument(0);
-    self = MLSuper(IS("init"), null, null);
+    self = MLSuper(IS("init"), null);
     when (self) {
         MLIncreaseCapacity(self, capacity);
     }
@@ -532,12 +532,12 @@ static var MLMutableStringInitWithCapacity(var context, var self, var command, v
 }
 
 
-static var MLMutableStringCapacity(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringCapacity(var context, var self, var command, var arguments) {
     return N(that.capacity);
 }
 
 
-static var MLMutableStringIncreaseCapacity(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringIncreaseCapacity(var context, var self, var command, var arguments) {
     const var capacity = MLArgument(0);
 
     MLInteger integerCapacity = MLIntegerFrom(capacity);
@@ -552,31 +552,31 @@ static var MLMutableStringIncreaseCapacity(var context, var self, var command, v
 }
 
 
-static var MLMutableStringReplaceWith(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringReplaceWith(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLMutableStringPrepend(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringPrepend(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLMutableStringAppend(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringAppend(var context, var self, var command, var arguments) {
     MLError("TODO: implement.");
     return null;
 }
 
 
-static var MLMutableStringCopy(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringCopy(var context, var self, var command, var arguments) {
     var copy = MLCreate(MLString);
     return MLInitWithString(copy, self);
 }
 
 
-static var MLMutableStringMutableCopy(var context, var self, var command, var arguments, var options) {
+static var MLMutableStringMutableCopy(var context, var self, var command, var arguments) {
     var mutableCopy = MLCreate(MLMutableString);
     return MLInitWithString(mutableCopy, self);
 }

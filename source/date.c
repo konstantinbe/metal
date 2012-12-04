@@ -27,7 +27,7 @@
 #define that MLObjectStructure(self)
 
 
-static var MLDateMetaCreate(var context, var self, var command, var arguments, var options) {
+static var MLDateMetaCreate(var context, var self, var command, var arguments) {
     return MLDateMake(0);
 }
 
@@ -38,36 +38,36 @@ MLPointer MLDateMetaDefaultMethods[] = {
 };
 
 
-static var MLDateInit(var context, var self, var command, var arguments, var options) {
+static var MLDateInit(var context, var self, var command, var arguments) {
     return self;
 }
 
 
-static var MLDateInitWithSecondsSince1970(var context, var self, var command, var arguments, var options) {
+static var MLDateInitWithSecondsSince1970(var context, var self, var command, var arguments) {
     var secondsSince1970 = MLArgument(0);
     unless (secondsSince1970) return null;
     return MLDateMake(MLDecimalFrom(secondsSince1970));
 }
 
 
-static var MLDateDestroy(var context, var self, var command, var arguments, var options) {
+static var MLDateDestroy(var context, var self, var command, var arguments) {
     return null;
 }
 
 
-static var MLDateParse(var context, var self, var command, var arguments, var options) {
+static var MLDateParse(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
     // TODO: implement.
     return null;
 }
 
 
-static var MLDateIsDate(var context, var self, var command, var arguments, var options) {
+static var MLDateIsDate(var context, var self, var command, var arguments) {
     return yes;
 }
 
 
-static var MLDateDescription(var context, var self, var command, var arguments, var options) {
+static var MLDateDescription(var context, var self, var command, var arguments) {
     const int bufferSize = 1024 * 1024;
     char buffer[bufferSize + 1];
     time_t time = (time_t)self.payload.decimal;
@@ -80,19 +80,19 @@ static var MLDateDescription(var context, var self, var command, var arguments, 
 }
 
 
-static var MLDateEquals(var context, var self, var command, var arguments, var options) {
+static var MLDateEquals(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     unless (MLIsDate(object)) return no;
     return B(self.payload.decimal == object.payload.decimal);
 }
 
 
-static var MLDateHash(var context, var self, var command, var arguments, var options) {
+static var MLDateHash(var context, var self, var command, var arguments) {
     return W(self.payload.natural);
 }
 
 
-static var MLDateCopy(var context, var self, var command, var arguments, var options) {
+static var MLDateCopy(var context, var self, var command, var arguments) {
     return self;
 }
 

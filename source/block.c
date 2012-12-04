@@ -26,7 +26,7 @@
 #define that MLObjectStructure(self)
 
 
-static var MLBlockMetaCreate(var context, var self, var command, var arguments, var options) {
+static var MLBlockMetaCreate(var context, var self, var command, var arguments) {
     return MLBlockMake(NULL);
 }
 
@@ -37,33 +37,33 @@ MLPointer MLBlockMetaDefaultMethods[] = {
 };
 
 
-static var MLBlockDestroy(var context, var self, var command, var arguments, var options) {
+static var MLBlockDestroy(var context, var self, var command, var arguments) {
     return null;
 }
 
 
-static var MLBlockIsBlock(var context, var self, var command, var arguments, var options) {
+static var MLBlockIsBlock(var context, var self, var command, var arguments) {
     return yes;
 }
 
 
-static var MLBlockDescription(var context, var self, var command, var arguments, var options) {
+static var MLBlockDescription(var context, var self, var command, var arguments) {
     return S("<Block>");
 }
 
 
-static var MLBlockEquals(var context, var self, var command, var arguments, var options) {
+static var MLBlockEquals(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     return B(self.pointer == object.pointer && self.payload.code == object.payload.code);
 }
 
 
-static var MLBlockHash(var context, var self, var command, var arguments, var options) {
+static var MLBlockHash(var context, var self, var command, var arguments) {
     return W((size_t)self.payload.code);
 }
 
 
-static var MLBlockCopy(var context, var self, var command, var arguments, var options) {
+static var MLBlockCopy(var context, var self, var command, var arguments) {
     return self;
 }
 

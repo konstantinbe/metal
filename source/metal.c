@@ -385,7 +385,7 @@ var MLLookup(var class, var command, var* foundInClass) {
 }
 
 
-var MLDispatch(var context, var self, var command, var arguments, var options) {
+var MLDispatch(var context, var self, var command, var arguments) {
     unless (context) context = (var){.pointer = MLObjectStructure(self).class, .payload.natural = 0};
 
     // TODO: implement fast cache lookup.
@@ -395,16 +395,16 @@ var MLDispatch(var context, var self, var command, var arguments, var options) {
     var method = MLLookup(context, command, &foundInClass);
     when (method) {
         // TODO: cache this method and its context.
-        return method.payload.code(foundInClass, self, command, arguments, options);
+        return method.payload.code(foundInClass, self, command, arguments);
     }
 
-    var fallback = MLLookup(context, IS("perform*arguments*options*"), &foundInClass);
+    var fallback = MLLookup(context, IS("perform*arguments*"), &foundInClass);
     when (fallback) {
         // TODO: cache this method and its context.
-        return fallback.payload.code(foundInClass, self, IS("perform*arguments*options*"), IA(command, arguments, options), null);
+        return fallback.payload.code(foundInClass, self, IS("perform*arguments*"), IA(command, arguments));
     }
 
-    MLError("Object must respond to '-perform*arguments*options*'");
+    MLError("Object must respond to '-perform*arguments*'");
     return null;
 }
 

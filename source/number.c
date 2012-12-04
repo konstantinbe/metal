@@ -28,7 +28,7 @@
 #define that MLObjectStructure(self)
 
 
-static var MLNumberMetaCreate(var context, var self, var command, var arguments, var options) {
+static var MLNumberMetaCreate(var context, var self, var command, var arguments) {
     return MLNumberMake(0);
 }
 
@@ -39,32 +39,32 @@ MLPointer MLNumberMetaDefaultMethods[] = {
 };
 
 
-static var MLNumberDestroy(var context, var self, var command, var arguments, var options) {
+static var MLNumberDestroy(var context, var self, var command, var arguments) {
     return null;
 }
 
 
-static var MLNumberIsNaN(var context, var self, var command, var arguments, var options) {
+static var MLNumberIsNaN(var context, var self, var command, var arguments) {
     return B(isnan(self.payload.decimal));
 }
 
 
-static var MLNumberIsFinite(var context, var self, var command, var arguments, var options) {
+static var MLNumberIsFinite(var context, var self, var command, var arguments) {
     return B(isfinite(self.payload.decimal));
 }
 
 
-static var MLNumberIsInfinite(var context, var self, var command, var arguments, var options) {
+static var MLNumberIsInfinite(var context, var self, var command, var arguments) {
     return B(isinf(self.payload.decimal));
 }
 
 
-static var MLNumberIsNumber(var context, var self, var command, var arguments, var options) {
+static var MLNumberIsNumber(var context, var self, var command, var arguments) {
     return yes;
 }
 
 
-static var MLNumberDescription(var context, var self, var command, var arguments, var options) {
+static var MLNumberDescription(var context, var self, var command, var arguments) {
     // TODO: tweak to not print decimal point and/or tralining zeros if
     // not needed.
     const int bufferSize = 1024 * 1024;
@@ -76,24 +76,24 @@ static var MLNumberDescription(var context, var self, var command, var arguments
 }
 
 
-static var MLNumberEquals(var context, var self, var command, var arguments, var options) {
+static var MLNumberEquals(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     unless (MLIsNumber(object)) return no;
     return B(self.payload.decimal == object.payload.decimal);
 }
 
 
-static var MLNumberHash(var context, var self, var command, var arguments, var options) {
+static var MLNumberHash(var context, var self, var command, var arguments) {
     return W(self.payload.natural);
 }
 
 
-static var MLNumberCopy(var context, var self, var command, var arguments, var options) {
+static var MLNumberCopy(var context, var self, var command, var arguments) {
     return self;
 }
 
 
-var MLNumberCompareTo(var context, var self, var command, var arguments, var options) {
+var MLNumberCompareTo(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
     unless (MLIsNumber(object)) MLError("Can't compare number to object, object is not a number");
     if (MLDecimalFrom(self) < MLDecimalFrom(object)) return N(-1);
