@@ -561,16 +561,15 @@ void MLTestMutableArrayInsertAfter() {
 
 
 void MLTestMutableArrayInsertManyAfter() {
-    // TODO: fix test descriptions.
     var array1 = MA();
     var array2 = MA(N(6));
     var array3 = MA(N(6), N(4), N(5));
     MLInsertManyAfter(array1, IA(N(6)), N(9));
     MLInsertManyAfter(array2, IA(N(4), N(5)), N(9));
     MLInsertManyAfter(array3, IA(N(4), N(5)), N(6));
-    MLAssertEquals(array1, IA(N(6)), "[] insert-many [6] after 9 should change array to [6]");
-    MLAssertEquals(array2, IA(N(6), N(4), N(5)), "[6] insert-many [4, 5] after 9 should change array to [6, 4, 5]");
-    MLAssertEquals(array3, IA(N(6), N(4), N(5), N(4), N(5)), "[6, 4, 5] insert-many [4, 5] after 6 should change array to [6, 4, 5, 4, 5]");
+    MLAssertEquals(array1, IA(N(6)), "MutableArray -insert-many*after* inserts objects into an empty array ignoring the passed in after object");
+    MLAssertEquals(array2, IA(N(6), N(4), N(5)), "MutableArray -insert*after* inserts objects at the end if the after object is not contained");
+    MLAssertEquals(array3, IA(N(6), N(4), N(5), N(4), N(5)), "MutableArray -insert-many*after* inserts objects after the last occurence of the passed in object if after object is contained multiple times");
 }
 
 
