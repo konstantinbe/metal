@@ -100,8 +100,8 @@
 #define MLLoadWithPriority(priority) __attribute__((constructor(priority))) void
 #define MLLoad MLLoadWithPriority(1000000)
 
-#define MLSend(self, command, arguments) MLDispatch(null, self, command, arguments)
-#define MLSuper(command, arguments) MLDispatch(MLClassStructure(context).superclass, self, command, arguments)
+#define MLSend(self, command, ...) MLDispatch(null, self, IS(command), IA(__VA_ARGS__))
+#define MLSuper(command, ...) MLDispatch(MLClassStructure(context).superclass, self, IS(command), IA(__VA_ARGS__))
 
 #define when(expression) if (MLIsObjectTruthy(expression))
 #define unless(expression) if (!MLIsObjectTruthy(expression))
@@ -116,7 +116,6 @@
 #define try for (MLTryCatchBlockStackPush(); !setjmp(MLTryCatchBlockStackTop()->destination); MLTryCatchBlockStackPop())
 #define catch else for (var exception = MLTryCatchBlockStackPop()->exception, executed = no; !MLBoolFrom(executed); executed = yes)
 #define throw(name) { if (MLTryCatchBlockStackTop() == NULL) MLError("Exception thrown but not catched"); MLTryCatchBlockStackTop()->exception = S(name); longjmp(MLTryCatchBlockStackTop()->destination, 1); }
-
 
 typedef double MLDecimal;
 typedef long long MLInteger;

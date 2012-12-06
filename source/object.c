@@ -244,7 +244,7 @@ static var MLObjectIsKindOf(var context, var self, var command, var arguments) {
     var current = MLClass(self);
     whilst (current) {
         when (MLEquals(current, class)) return yes;
-        current = MLSuperclass(current);
+        current = superclass(current);
     }
     return no;
 }
@@ -294,7 +294,9 @@ static var MLObjectPerformArguments(var context, var self, var command, var argu
 
 
 static var MLObjectSendArguments(var context, var self, var command, var arguments) {
-    return null;
+    var commandToSend = MLArgument(0);
+    var argumentsToSend = MLArgument(1);
+    return MLDispatch(null, self, commandToSend, argumentsToSend);
 }
 
 

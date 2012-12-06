@@ -41,7 +41,7 @@ MLPointer MLPoolMetaDefaultMethods[] = {
 
 
 static var MLPoolInit(var context, var self, var command, var arguments) {
-    self = MLSuper(command, arguments);
+    self = MLSuper("init");
     when (self) {
         that.previousPool = MLCurrentPool;
         that.objects = MLNew(MLMutableArray);
@@ -54,7 +54,7 @@ static var MLPoolInit(var context, var self, var command, var arguments) {
 static var MLPoolDestroy(var context, var self, var command, var arguments) {
     MLCurrentPool = that.previousPool;
     that.objects = MLRelease(that.objects);
-    MLSuper(command, arguments);
+    MLSuper("destroy");
     return null;
 }
 

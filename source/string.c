@@ -51,7 +51,7 @@ MLPointer MLStringMetaDefaultMethods[] = {
 
 
 static var MLStringInit(var context, var self, var command, var arguments) {
-    self = MLSuper(command, arguments);
+    self = MLSuper("init");
     when (self) {
         that.retainCount = 1;
         that.capacity = 0;
@@ -64,7 +64,7 @@ static var MLStringInit(var context, var self, var command, var arguments) {
 
 static var MLStringInitWithString(var context, var self, var command, var arguments) {
     var string = MLArgument(0);
-    self = MLSuper(IS("init"), arguments);
+    self = MLSuper("init");
     when (self) {
         const var count = MLCount(string);
         const MLInteger countInteger = MLIntegerFrom(count);
@@ -524,7 +524,7 @@ MLPointer MLMutableStringMetaDefaultMethods[] = {
 
 static var MLMutableStringInitWithCapacity(var context, var self, var command, var arguments) {
     var capacity = MLArgument(0);
-    self = MLSuper(IS("init"), null);
+    self = MLSuper("init");
     when (self) {
         MLIncreaseCapacity(self, capacity);
     }

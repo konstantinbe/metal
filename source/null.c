@@ -64,7 +64,7 @@ static var MLNullDescription(var context, var self, var command, var arguments) 
 
 static var MLNullEquals(var context, var self, var command, var arguments) {
     var object = MLArgument(0);
-    return MLSend(object, IS("is-null?"), null);
+    return MLSend(object, "is-null?");
 }
 
 

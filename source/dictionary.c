@@ -41,7 +41,7 @@ MLPointer MLDictionaryMetaDefaultMethods[] = {
 
 
 static var MLDictionaryInit(var context, var self, var command, var arguments) {
-    self = MLSuper(command, arguments);
+    self = MLSuper("init");
     when (self) {
         // TODO: implement.
     }

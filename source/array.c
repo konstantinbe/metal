@@ -66,7 +66,7 @@ MLPointer MLArrayMetaDefaultMethods[] = {
 
 
 static var MLArrayInit(var context, var self, var command, var arguments) {
-    self = MLSuper(command, arguments);
+    self = MLSuper("init");
     when (self) {
         that.count = 0;
         that.capacity = 0;
@@ -78,7 +78,7 @@ static var MLArrayInit(var context, var self, var command, var arguments) {
 
 static var MLArrayInitWithArray(var context, var self, var command, var arguments) {
     var array = MLArgument(0);
-    self = MLSuper(IS("init"), null);
+    self = MLSuper("init");
     when (self) {
         const MLInteger count = MLIntegerFrom(MLCount(array));
         const MLInteger capacity = count;
@@ -446,7 +446,7 @@ static var MLArrayPluck(var context, var self, var command, var arguments) {
     var key = MLArgument(0);
     var values = MLNewWithCapacity(MLMutableArray, N(that.count));
     each (object, index, self) {
-        var value = MLSend(object, key, null);
+        var value = MLSendArguments(object, key, null);
         MLAdd(values, value);
     }
     return MLMakeAutoreleasedCopyAndReleaseOriginal(values);
@@ -679,7 +679,7 @@ MLPointer MLMutableArrayMetaDefaultMethods[] = {
 
 static var MLMutableArrayInitWithCapacity(var context, var self, var command, var arguments) {
     var capacity = MLArgument(0);
-    self = MLSuper(IS("init"), null);
+    self = MLSuper("init");
     when (self) {
         MLIncreaseCapacity(self, capacity);
     }
