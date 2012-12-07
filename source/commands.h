@@ -209,6 +209,7 @@
 #define MLCodeAt(self, index) MLSend(self, "code-at*", index)
 #define MLCodesAt(self, indexes) MLSend(self, "codes-at*", indexes)
 
+#define MLLength(self) MLSend(self, "length")
 #define MLCharacters(self) MLSend(self, "characters")
 #define MLCodes(self) MLSend(self, "codes")
 

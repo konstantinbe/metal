@@ -90,10 +90,10 @@ MLNatural MLHelperDigest(MLInteger count, const void* bytes) {
 
 
 var MLHelperCreateStringWithCharacters(const char* characters) {
-    MLInteger count = strlen(characters);
-    char* copy = MLAllocateAndClear(count + 1);
-    strncpy(copy, characters, count);
-    return MLStringMake(MLAllocate(MLStringSize), MLString, 1, count, count, copy);
+    MLInteger length = strlen(characters);
+    char* copy = MLAllocateAndClear(length + 1);
+    strncpy(copy, characters, length);
+    return MLStringMake(MLAllocate(MLStringSize), MLString, 1, length, length, copy);
 }
 
 

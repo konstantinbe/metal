@@ -55,7 +55,7 @@ static var MLStringInit(var context, var self, var command, var arguments) {
     when (self) {
         that.retainCount = 1;
         that.capacity = 0;
-        that.count = 0;
+        that.length = 0;
         that.characters = NULL;
     }
     return self;
@@ -66,18 +66,18 @@ static var MLStringInitWithString(var context, var self, var command, var argume
     var string = MLArgument(0);
     self = MLSuper("init");
     when (self) {
-        const var count = MLCount(string);
-        const MLInteger countInteger = MLIntegerFrom(count);
-        const MLInteger integerCapacity = countInteger;
+        const var length = MLLength(string);
+        const MLInteger lengthInteger = MLIntegerFrom(length);
+        const MLInteger integerCapacity = lengthInteger;
 
         that.capacity = integerCapacity;
-        that.count = countInteger;
+        that.length = lengthInteger;
         that.characters = NULL;
 
-        if (countInteger > 0) {
+        if (lengthInteger > 0) {
             char *characters = MLStringStructure(string).characters;
-            that.characters = MLAllocate(sizeof(char) * (countInteger + 1));
-            memcpy(that.characters, characters, countInteger + 1);
+            that.characters = MLAllocate(sizeof(char) * (lengthInteger + 1));
+            memcpy(that.characters, characters, lengthInteger + 1);
         }
     }
     return self;
@@ -91,8 +91,8 @@ static var MLStringDestroy(var context, var self, var command, var arguments) {
 }
 
 
-static var MLStringCount(var context, var self, var command, var arguments) {
-    return N(that.count);
+static var MLStringLength(var context, var self, var command, var arguments) {
+    return N(that.length);
 }
 
 
@@ -104,7 +104,7 @@ static var MLStringContains(var context, var self, var command, var arguments) {
 
 
 static var MLStringIsEmpty(var context, var self, var command, var arguments) {
-    return B(that.count == 0);
+    return B(that.length == 0);
 }
 
 
@@ -160,7 +160,7 @@ static var MLStringIndexesOf(var context, var self, var command, var arguments) 
 
 static var MLStringFirstCount(var context, var self, var command, var arguments) {
     var count = MLArgument(0);
-    if (MLDecimalFrom(count) <= that.count) return MLAutorelease(MLCopy(self));
+    if (MLDecimalFrom(count) <= that.length) return MLAutorelease(MLCopy(self));
     var index = N(0);
     return MLAtCount(self, index, count);
 }
@@ -169,8 +169,8 @@ static var MLStringFirstCount(var context, var self, var command, var arguments)
 static var MLStringLastCount(var context, var self, var command, var arguments) {
     var count = MLArgument(0);
     const MLDecimal decimalCount = MLDecimalFrom(count);
-    if (decimalCount <= that.count) return MLAutorelease(MLCopy(self));
-    var index = N(that.count - decimalCount);
+    if (decimalCount <= that.length) return MLAutorelease(MLCopy(self));
+    var index = N(that.length - decimalCount);
     return MLAtCount(self, index, count);
 }
 
@@ -270,7 +270,7 @@ static var MLStringWithoutAtMany(var context, var self, var command, var argumen
 static var MLStringCodeAt(var context, var self, var command, var arguments) {
     var index = MLArgument(0);
     const MLInteger integerIndex = MLIntegerFrom(index);
-    if (integerIndex >= that.count) return null;
+    if (integerIndex >= that.length) return null;
     return W(that.characters[integerIndex]);
 }
 
@@ -355,12 +355,12 @@ static var MLStringEquals(var context, var self, var command, var arguments) {
     const var string = MLArgument(0);
     unless (MLIsString(string)) return no;
 
-    const MLInteger count = MLStringStructure(string).count;
-    if (count != that.count) return no;
-    if (count == 0) return yes;
+    const MLInteger length = MLStringStructure(string).length;
+    if (length != that.length) return no;
+    if (length == 0) return yes;
 
     char* characters = MLStringStructure(string).characters;
-    const MLInteger result = strncmp(characters, that.characters, that.count);
+    const MLInteger result = strncmp(characters, that.characters, that.length);
 
     return B(result == 0);
 }
@@ -388,7 +388,7 @@ MLPointer MLStringDefaultMethods[] = {
     "init-with-string*", MLStringInitWithString,
     "destroy", MLStringDestroy,
 
-    "count", MLStringCount,
+    "length", MLStringLength,
     "contains*", MLStringContains,
 
     "is-empty?", MLStringIsEmpty,

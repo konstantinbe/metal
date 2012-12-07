@@ -177,7 +177,7 @@ struct MLString {
     struct MLClass* class;
     MLInteger retainCount;
     MLNatural capacity;
-    MLNatural count;
+    MLNatural length;
     char* characters;
 };
 

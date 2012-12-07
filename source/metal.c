@@ -268,12 +268,12 @@ var MLArrayMake(struct MLArray* array, var class, MLInteger retainCount, MLInteg
 }
 
 
-var MLStringMake(struct MLString* string, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, char* characters) {
-    const MLNatural hash = MLHelperDigest(count, characters);
+var MLStringMake(struct MLString* string, var class, MLInteger retainCount, MLInteger capacity, MLInteger length, char* characters) {
+    const MLNatural hash = MLHelperDigest(length, characters);
     string->class = class.pointer;
     string->retainCount = retainCount;
     string->capacity = capacity;
-    string->count = count;
+    string->length = length;
     string->characters = characters;
     var reference = MLReference(string);
     reference.payload.natural = hash;

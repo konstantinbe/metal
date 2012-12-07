@@ -24,7 +24,7 @@
 
 void MLTestStringInit() {
     var string = MLInit(MLCreate(MLString));
-    MLAssertEquals(MLCount(string), N(0), "Count of a newly initialized string should be 0");
+    MLAssertEquals(MLLength(string), N(0), "Count of a newly initialized string should be 0");
     MLAssertEquals(string, IS(""), "A newly initialized string should equal an empty string");
     MLAssertNotEquals(string, IS(" "), "A newly initialized string should not equal any non-empty string");
     MLAssertFalse(MLIsMutable(string), "A newly initialized string should not be mutable");
