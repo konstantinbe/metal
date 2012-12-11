@@ -39,13 +39,6 @@ static int MLCompare(const void* left, const void* right) {
 }
 
 
-static var MLMakeAutoreleasedCopyAndReleaseOriginal(var array) {
-   var copy = MLCopy(array);
-   MLRelease(array);
-   return MLAutorelease(copy);
-}
-
-
 static var MLArrayMetaCreate(var context, var self, var command, var arguments) {
     return MLArrayMake(MLAllocate(MLArraySize), MLArray, 1, 0, 0, NULL);
 }
@@ -175,7 +168,7 @@ static var MLArrayAtMany(var context, var self, var command, var arguments) {
         var object = MLAt(self, index);
         MLAdd(mutable, object);
     }
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -192,7 +185,7 @@ static var MLArrayAtCount(var context, var self, var command, var arguments) {
     }
     if (integerIndex + integerCount > that.count) integerCount = that.count - integerIndex;
     for (MLInteger i = integerIndex; i < integerIndex + integerCount; i += 1) MLAdd(mutable, that.objects[i]);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -223,7 +216,7 @@ static var MLArrayIndexesOf(var context, var self, var command, var arguments) {
         var equals = MLEquals(that.objects[index], object);
         when (equals) MLAdd(indexes, N(index));
     }
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(indexes);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(indexes);
 }
 
 
@@ -287,7 +280,7 @@ static var MLArrayWithMany(var context, var self, var command, var arguments) {
     var mutable = MLMutableCopy(self);
     var index = N(that.count);
     MLInsertManyAt(mutable, objects, index);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -303,7 +296,7 @@ static var MLArrayWithManyAt(var context, var self, var command, var arguments) 
     var index = MLArgument(1);
     var mutable = MLMutableCopy(self);
     MLInsertManyAt(mutable, objects, index);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -353,7 +346,7 @@ static var MLArrayWithManyReplacing(var context, var self, var command, var argu
     var object = MLArgument(1);
     var mutable = MLMutableCopy(self);
     MLReplaceWithMany(mutable, object, replacements);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -369,7 +362,7 @@ static var MLArrayWithManyReplacingAt(var context, var self, var command, var ar
     var index = MLArgument(1);
     var mutable = MLMutableCopy(self);
     MLReplaceAtWithMany(mutable, index, objects);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -387,7 +380,7 @@ static var MLArrayWithManyReplacingAtCount(var context, var self, var command, v
     var count = MLArgument(2);
     var mutable = MLMutableCopy(self);
     MLReplaceAtCountWithMany(mutable, index, count, objects);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -401,7 +394,7 @@ static var MLArrayWithoutMany(var context, var self, var command, var arguments)
     var objects = MLArgument(0);
     var mutable = MLMutableCopy(self);
     MLRemoveMany(mutable, objects);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -415,7 +408,7 @@ static var MLArrayWithoutAtMany(var context, var self, var command, var argument
     var indexes = MLArgument(0);
     var mutable = MLMutableCopy(self);
     MLRemoveAtMany(mutable, indexes);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -424,21 +417,21 @@ static var MLArrayWithoutAtCount(var context, var self, var command, var argumen
     var count = MLArgument(1);
     var mutable = MLMutableCopy(self);
     MLRemoveAtCount(mutable, index, count);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
 static var MLArrayReversed(var context, var self, var command, var arguments) {
     var mutable = MLMutableCopy(self);
     MLReverse(mutable);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
 static var MLArraySorted(var context, var self, var command, var arguments) {
     var mutable = MLMutableCopy(self);
     MLSort(mutable);
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(mutable);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(mutable);
 }
 
 
@@ -449,7 +442,7 @@ static var MLArrayPluck(var context, var self, var command, var arguments) {
         var value = MLSendArguments(object, key, null);
         MLAdd(values, value);
     }
-    return MLMakeAutoreleasedCopyAndReleaseOriginal(values);
+    return MLHelperMakeAutoreleasedCopyAndReleaseOriginal(values);
 }
 
 

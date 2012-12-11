@@ -39,4 +39,6 @@ var MLHelperCreateStringWithCharacters(const char* characters);
 var MLHelperCreateArrayWithObjects(var objects[]);
 var MLHelperCreateDictionaryWithMethods(MLPointer methods[]);
 
+var MLHelperMakeAutoreleasedCopyAndReleaseOriginal(var array);
+
 #endif

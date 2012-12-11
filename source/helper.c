@@ -122,3 +122,10 @@ var MLHelperCreateDictionaryWithMethods(MLPointer methods[]) {
     }
     return MLDictionaryMake(dictionary, MLDictionary, 1, 0, count, entries);
 }
+
+
+var MLHelperMakeAutoreleasedCopyAndReleaseOriginal(var array) {
+   var copy = MLCopy(array);
+   MLRelease(array);
+   return MLAutorelease(copy);
+}
