@@ -22,6 +22,20 @@
 #include "test.h"
 
 
+
+void MLTestArrayDescription() {
+    var array1 = IA();
+    var array2 = IA(N(1));
+    var array3 = IA(N(1), N(2), N(3));
+    var description1 = MLDescription(array1);
+    var description2 = MLDescription(array2);
+    var description3 = MLDescription(array3);
+    MLAssertEquals(description1, IS("[]"), "Array -description returns '[]' for an empty array");
+    MLAssertEquals(description2, IS("[1]"), "Array -description returns description for an array with 1 object");
+    MLAssertEquals(description3, IS("[1, 2, 3]"), "Array -description returns description for an array with > 1 object");
+}
+
+
 void MLTestArrayCount() {
     var array = IA(N(1), N(2), N(3));
     var count = MLCount(array);
@@ -32,9 +46,9 @@ void MLTestArrayCount() {
 void MLTestArrayContains() {
     var array = IA(N(1), N(2), N(3));
     MLAssertFalse(MLContains(array, N(0)), "Array -contains* returns no if object is not in array");
-    MLAssertTrue(MLContains(array, N(1)), "Array -contains* yes if object is contained in array");
-    MLAssertTrue(MLContains(array, N(2)), "Array -contains* yes if object is contained in array");
-    MLAssertTrue(MLContains(array, N(3)), "Array -contains* yes if object is contained in array");
+    MLAssertTrue(MLContains(array, N(1)), "Array -contains* returs yes if object is contained in array");
+    MLAssertTrue(MLContains(array, N(2)), "Array -contains* returs yes if object is contained in array");
+    MLAssertTrue(MLContains(array, N(3)), "Array -contains* returs yes if object is contained in array");
     MLAssertFalse(MLContains(array, N(4)), "Array -contains* returns no if object is not in array");
 }
 
@@ -736,6 +750,7 @@ void MLTestMutableArraySort() {
 
 
 void MLTestArray() {
+    MLTestArrayDescription();
     MLTestArrayCount();
     MLTestArrayContains();
     MLTestArrayContainsAny();

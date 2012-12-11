@@ -141,6 +141,9 @@
 
 #define MLPluck(self, key) MLSend(self, "pluck*", key)
 
+#define MLJoin(self) MLSend(self, "join")
+#define MLJoinWithPrefixSuffixSeparator(self, prefix, suffix, separator) MLSend(self, "join-with-prefix*suffix*separator*", prefix, suffix, separator)
+
 #define MLMin(self) MLSend(self, "min")
 #define MLMax(self) MLSend(self, "max")
 

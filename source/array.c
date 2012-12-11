@@ -157,7 +157,7 @@ static var MLArrayAt(var context, var self, var command, var arguments) {
     var index = MLArgument(0);
     MLInteger integerIndex = MLIntegerFrom(index);
     if (integerIndex < 0 || integerIndex >= that.count)
-        throw("index-out-of-bounds");
+        MLError("Can't return object at index %s, index is out of bounds", MLInspect(index));
     return that.objects[integerIndex];
 }
 
@@ -170,7 +170,7 @@ static var MLArrayAtMany(var context, var self, var command, var arguments) {
         const MLInteger integerIndex = MLIntegerFrom(index);
         if (integerIndex < 0 || integerIndex >= that.count) {
             MLRelease(mutable);
-            throw("index-out-of-bounds");
+            MLError("Can't return object at many indexes %s, index %s is out of bounds", MLInspect(indexes), MLInspect(index));
         }
         var object = MLAt(self, index);
         MLAdd(mutable, object);
@@ -188,7 +188,7 @@ static var MLArrayAtCount(var context, var self, var command, var arguments) {
     MLInteger integerCount = MLIntegerFrom(count);
     if (integerIndex < 0 || integerIndex >= that.count) {
         MLRelease(mutable);
-        throw("index-out-of-bounds");
+        MLError("Can't return %s objects starting at index %s, index is out of bounds", MLInspect(count), MLInspect(index));
     }
     if (integerIndex + integerCount > that.count) integerCount = that.count - integerIndex;
     for (MLInteger i = integerIndex; i < integerIndex + integerCount; i += 1) MLAdd(mutable, that.objects[i]);
@@ -453,6 +453,61 @@ static var MLArrayPluck(var context, var self, var command, var arguments) {
 }
 
 
+static var MLArrayJoin(var context, var self, var command, var arguments) {
+    return MLJoinWithPrefixSuffixSeparator(self, IS(""), IS(""), IS(""));
+}
+
+
+static var MLArrayJoinWithPrefixSuffixSeparator(var context, var self, var command, var arguments) {
+    const var prefix = MLArgument(0);
+    const var suffix = MLArgument(1);
+    const var separator = MLArgument(2);
+
+    unless (MLIsString(prefix)) MLError("Can't join, prefix must be a string");
+    unless (MLIsString(suffix)) MLError("Can't join, suffix must be a string");
+    unless (MLIsString(separator)) MLError("Can't join, separator must be a string");
+
+    const var count = MLCount(self);
+    const var prefixLength = MLLength(prefix);
+    const var suffixLength = MLLength(suffix);
+    const var separatorLength = MLLength(separator);
+
+    const MLInteger integerCount = MLIntegerFrom(count);
+    const MLInteger integerPrefixLength = MLIntegerFrom(prefixLength);
+    const MLInteger integerSuffixLength = MLIntegerFrom(suffixLength);
+    const MLInteger integerSeparatorLength = MLIntegerFrom(separatorLength);
+
+    MLInteger capacity = 0;
+    capacity += integerPrefixLength;
+    capacity += integerSuffixLength;
+
+    each (component, index, self) {
+        unless (MLIsString(component)) MLError("Can't join, object at index %lli isn't a string", MLIntegerFrom(index));
+        const var length = MLLength(component);
+        capacity += MLIntegerFrom(length);
+        const bool isLastComponent = MLIntegerFrom(index) >= integerCount - 1;
+        if (isLastComponent) break;
+        capacity += integerSeparatorLength;
+    }
+
+    char* characters = MLAllocateAndClear(capacity + 1);
+    char* appendAt = characters;
+
+    appendAt = strncat(appendAt, MLStringStructure(prefix).characters, integerPrefixLength);
+    each (component, index, self) {
+        const var length = MLLength(component);
+        appendAt = strncat(appendAt, MLStringStructure(component).characters, MLIntegerFrom(length));
+        const bool isLastComponent = MLIntegerFrom(index) >= integerCount - 1;
+        if (isLastComponent) break;
+        appendAt = strncat(appendAt, MLStringStructure(separator).characters, integerSeparatorLength);
+    }
+    appendAt = strncat(appendAt, MLStringStructure(suffix).characters, integerSuffixLength);
+
+    const var string = MLStringMake(MLAllocate(MLStringSize), MLString, 1, capacity, capacity, characters);
+    return MLAutorelease(string);
+}
+
+
 static var MLArrayMin(var context, var self, var command, var arguments) {
     var min = MLFirst(self);
     each (object, index, self) {
@@ -477,8 +532,11 @@ static var MLArrayIsArray(var context, var self, var command, var arguments) {
 
 
 static var MLArrayDescription(var context, var self, var command, var arguments) {
-    MLWarning("TODO: implement method -description for arrays");
-    return null;
+    var prefix = S("[");
+    var suffix = S("]");
+    var separator = S(", ");
+    var descriptions = MLPluck(self, IS("description"));
+    return MLJoinWithPrefixSuffixSeparator(descriptions, prefix, suffix, separator);
 }
 
 
@@ -575,6 +633,9 @@ MLPointer MLArrayDefaultMethods[] = {
     "sorted", MLArraySorted,
 
     "pluck*", MLArrayPluck,
+
+    "join", MLArrayJoin,
+    "join-with-prefix*suffix*separator*", MLArrayJoinWithPrefixSuffixSeparator,
 
     "min", MLArrayMin,
     "max", MLArrayMax,
@@ -754,7 +815,9 @@ static var MLMutableArrayInsertManyAt(var context, var self, var command, var ar
     var index = MLArgument(1);
 
     const MLInteger integerIndex = MLIntegerFrom(index);
-    if (integerIndex < 0 || integerIndex > that.count) throw("index-out-of-bounds");
+    if (integerIndex < 0 || integerIndex > that.count) {
+        MLError("Can't insert objects at index %s, index is out of bounds", MLInspect(index));
+    }
 
     const MLInteger numberOfObjects = MLIntegerFrom(MLCount(objects));
     const MLInteger capacity = that.count + numberOfObjects;
@@ -903,7 +966,9 @@ static var MLMutableArrayRemoveAtMany(var context, var self, var command, var ar
 
     each (i, j, indexes) {
         MLInteger index = MLIntegerFrom(i);
-        if (index < 0 || index >= that.count) throw("index-out-of-bounds");
+        if (index < 0 || index >= that.count) {
+            MLError("Can't remove objects at many indexes %s, index %s is out of bounds", MLInspect(indexes), MLInspect(i));
+        }
         var object = that.objects[index];
         if (object.pointer != MLMarking) MLAutorelease(object);
         that.objects[index].pointer = MLMarking;
