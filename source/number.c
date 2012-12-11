@@ -67,9 +67,18 @@ static var MLNumberIsNumber(var context, var self, var command, var arguments) {
 static var MLNumberDescription(var context, var self, var command, var arguments) {
     // TODO: tweak to not print decimal point and/or tralining zeros if
     // not needed.
+    MLDecimal integer = 0;
+    MLDecimal fractional = modf(self.payload.decimal, &integer);
     const int bufferSize = 1024 * 1024;
     char buffer[bufferSize + 1];
-    const int count = snprintf(buffer, bufferSize + 1, "%f", self.payload.decimal);
+    int count = 0;
+
+    if (fractional == 0) {
+        count = snprintf(buffer, bufferSize + 1, "%lli", (MLInteger)self.payload.decimal);
+    } else {
+        count = snprintf(buffer, bufferSize + 1, "%f", self.payload.decimal);
+    }
+
     char *characters = strncpy(MLAllocate(count + 1), buffer, count + 1);
     var description = MLStringMake(MLAllocate(MLStringSize), MLString, 1, count, count, characters);
     return MLAutorelease(description);
