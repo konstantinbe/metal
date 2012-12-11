@@ -44,14 +44,18 @@
 #define MLDebug(message, ...) printf("[DEBUG] " message "\n", ## __VA_ARGS__)
 #define MLInfo(message, ...) printf("[INFO] " message "\n", ## __VA_ARGS__)
 #define MLWarning(message, ...) fprintf(stderr, "[WARNING] " message "\n", ## __VA_ARGS__)
-#define MLError(message, ...) { fprintf(stderr, "[ERROR] %s:%d | %s() | " message "\n", __FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__); MLDereferenceNullPointer(); }
+#define MLError(message, ...) \
+    { \
+        const size_t _bufferSize = 10 * 1024; \
+        char _buffer[_bufferSize]; \
+        const int _count = snprintf(_buffer, _bufferSize, message, ## __VA_ARGS__); \
+        char* _characters = MLAllocateAndClear(_count + 1); \
+        strncpy(_characters, _buffer, _count + 1); \
+        var _exception = MLStringMake(MLAllocate(MLStringSize), MLString, 1, _count, _count, _characters);\
+        throw(_exception); \
+        MLRelease(_exception); \
+    }
 #define MLAssert(condition, message, ...) if (!(condition)) { MLError(message, ## __VA_ARGS__); }
-
-#if DEBUG && !(defined __clang_analyzer__)
-    #define MLDereferenceNullPointer() { MLInteger *pointer = NULL; *pointer = 0; }
-#else
-    #define MLDereferenceNullPointer() { /* Do nothing. */ }
-#endif
 
 #define MLInline(number_of_bytes) alloca(number_of_bytes)
 #define MLInlineAndClear(number_of_bytes) memset(alloca(number_of_bytes), 0, number_of_bytes)
@@ -115,7 +119,7 @@
 #define collect for (var pool = MLNew(MLPool); MLIsObjectTruthy(pool); pool = MLDrain(pool))
 #define try for (MLTryCatchBlockStackPush(); !setjmp(MLTryCatchBlockStackTop()->destination); MLTryCatchBlockStackPop())
 #define catch else for (var exception = MLTryCatchBlockStackPop()->exception, executed = no; !MLBoolFrom(executed); executed = yes)
-#define throw(name) { if (MLTryCatchBlockStackTop() == NULL) MLError("Exception thrown but not catched"); MLTryCatchBlockStackTop()->exception = S(name); longjmp(MLTryCatchBlockStackTop()->destination, 1); }
+#define throw(exception) MLThrow(exception, __FILE__, __LINE__, __FUNCTION__)
 
 typedef double MLDecimal;
 typedef long long MLInteger;
@@ -259,6 +263,8 @@ var MLExport(var module, const char* name, MLCode code);
 var MLDefine(const char* name, var superclass);
 var MLMethod(var class, const char* command, MLCode code);
 
+const char* MLInspect(var object);
+var MLThrow(var exception, const char* fileName, int lineNumber, const char* functionName);
 var MLLookup(var class, var command, var* foundInClass);
 var MLDispatch(var context, var self, var command, var arguments);
 

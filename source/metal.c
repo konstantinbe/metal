@@ -336,6 +336,22 @@ var MLMethod(var class, const char* command, MLCode code) {
 }
 
 
+const char* MLInspect(var object) {
+    var description = MLDescription(object);
+    return MLStringStructure(description).characters;
+}
+
+
+var MLThrow(var exception, const char* fileName, int lineNumber, const char* functionName) {
+    if (MLTryCatchBlockStackTop() == NULL) {
+        fprintf(stderr, "[ERROR] Exception in file %s at line %d in function '%s':\n\n%s\n\n", fileName, lineNumber, functionName, MLInspect(exception));
+        exit(1);
+    }
+    MLTryCatchBlockStackTop()->exception = exception;
+    longjmp(MLTryCatchBlockStackTop()->destination, 1);
+}
+
+
 var MLLookup(var class, var command, var* foundInClass) {
     unless (class) return null;
     var methods = MLClassStructure(class).methods;
