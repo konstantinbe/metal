@@ -300,13 +300,12 @@ void MLTestArrayWithBefore() {
 
 
 void MLTestArrayWithManyBefore() {
-    // TODO: fix test descriptions.
     var array1 = IA();
     var array2 = IA(N(6));
     var array3 = IA(N(4), N(5), N(6));
-    MLAssertEquals(MLWithManyBefore(array1, IA(N(6)), N(9)), IA(N(6)), "[] with-many [6] before 9 should return [6]");
-    MLAssertEquals(MLWithManyBefore(array2, IA(N(4), N(5)), N(9)), IA(N(4), N(5), N(6)), "[6] with-many [4, 5] before 9 should return [4, 5, 6]");
-    MLAssertEquals(MLWithManyBefore(array3, IA(N(4), N(5)), N(6)), IA(N(4), N(5), N(4), N(5), N(6)), "[4, 5, 6] with-many [4, 5] before 6 should return [4, 5, 4, 5, 6]");
+    MLAssertEquals(MLWithManyBefore(array1, IA(N(6)), N(9)), IA(N(6)), "Array -with-many*before* returns a new array containing just the passed in object if array is empty ignoring the before object");
+    MLAssertEquals(MLWithManyBefore(array2, IA(N(4), N(5)), N(9)), IA(N(4), N(5), N(6)), "Array -with-many*before* returns a new array by inserting the passed in objects at the beginning if the object to isert before is not contained in the array");
+    MLAssertEquals(MLWithManyBefore(array3, IA(N(4), N(5)), N(6)), IA(N(4), N(5), N(4), N(5), N(6)), "Array -with-many*before* returns a new array by inserting the passed in objects before a given object even if the passed in object is already in the array");
 }
 
 
