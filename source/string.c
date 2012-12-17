@@ -424,8 +424,7 @@ static var MLMutableStringCapitalize(var context, var self, var command, var arg
 
 
 static var MLMutableStringIsMutable(var context, var self, var command, var arguments) {
-    MLError("TODO: implement.");
-    return null;
+    return MLIsKindOf(self, MLMutableString);
 }
 
 
