@@ -228,6 +228,7 @@
 
 #define MLPrepend(self, prefix) MLSend(self, "prepend*", prefix)
 #define MLAppend(self, suffix) MLSend(self, "append*", suffix)
+#define MLClear(self) MLSend(self, "clear")
 
 #define MLDrain(self) MLSend(self, "drain")
 
