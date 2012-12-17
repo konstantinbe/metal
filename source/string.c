@@ -391,8 +391,12 @@ static var MLMutableStringPrepend(var context, var self, var command, var argume
 
 
 static var MLMutableStringAppend(var context, var self, var command, var arguments) {
-    MLError("TODO: implement.");
-    return null;
+    var suffix = MLArgument(0);
+    char *suffixCharacters = MLStringStructure(suffix).characters;
+    const MLInteger suffixLength = MLStringStructure(suffix).length;
+    MLIncreaseCapacity(self, N(that.length + suffixLength));
+    strncat(that.characters, suffixCharacters, suffixLength);
+    return self;
 }
 
 
