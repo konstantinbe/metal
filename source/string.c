@@ -379,8 +379,14 @@ static var MLMutableStringReplaceWith(var context, var self, var command, var ar
 
 
 static var MLMutableStringPrepend(var context, var self, var command, var arguments) {
-    MLError("TODO: implement.");
-    return null;
+    // TODO: optimize.
+    var prefix = MLArgument(0);
+    var copy = MLCopy(self);
+    MLClear(self);
+    MLAppend(self, prefix);
+    MLAppend(self, copy);
+    MLRelease(copy);
+    return self;
 }
 
 
