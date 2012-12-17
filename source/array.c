@@ -142,7 +142,7 @@ static var MLArrayIsInline(var context, var self, var command, var arguments) {
 
 
 static var MLArrayIsMutable(var context, var self, var command, var arguments) {
-    return B(that.class == MLMutableArray.pointer);
+    return MLIsKindOf(self, MLMutableArray);
 }
 
 
