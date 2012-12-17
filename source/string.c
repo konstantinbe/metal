@@ -91,6 +91,13 @@ static var MLStringDestroy(var context, var self, var command, var arguments) {
 }
 
 
+static var MLStringCount(var context, var self, var command, var arguments) {
+    MLError("TODO: implement.");
+    // This method method should count graphemes, i.e. user visible characters.
+    return null;
+}
+
+
 static var MLStringLength(var context, var self, var command, var arguments) {
     return N(that.length);
 }
@@ -240,6 +247,7 @@ MLPointer MLStringDefaultMethods[] = {
     "init-with-string*", MLStringInitWithString,
     "destroy", MLStringDestroy,
 
+    "count", MLStringCount,
     "length", MLStringLength,
     "contains*", MLStringContains,
 
