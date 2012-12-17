@@ -391,8 +391,11 @@ static var MLMutableStringAppend(var context, var self, var command, var argumen
 
 
 static var MLMutableStringClear(var context, var self, var command, var arguments) {
-    MLError("TODO: implement.");
-    return null;
+    if (that.length > 0 && that.capacity > 0) {
+        that.length = 0;
+        that.characters[0] = '\0';
+    }
+    return self;
 }
 
 
