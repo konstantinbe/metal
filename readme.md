@@ -1,7 +1,7 @@
 # Metal
 
-A fast and clean object model runtime in C99. Inspired by Objective-C, Lua,
-and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
+Experimental class-based object model runtime in C99. Inspired by Objective-C,
+Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
 
 ## Getting Started
 
