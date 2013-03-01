@@ -19,44 +19,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ML_TEST_H
-#define ML_TEST_H
-
-#include <assert.h>
-#include <stdio.h>
+#ifndef TEST_H
+#define TEST_H
 
 #include <metal/metal.h>
-#include <metal/helper.h>
-
-#define MLAssertThrows(exceptionToCatch, message) MLTryCatchBlockStackPush(); for (bool assertThrowsBlockExecuted = false; (!setjmp(MLTryCatchBlockStackTop()->destination) && assertThrowsBlockExecuted == false) || MLAssertThrowsBlockCatch(exceptionToCatch, message); assertThrowsBlockExecuted = true)
-
-bool MLAssertThrowsBlockCatch(var exceptionToCatch, char* message);
-
-void MLTestBegin();
-void MLTestEnd();
-
-void MLAssertTrue(var object, char* message);
-void MLAssertFalse(var object, char* message);
-
-void MLAssertNull(var object, char* message);
-void MLAssertNotNull(var object, char* message);
-
-void MLAssertEquals(var subject, var actual, char* message);
-void MLAssertNotEquals(var subject, var actual, char* message);
-
-void MLTestHelper();
-void MLTestMetal();
-void MLTestObject();
-void MLTestNull();
-void MLTestBlock();
-void MLTestBoolean();
-void MLTestNumber();
-void MLTestWord();
-void MLTestDate();
-void MLTestData();
-void MLTestArray();
-void MLTestString();
-void MLTestDictionary();
-void MLTestPool();
+#include <assert.h>
+#include <stdio.h>
 
 #endif

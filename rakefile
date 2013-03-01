@@ -50,7 +50,7 @@ FAILED = RED + "FAILED" + RESET
 
 $configs = {}
 
-$configs['clang'] = {:title => "Clang", :compiler => "clang", :flags => "-Wall -std=c99 -Wno-unused-function -Wno-unused-variable"}
+$configs['clang'] = {:title => "Clang", :compiler => "clang", :flags => "-Wall -std=c99 -Wno-gnu -Wno-unused-function -Wno-unused-variable -Wno-pointer-sign"}
 $configs['gcc'] = {:title => "GCC", :compiler => "gcc", :flags => "-Wall -std=c99 -Wno-unused-function -Wno-unused-variable"}
 $configs['icc'] = {:title => "ICC", :compiler => "icc", :flags => "-Wall -std=c99 -Wno-unused-function -Wno-unused-variable"}
 
@@ -214,6 +214,13 @@ task :debug => [:prepare] do
 
   put "Running Metal Tests in #{$debugger.upcase} (#{$config[:title]}) ... "
   run "#{$debugger} build/test"
+  puts OK
+end
+
+task :preprocess => [:prepare] do
+  put "Preprocessing Metal Library (#{$config[:title]}) ... "
+
+  run "#{compiler} -c #{flags} -E source/*.c > build/preprocessor.c"
   puts OK
 end
 

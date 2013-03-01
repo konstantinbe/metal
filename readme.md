@@ -1,7 +1,7 @@
 # Metal
 
-Experimental class-based object model runtime in C99. Inspired by Objective-C,
-Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
+Experimental prototype-based object model runtime in C99. Inspired by
+Objective-C, Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
 
 ## Getting Started
 
@@ -34,9 +34,9 @@ For memory analysis (optional):
 * Use dashed notation for methods:
   `replace-at*with-many*`, `is-mutable?`
 * Use UPPERCASE notation for global constants:
-  `ML_GREATER_THAN`
+  `GREATER_THAN`
 * Use CamelCase for everything else in code (types, functions, variables, ...):
-  `MLIndexOf`, `instanceVariableName`
+  `IndexOf`, `instanceVariableName`
 * Use dashed notation for directories and files:
   `array.c`, `test-array.c`
 * Use dashed notation for URLs:

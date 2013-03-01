@@ -19,253 +19,91 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ML_METAL_H
-#define ML_METAL_H
+#ifndef METAL_H
+#define METAL_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <alloca.h>
-#include <string.h>
-#include <assert.h>
 #include <setjmp.h>
-#include <stdio.h>
-#include <math.h>
+#include <limits.h>
+#include <stdbool.h>
 
-#include "commands.h"
+#define ZERO (void*)0
+#define MORE (void*)ULLONG_MAX
 
-#define MLIntegerMin –9223372036854775808ll
-#define MLIntegerMax 9223372036854775807ll
+#define zero (var)0
+#define more (var)ULLONG_MAX
 
-#define MLNaturalMin 0
-#define MLNaturalMax 18446744073709551615ull
+#define metalHelperJoinJoin(x, y) x ## y
+#define metalHelperJoin(x, y) metalHelperJoinJoin(x, y)
+#define metalHelperStringify(x) (((char*)(#x))[0] == '"' ? String(x) : (x))
 
-#define MLRetainCountMax 0x0fffffffull
+#define load __attribute__((constructor(255))) static void metalHelperJoin(__MetalLoadBlockUniquePerFileDefinedAtLine, __LINE__)()
 
-#define MLDebug(message, ...) printf("[DEBUG] " message "\n", ## __VA_ARGS__)
-#define MLInfo(message, ...) printf("[INFO] " message "\n", ## __VA_ARGS__)
-#define MLWarning(message, ...) fprintf(stderr, "[WARNING] " message "\n", ## __VA_ARGS__)
-#define MLError(message, ...) \
-    { \
-        const size_t _bufferSize = 10 * 1024; \
-        char _buffer[_bufferSize]; \
-        const int _count = snprintf(_buffer, _bufferSize, message, ## __VA_ARGS__); \
-        char* _characters = MLAllocateAndClear(_count + 1); \
-        strncpy(_characters, _buffer, _count + 1); \
-        var _exception = MLStringMake(MLAllocate(MLStringSize), MLString, 1, _count, _count, _characters);\
-        throw(_exception); \
-        MLRelease(_exception); \
-    }
-#define MLAssert(condition, message, ...) if (!(condition)) { MLError(message, ## __VA_ARGS__); }
+#define collect for (void* collectBlock = CollectBlockPush(); collectBlock != ZERO; collectBlock = CollectBlockPop(collectBlock))
+#define try for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; tryCatchBlock = TryCatchBlockPop(tryCatchBlock)) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
+#define catch else for (var exception = TryCatchBlockCatch(tryCatchBlock); exception != null; exception = null)
 
-#define MLInline(number_of_bytes) alloca(number_of_bytes)
-#define MLInlineAndClear(number_of_bytes) memset(alloca(number_of_bytes), 0, number_of_bytes)
-#define MLAllocate(number_of_bytes) malloc(number_of_bytes)
-#define MLAllocateAndClear(number_of_bytes) calloc(1, number_of_bytes)
-#define MLResize(pointer, number_of_bytes) realloc(pointer, number_of_bytes)
-#define MLFree(pointer) free(pointer)
+#define send(self, command, ...) ((var (*)(var, var, ...))lookup((self), metalHelperStringify(command), 0))((self), metalHelperStringify(command), ## __VA_ARGS__, zero)
+#define super(self, command, ...) ((var (*)(var, var, ...))lookup((self), metalHelperStringify(command), 1))((self), metalHelperStringify(command), ## __VA_ARGS__, zero)
+#define option(name, initial) ({ va_list list; va_start(list, options); var key = options; var value; while (key != zero && key != (name)) { value = va_arg(list, var); key = va_arg(list, var); } va_end(list); key ? value : (initial); });
 
-#define MLNumberOfVariables(...) (sizeof((var[]){null, __VA_ARGS__}) / MLVariableSize - 1)
-#define MLPointerToVariables(...) ((var[]){null, __VA_ARGS__} + 1)
-#define MLArgument(number) (MLIsObjectNull(arguments) ? null : ((struct MLArray*)arguments.pointer)->objects[number])
+#define Boolean(boolean) ((boolean) ? yes : no)
+#define Number(number) NumberMake((decimal)(number))
+#define Block(code) BlockMake((void*)(code))
+#define Data(data) DataMake(sizeof(data), (void*)(data))
+#define Array(...) ArrayMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__)
+#define String(string) StringMake(sizeof(string), (string))
+#define Dictionary(...) DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__)
 
-#define B(value) MLBooleanMake(value)
-#define N(value) MLNumberMake(value)
-#define W(value) MLWordMake(value)
+#define INTEGER_MAX LONG_MAX
+#define INTEGER_MIN LONG_MIN
 
-#define A(...) MLAutorelease(MLCopy(IA(__VA_ARGS__)))
-#define S(string) MLAutorelease(MLCopy(IS(string)))
-#define D(...) MLAutorelease(MLCopy(ID(__VA_ARGS__)))
+#define NATURAL_MAX ULONG_MAX
+#define NATURAL_MIN 0
 
-#define IA(...) MLArrayMake(MLInline(MLArraySize), MLInlineArray, MLRetainCountMax, MLNumberOfVariables(__VA_ARGS__), MLNumberOfVariables(__VA_ARGS__), MLPointerToVariables(__VA_ARGS__))
-#define IS(string) MLStringMake(MLInline(MLStringSize), MLInlineString, MLRetainCountMax, sizeof(string) - 1, sizeof(string) - 1, string)
-#define ID(...) MLDictionaryMake(MLInline(MLDictionarySize), MLRetainCountMax, 0, MLNumberOfVariables(__VA_ARGS__) / 2, MLPointerToVariables(__VA_ARGS__))
+typedef void* var;
+typedef long integer;
+typedef unsigned long natural;
+typedef double decimal;
 
-#define MA(...) MLAutorelease(MLMutableCopy(IA(__VA_ARGS__)))
-#define MS(string) MLAutorelease(MLMutableCopy(IS(string)))
-#define MD(...) MLAutorelease(MLMutableCopy(ID(__VA_ARGS__)))
+extern var const Object;
+extern var const Boolean;
+extern var const Number;
+extern var const Block;
+extern var const Data;
+extern var const Array;
+extern var const String;
+extern var const Dictionary;
+extern var const null;
+extern var const yes;
+extern var const no;
 
-#define MLObjectStructure(variable) (*(struct MLObject*)(variable.pointer))
-#define MLClassStructure(variable) (*(struct MLClass*)(variable.pointer))
-#define MLDataStructure(variable) (*(struct MLData*)(variable.pointer))
-#define MLArrayStructure(variable) (*(struct MLArray*)(variable.pointer))
-#define MLStringStructure(variable) (*(struct MLString*)(variable.pointer))
-#define MLDictionaryStructure(variable) (*(struct MLDictionary*)(variable.pointer))
-#define MLPoolStructure(variable) (*(struct MLPool*)(variable.pointer))
+var BooleanMake(long boolean);
+var NumberMake(double number);
+var BlockMake(void* code);
+var DataMake(long count, const void* bytes);
+var ArrayMake(long count, ...);
+var StringMake(long length, const char* characters);
+var DictionaryMake(long count, ...);
 
-#define MLVariableSize sizeof(struct MLVariable)
-#define MLObjectSize sizeof(struct MLObject)
-#define MLClassSize sizeof(struct MLClass)
-#define MLDataSize sizeof(struct MLData)
-#define MLArraySize sizeof(struct MLArray)
-#define MLStringSize sizeof(struct MLString)
-#define MLDictionarySize sizeof(struct MLDictionary)
-#define MLPoolSize sizeof(struct MLPool)
+integer IntegerFrom(var number);
+natural NaturalFrom(var number);
+decimal DecimalFrom(var number);
 
-#define MLLoadWithPriority(priority) __attribute__((constructor(priority))) void
-#define MLLoad MLLoadWithPriority(1000000)
+void* CollectBlockPush();
+void* CollectBlockPop(void* collectBlock);
+void* TryCatchBlockPush();
+void* TryCatchBlockPop(void* tryCatchBlock);
+void* TryCatchBlockTry(void* tryCatchBlock);
+var TryCatchBlockCatch(void* tryCatchBlock);
 
-#define MLSend(self, command, ...) MLDispatch(null, self, IS(command), IA(__VA_ARGS__))
-#define MLSuper(command, ...) MLDispatch(MLClassStructure(context).superclass, self, IS(command), IA(__VA_ARGS__))
+var retain(var object);
+var release(var object);
+var preserve(var object);
+var autorelease(var object);
 
-#define when(expression) if (MLIsObjectTruthy(expression))
-#define unless(expression) if (!MLIsObjectTruthy(expression))
-
-#define each(object, index, array) for (var object = null, index = N(0), _count = MLCount(array); index.payload.decimal < _count.payload.decimal && (object = MLAt(array, index)).pointer != MLReference; index.payload.decimal += 1)
-#define every(key, value, dictionary) // TODO: define.
-
-#define whilst(expression) while (MLIsObjectTruthy(expression))
-#define until(expression) while (!MLIsObjectTruthy(expression))
-
-#define collect for (var pool = MLNew(MLPool); MLIsObjectTruthy(pool); pool = MLDrain(pool))
-#define try for (MLTryCatchBlockStackPush(); !setjmp(MLTryCatchBlockStackTop()->destination); MLTryCatchBlockStackPop())
-#define catch else for (var exception = MLTryCatchBlockStackPop()->exception, executed = no; !MLBoolFrom(executed); executed = yes)
-#define throw(exception) MLThrow(exception, __FILE__, __LINE__, __FUNCTION__)
-
-typedef double MLDecimal;
-typedef long long MLInteger;
-typedef unsigned long long MLNatural;
-typedef bool MLBool;
-typedef unsigned char MLByte;
-typedef void* MLPointer;
-
-typedef union MLPayload MLPayload;
-typedef struct MLVariable MLVariable;
-typedef MLVariable var;
-
-typedef var (*MLCode)(var context, var self, var command, var arguments);
-
-union MLPayload {
-    MLBool boolean;
-    MLDecimal decimal;
-    MLNatural natural;
-    MLCode code;
-    MLPointer pointer;
-};
-
-struct MLVariable {
-    MLPointer pointer;
-    MLPayload payload;
-};
-
-struct MLObject {
-    struct MLClass* class;
-    MLInteger retainCount;
-};
-
-struct MLClass {
-    struct MLClass* class;
-    MLInteger retainCount;
-    var name;
-    var superclass;
-    var subclasses;
-    var methods;
-};
-
-struct MLData {
-    struct MLClass* class;
-    MLInteger retainCount;
-    MLNatural capacity;
-    MLNatural count;
-    MLByte* bytes;
-};
-
-struct MLArray {
-    struct MLClass* class;
-    MLInteger retainCount;
-    MLNatural capacity;
-    MLNatural count;
-    var* objects;
-};
-
-struct MLString {
-    struct MLClass* class;
-    MLInteger retainCount;
-    MLNatural capacity;
-    MLNatural length;
-    char* characters;
-};
-
-struct MLDictionary {
-    struct MLClass* class;
-    MLInteger retainCount;
-    MLNatural mask;
-    MLNatural count;
-    var* entries;
-};
-
-struct MLPool {
-    struct MLClass* class;
-    MLInteger retainCount;
-    var previousPool;
-    var objects;
-};
-
-struct MLTryCatchBlock {
-    bool executed;
-    jmp_buf destination;
-    var exception;
-};
-
-extern const var MLObject;
-extern const var MLNull;
-extern const var MLBlock;
-extern const var MLBoolean;
-extern const var MLNumber;
-extern const var MLWord;
-extern const var MLDate;
-extern const var MLData;
-extern const var MLArray;
-extern const var MLString;
-extern const var MLDictionary;
-extern const var MLInlineData;
-extern const var MLInlineArray;
-extern const var MLInlineString;
-extern const var MLInlineDictionary;
-extern const var MLMutableData;
-extern const var MLMutableArray;
-extern const var MLMutableString;
-extern const var MLMutableDictionary;
-extern const var MLPool;
-
-extern const var null;
-extern const var yes;
-extern const var no;
-
-var MLReference(MLPointer pointer);
-
-MLBool MLIsObjectNull(var object);
-MLBool MLIsObjectTruthy(var object);
-
-MLBool MLBoolFrom(var boolean);
-MLInteger MLIntegerFrom(var number);
-MLDecimal MLDecimalFrom(var number);
-MLNatural MLNaturalFrom(var number);
-
-struct MLTryCatchBlock* MLTryCatchBlockStackPush();
-struct MLTryCatchBlock* MLTryCatchBlockStackTop();
-struct MLTryCatchBlock* MLTryCatchBlockStackPop();
-
-var MLBlockMake(MLCode code);
-var MLBooleanMake(MLBool boolean);
-var MLNumberMake(MLDecimal value);
-var MLWordMake(MLNatural value);
-var MLDateMake(MLDecimal seconds);
-var MLDataMake(struct MLData* data, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, MLByte* bytes);
-var MLArrayMake(struct MLArray* array, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, var* objects);
-var MLStringMake(struct MLString* string, var class, MLInteger retainCount, MLInteger capacity, MLInteger count, char* characters);
-var MLDictionaryMake(struct MLDictionary* dictionary, var class, MLInteger retainCount, MLInteger mask, MLInteger count, var* entries);
-var MLPoolMake(struct MLPool* pool, var class, MLInteger retainCount, var previousPool, var objects);
-
-var MLRequire(const char* name);
-var MLModule(const char* name);
-var MLImport(var module, const char* name);
-var MLExport(var module, const char* name, MLCode code);
-var MLDefine(const char* name, var superclass);
-var MLMethod(var class, const char* command, MLCode code);
-
-const char* MLInspect(var object);
-var MLThrow(var exception, const char* fileName, int lineNumber, const char* functionName);
-var MLLookup(var class, var command, var* foundInClass);
-var MLDispatch(var context, var self, var command, var arguments);
+var import(const char* name);
+var export(const char* name, void* code);
+void* lookup(var self, var command, natural level);
+void throw(var exception);
 
 #endif
