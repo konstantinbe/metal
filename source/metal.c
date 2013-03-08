@@ -62,7 +62,7 @@
 #define array(pointer) (*((struct Array*)pointer))
 #define string(pointer) (*((struct String*)pointer))
 #define dictionary(pointer) (*((struct Dictionary*)pointer))
-#define bootstrap static void __attribute__((constructor(128))) Bootstrap()
+#define bootstrap __attribute__((constructor(128)))
 
 
 // ----------------------------------------------------------- Structures ------
@@ -1413,7 +1413,6 @@ void throw(var exception) {
 // -------------------------------------------------------- Bootstrapping ------
 
 
-bootstrap {
     Init(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
 
     ObjectBehavior.owner = &ObjectState;
@@ -1582,6 +1581,7 @@ bootstrap {
     InvalidArgumentException = preserve(String("InvalidArgumentException"));
     CommandNotAllowedException = preserve(String("CommandNotAllowedException"));
     InternalInconsistencyException = preserve(String("InternalInconsistencyException"));
+bootstrap static void Metal() {
 }
 
 
