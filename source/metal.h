@@ -47,12 +47,12 @@
 #define option(name, initial) ({ va_list list; va_start(list, options); var key = options; var value; while (key != zero && key != (name)) { value = va_arg(list, var); key = va_arg(list, var); } va_end(list); key ? value : (initial); });
 
 #define Boolean(boolean) ((boolean) ? yes : no)
-#define Number(number) NumberMake((decimal)(number))
-#define Block(code) BlockMake((void*)(code))
-#define Data(data) DataMake(sizeof(data), (void*)(data))
-#define Array(...) ArrayMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__)
-#define String(string) StringMake(sizeof(string), (string))
-#define Dictionary(...) DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__)
+#define Number(number) autorelease(NumberMake((decimal)(number)))
+#define Block(code) autorelease(BlockMake((void*)(code)))
+#define Data(data) autorelease(DataMake(sizeof(data), (void*)(data)))
+#define Array(...) autorelease(ArrayMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__))
+#define String(string) autorelease(StringMake(sizeof(string), (string)))
+#define Dictionary(...) autorelease(DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__))
 
 #define INTEGER_MAX LONG_MAX
 #define INTEGER_MIN LONG_MIN
