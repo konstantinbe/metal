@@ -1313,12 +1313,24 @@ var retain(var object) {
 
 
 var release(var object) {
-    object(object).retainCount -= 1;
-    if (object(object).retainCount <= 0) {
-        if (object(object).retainCount < 0) fprintf(stderr, "[WARNING] Released an object with retain count 0, retain/release calls seem to be unbalanced, destroying anyway ...\n");
-        object = send(object, "destroy");
+    const integer retainCount = object(object).retainCount;
+
+    if (retainCount >= RETAIN_COUNT_MAX) {
+        return object;
     }
-    return object;
+
+    if (retainCount >= 2) {
+        object(object).retainCount -= 1;
+        return object;
+    }
+
+    if (retainCount == 1) {
+        object(object).retainCount = 0;
+        return send(object, "destroy");
+    }
+
+    fprintf(stderr, "[WARNING] Released an object with retain count 0, retain/release calls seem to be unbalanced, aborting ...\n");
+    return null;
 }
 
 
