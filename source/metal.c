@@ -1175,24 +1175,22 @@ var StringMake(long length, const char* characters) {
 
     const natural hash = Digest(length, characters);
     const bool couldBeCommandOrKey = length <= MAX_KEY_AND_COMMAND_LENGTH;
-    struct String* string = ZERO;
 
     if (couldBeCommandOrKey) {
         struct String proxy = {&StringBehavior, RETAIN_COUNT_MAX, -1, length, hash, (char*)characters};
-        string = Get(&StringTable, &proxy, ComputeHashOfString, CheckIfStringsAreEqual);
+        struct String* string = Get(&StringTable, &proxy, ComputeHashOfString, CheckIfStringsAreEqual);
+        if (string != ZERO) return retain(string);
     }
 
-    if (string == ZERO) {
-        string = calloc(1, sizeof(struct String));
-        string->behavior = &StringBehavior;
-        string->retainCount = 1;
-        string->capacity = -1;
-        string->length = length;
-        string->hash = hash;
-        string->characters = calloc(length + 1, sizeof(char));
-        strncpy(string->characters, characters, length);
-        if (couldBeCommandOrKey) Put(&StringTable, string, string, ComputeHashOfString, CheckIfStringsAreEqual);
-    }
+    struct String* string = calloc(1, sizeof(struct String));
+    string->behavior = &StringBehavior;
+    string->retainCount = 1;
+    string->capacity = -1;
+    string->length = length;
+    string->hash = hash;
+    string->characters = calloc(length + 1, sizeof(char));
+    strncpy(string->characters, characters, length);
+    if (couldBeCommandOrKey) Put(&StringTable, string, string, ComputeHashOfString, CheckIfStringsAreEqual);
 
     return string;
 }
