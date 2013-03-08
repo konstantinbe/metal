@@ -70,6 +70,7 @@ static void AssertNotIdentical(var subject, var actual, const char* message);
 static void TestObjectCreate() {
     var object = send(Object, "create");
     AssertNotNull(object, "Object create returns a newly created object");
+    release(object);
 }
 
 
@@ -83,6 +84,7 @@ static void TestObjectInit() {
     var object1 = send(Object, "create");
     var object2 = send(object1, "init");
     AssertIdentical(object1, object2, "Object init does nothing and returns the object");
+    release(object1);
 }
 
 
