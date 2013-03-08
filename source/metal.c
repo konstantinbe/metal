@@ -1341,6 +1341,7 @@ var preserve(var object) {
 
 
 var autorelease(var object) {
+    if (object(object).retainCount >= RETAIN_COUNT_MAX) return object;
     if (CollectBlockTop == ZERO) {
         fprintf(stderr, "[WARNING] No collect block found, leaking ...\n");
         return object;
