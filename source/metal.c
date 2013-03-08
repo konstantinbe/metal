@@ -1426,175 +1426,178 @@ void throw(var exception) {
 // -------------------------------------------------------- Bootstrapping ------
 
 
-    Init(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
-
-    ObjectBehavior.owner = &ObjectState;
-    BooleanBehavior.owner = &BooleanState;
-    NumberBehavior.owner = &NumberState;
-    BlockBehavior.owner = &BlockState;
-    DataBehavior.owner = &DataState;
-    ArrayBehavior.owner = &ArrayState;
-    StringBehavior.owner = &StringState;
-    DictionaryBehavior.owner = &DictionaryState;
-    NullBehavior.owner = &NullState;
-
-    ObjectBehavior.parent = null;
-    BooleanBehavior.parent = &ObjectState;
-    NumberBehavior.parent = &ObjectState;
-    BlockBehavior.parent = &ObjectState;
-    DataBehavior.parent = &ObjectState;
-    ArrayBehavior.parent = &ObjectState;
-    StringBehavior.parent = &ObjectState;
-    DictionaryBehavior.parent = &ObjectState;
-    NullBehavior.parent = &ObjectState;
-
-    Init(&ObjectBehavior.cache, CACHE_DEFAULT_CAPACITY);
-    Init(&BooleanBehavior.cache, CACHE_DEFAULT_CAPACITY);
-    Init(&NumberBehavior.cache, CACHE_DEFAULT_CAPACITY);
-    Init(&BlockBehavior.cache, CACHE_DEFAULT_CAPACITY);
-    Init(&DataBehavior.cache, CACHE_DEFAULT_CAPACITY);
-    Init(&ArrayBehavior.cache, CACHE_DEFAULT_CAPACITY);
-    Init(&StringBehavior.cache, CACHE_DEFAULT_CAPACITY);
-    Init(&DictionaryBehavior.cache, CACHE_DEFAULT_CAPACITY);
-    Init(&NullBehavior.cache, CACHE_DEFAULT_CAPACITY);
-
-    Init(&ObjectBehavior.methods, 32);
-    Init(&BooleanBehavior.methods, 32);
-    Init(&NumberBehavior.methods, 32);
-    Init(&BlockBehavior.methods, 32);
-    Init(&DataBehavior.methods, 32);
-    Init(&ArrayBehavior.methods, 32);
-    Init(&StringBehavior.methods, 32);
-    Init(&DictionaryBehavior.methods, 32);
-    Init(&NullBehavior.methods, 32);
-
-    ObjectAddMethodBlock(Object, zero, String("create"), Block(ObjectCreate), zero);
-    ObjectAddMethodBlock(Object, zero, String("destroy"), Block(ObjectDestroy), zero);
-    ObjectAddMethodBlock(Object, zero, String("init"), Block(ObjectInit), zero);
-    ObjectAddMethodBlock(Object, zero, String("new"), Block(ObjectNew), zero);
-    ObjectAddMethodBlock(Object, zero, String("is-kind-of*"), Block(ObjectIsKindOf), zero);
-    ObjectAddMethodBlock(Object, zero, String("is-mutable"), Block(ObjectIsMutable), zero);
-    ObjectAddMethodBlock(Object, zero, String("responds-to*"), Block(ObjectRespondsTo), zero);
-    ObjectAddMethodBlock(Object, zero, String("description"), Block(ObjectDescription), zero);
-    ObjectAddMethodBlock(Object, zero, String("hash"), Block(ObjectHash), zero);
-    ObjectAddMethodBlock(Object, zero, String("equals*"), Block(ObjectEquals), zero);
-    ObjectAddMethodBlock(Object, zero, String("compare*"), Block(ObjectCompare), zero);
-    ObjectAddMethodBlock(Object, zero, String("copy"), Block(ObjectCopy), zero);
-    ObjectAddMethodBlock(Object, zero, String("add-method*block*"), Block(ObjectAddMethodBlock), zero);
-    ObjectAddMethodBlock(Object, zero, String("remove-method*"), Block(ObjectRemoveMethod), zero);
-    ObjectAddMethodBlock(Object, zero, String("proto"), Block(ObjectProto), zero);
-    ObjectAddMethodBlock(Object, zero, String("set-proto*"), Block(ObjectSetProto), zero);
-
-    ObjectAddMethodBlock(Boolean, zero, String("create"), Block(BooleanCreate), zero);
-    ObjectAddMethodBlock(Boolean, zero, String("destroy"), Block(BooleanDestroy), zero);
-    ObjectAddMethodBlock(Boolean, zero, String("init"), Block(BooleanInit), zero);
-    ObjectAddMethodBlock(Boolean, zero, String("description"), Block(BooleanDescription), zero);
-    ObjectAddMethodBlock(Boolean, zero, String("is-mutable"), Block(BooleanIsMutable), zero);
-    ObjectAddMethodBlock(Boolean, zero, String("equals*"), Block(BooleanEquals), zero);
-    ObjectAddMethodBlock(Boolean, zero, String("compare*"), Block(BooleanCompare), zero);
-    ObjectAddMethodBlock(Boolean, zero, String("copy"), Block(BooleanCopy), zero);
-
-    ObjectAddMethodBlock(Number, zero, String("create"), Block(NumberCreate), zero);
-    ObjectAddMethodBlock(Number, zero, String("is-mutable"), Block(NumberIsMutable), zero);
-    ObjectAddMethodBlock(Number, zero, String("description"), Block(NumberDescription), zero);
-    ObjectAddMethodBlock(Number, zero, String("hash"), Block(NumberHash), zero);
-    ObjectAddMethodBlock(Number, zero, String("equals*"), Block(NumberEquals), zero);
-    ObjectAddMethodBlock(Number, zero, String("compare*"), Block(NumberCompare), zero);
-    ObjectAddMethodBlock(Number, zero, String("copy"), Block(NumberCopy), zero);
-
-    ObjectAddMethodBlock(Block, zero, String("create"), Block(BlockCreate), zero);
-    ObjectAddMethodBlock(Block, zero, String("is-mutable"), Block(BlockIsMutable), zero);
-    ObjectAddMethodBlock(Block, zero, String("description"), Block(BlockDescription), zero);
-
-    ObjectAddMethodBlock(Data, zero, String("create"), Block(DataCreate), zero);
-    ObjectAddMethodBlock(Data, zero, String("destroy"), Block(DataDestroy), zero);
-    ObjectAddMethodBlock(Data, zero, String("init"), Block(DataInit), zero);
-    ObjectAddMethodBlock(Data, zero, String("init-with-capacity*"), Block(DataInitWithCapacity), zero);
-    ObjectAddMethodBlock(Data, zero, String("is-mutable"), Block(DataIsMutable), zero);
-    ObjectAddMethodBlock(Data, zero, String("description"), Block(DataDescription), zero);
-    ObjectAddMethodBlock(Data, zero, String("hash"), Block(DataHash), zero);
-    ObjectAddMethodBlock(Data, zero, String("equals*"), Block(DataEquals), zero);
-    ObjectAddMethodBlock(Data, zero, String("copy"), Block(DataCopy), zero);
-    ObjectAddMethodBlock(Data, zero, String("at*count*"), Block(DataAtCount), zero);
-    ObjectAddMethodBlock(Data, zero, String("replace-at*count*with*"), Block(DataReplaceAtCountWith), zero);
-    ObjectAddMethodBlock(Data, zero, String("count"), Block(DataCount), zero);
-
-    ObjectAddMethodBlock(Array, zero, String("create"), Block(ArrayCreate), zero);
-    ObjectAddMethodBlock(Array, zero, String("destroy"), Block(ArrayDestroy), zero);
-    ObjectAddMethodBlock(Array, zero, String("init"), Block(ArrayInit), zero);
-    ObjectAddMethodBlock(Array, zero, String("init-with-capacity*"), Block(ArrayInitWithCapacity), zero);
-    ObjectAddMethodBlock(Array, zero, String("is-mutable"), Block(ArrayIsMutable), zero);
-    ObjectAddMethodBlock(Array, zero, String("description"), Block(ArrayDescription), zero);
-    ObjectAddMethodBlock(Array, zero, String("hash"), Block(ArrayHash), zero);
-    ObjectAddMethodBlock(Array, zero, String("equals*"), Block(ArrayEquals), zero);
-    ObjectAddMethodBlock(Array, zero, String("copy"), Block(ArrayCopy), zero);
-    ObjectAddMethodBlock(Array, zero, String("at*"), Block(ArrayAt), zero);
-    ObjectAddMethodBlock(Array, zero, String("count"), Block(ArrayCount), zero);
-    ObjectAddMethodBlock(Array, zero, String("replace-at*count*with*"), Block(ArrayReplaceAtCountWith), zero);
-
-    ObjectAddMethodBlock(String, zero, String("create"), Block(StringCreate), zero);
-    ObjectAddMethodBlock(String, zero, String("destroy"), Block(StringDestroy), zero);
-    ObjectAddMethodBlock(String, zero, String("init"), Block(StringInit), zero);
-    ObjectAddMethodBlock(String, zero, String("init-with-capacity*"), Block(StringInitWithCapacity), zero);
-    ObjectAddMethodBlock(String, zero, String("is-mutable"), Block(StringIsMutable), zero);
-    ObjectAddMethodBlock(String, zero, String("description"), Block(StringDescription), zero);
-    ObjectAddMethodBlock(String, zero, String("hash"), Block(StringHash), zero);
-    ObjectAddMethodBlock(String, zero, String("equals*"), Block(StringEquals), zero);
-    ObjectAddMethodBlock(String, zero, String("compare*"), Block(StringCompare), zero);
-    ObjectAddMethodBlock(String, zero, String("copy"), Block(StringCopy), zero);
-    ObjectAddMethodBlock(String, zero, String("at*count*"), Block(StringAtCount), zero);
-    ObjectAddMethodBlock(String, zero, String("length"), Block(StringLength), zero);
-    ObjectAddMethodBlock(String, zero, String("replace-at*count*with*"), Block(StringReplaceAtCountWith), zero);
-
-    ObjectAddMethodBlock(Dictionary, zero, String("create"), Block(DictionaryCreate), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("destroy"), Block(DictionaryDestroy), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("init"), Block(DictionaryInit), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("init-with-capacity*"), Block(DictionaryInitWithCapacity), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("is-mutable"), Block(DictionaryIsMutable), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("description"), Block(DictionaryDescription), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("hash"), Block(DictionaryHash), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("equals*"), Block(DictionaryEquals), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("copy"), Block(DictionaryCopy), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("get*"), Block(DictionaryGet), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("set*to*"), Block(DictionarySetTo), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("remove*"), Block(DictionaryRemove), zero);
-    ObjectAddMethodBlock(Dictionary, zero, String("count"), Block(DictionaryCount), zero);
-
-    ObjectAddMethodBlock(null, zero, String("create"), Block(NullCreate), zero);
-    ObjectAddMethodBlock(null, zero, String("destroy"), Block(NullDestroy), zero);
-    ObjectAddMethodBlock(null, zero, String("init"), Block(NullInit), zero);
-    ObjectAddMethodBlock(null, zero, String("description"), Block(NullDescription), zero);
-    ObjectAddMethodBlock(null, zero, String("is-mutable"), Block(NullIsMutable), zero);
-    ObjectAddMethodBlock(null, zero, String("equals*"), Block(NullEquals), zero);
-    ObjectAddMethodBlock(null, zero, String("copy"), Block(NullCopy), zero);
-
-    Init(&ObjectBehavior.children, 64);
-    Init(&BooleanBehavior.children, 1);
-    Init(&NumberBehavior.children, 1);
-    Init(&BlockBehavior.children, 1);
-    Init(&DataBehavior.children, 1);
-    Init(&ArrayBehavior.children, 1);
-    Init(&StringBehavior.children, 1);
-    Init(&DictionaryBehavior.children, 1);
-    Init(&NullBehavior.children, 1);
-
-    Put(&ObjectBehavior.children, Boolean, yes, ZERO, ZERO);
-    Put(&ObjectBehavior.children, Number, yes, ZERO, ZERO);
-    Put(&ObjectBehavior.children, Block, yes, ZERO, ZERO);
-    Put(&ObjectBehavior.children, Data, yes, ZERO, ZERO);
-    Put(&ObjectBehavior.children, Array, yes, ZERO, ZERO);
-    Put(&ObjectBehavior.children, String, yes, ZERO, ZERO);
-    Put(&ObjectBehavior.children, Dictionary, yes, ZERO, ZERO);
-    Put(&ObjectBehavior.children, null, yes, ZERO, ZERO);
-
-    // TODO: implement.
-
-    GenericException = preserve(String("GenericException"));
-    OutOfBoundsException = preserve(String("OutOfBoundsException"));
-    InvalidArgumentException = preserve(String("InvalidArgumentException"));
-    CommandNotAllowedException = preserve(String("CommandNotAllowedException"));
-    InternalInconsistencyException = preserve(String("InternalInconsistencyException"));
 bootstrap static void Metal() {
+    collect {
+        Init(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
+
+        ObjectBehavior.owner = &ObjectState;
+        BooleanBehavior.owner = &BooleanState;
+        NumberBehavior.owner = &NumberState;
+        BlockBehavior.owner = &BlockState;
+        DataBehavior.owner = &DataState;
+        ArrayBehavior.owner = &ArrayState;
+        StringBehavior.owner = &StringState;
+        DictionaryBehavior.owner = &DictionaryState;
+        NullBehavior.owner = &NullState;
+
+        ObjectBehavior.parent = null;
+        BooleanBehavior.parent = &ObjectState;
+        NumberBehavior.parent = &ObjectState;
+        BlockBehavior.parent = &ObjectState;
+        DataBehavior.parent = &ObjectState;
+        ArrayBehavior.parent = &ObjectState;
+        StringBehavior.parent = &ObjectState;
+        DictionaryBehavior.parent = &ObjectState;
+        NullBehavior.parent = &ObjectState;
+
+
+        Init(&ObjectBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        Init(&BooleanBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        Init(&NumberBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        Init(&BlockBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        Init(&DataBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        Init(&ArrayBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        Init(&StringBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        Init(&DictionaryBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        Init(&NullBehavior.cache, CACHE_DEFAULT_CAPACITY);
+
+        Init(&ObjectBehavior.methods, 32);
+        Init(&BooleanBehavior.methods, 32);
+        Init(&NumberBehavior.methods, 32);
+        Init(&BlockBehavior.methods, 32);
+        Init(&DataBehavior.methods, 32);
+        Init(&ArrayBehavior.methods, 32);
+        Init(&StringBehavior.methods, 32);
+        Init(&DictionaryBehavior.methods, 32);
+        Init(&NullBehavior.methods, 32);
+
+        ObjectAddMethodBlock(Object, zero, String("create"), Block(ObjectCreate), zero);
+        ObjectAddMethodBlock(Object, zero, String("destroy"), Block(ObjectDestroy), zero);
+        ObjectAddMethodBlock(Object, zero, String("init"), Block(ObjectInit), zero);
+        ObjectAddMethodBlock(Object, zero, String("new"), Block(ObjectNew), zero);
+        ObjectAddMethodBlock(Object, zero, String("is-kind-of*"), Block(ObjectIsKindOf), zero);
+        ObjectAddMethodBlock(Object, zero, String("is-mutable"), Block(ObjectIsMutable), zero);
+        ObjectAddMethodBlock(Object, zero, String("responds-to*"), Block(ObjectRespondsTo), zero);
+        ObjectAddMethodBlock(Object, zero, String("description"), Block(ObjectDescription), zero);
+        ObjectAddMethodBlock(Object, zero, String("hash"), Block(ObjectHash), zero);
+        ObjectAddMethodBlock(Object, zero, String("equals*"), Block(ObjectEquals), zero);
+        ObjectAddMethodBlock(Object, zero, String("compare*"), Block(ObjectCompare), zero);
+        ObjectAddMethodBlock(Object, zero, String("copy"), Block(ObjectCopy), zero);
+        ObjectAddMethodBlock(Object, zero, String("add-method*block*"), Block(ObjectAddMethodBlock), zero);
+        ObjectAddMethodBlock(Object, zero, String("remove-method*"), Block(ObjectRemoveMethod), zero);
+        ObjectAddMethodBlock(Object, zero, String("proto"), Block(ObjectProto), zero);
+        ObjectAddMethodBlock(Object, zero, String("set-proto*"), Block(ObjectSetProto), zero);
+
+        ObjectAddMethodBlock(Boolean, zero, String("create"), Block(BooleanCreate), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("destroy"), Block(BooleanDestroy), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("init"), Block(BooleanInit), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("description"), Block(BooleanDescription), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("is-mutable"), Block(BooleanIsMutable), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("equals*"), Block(BooleanEquals), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("compare*"), Block(BooleanCompare), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("copy"), Block(BooleanCopy), zero);
+
+        ObjectAddMethodBlock(Number, zero, String("create"), Block(NumberCreate), zero);
+        ObjectAddMethodBlock(Number, zero, String("is-mutable"), Block(NumberIsMutable), zero);
+        ObjectAddMethodBlock(Number, zero, String("description"), Block(NumberDescription), zero);
+        ObjectAddMethodBlock(Number, zero, String("hash"), Block(NumberHash), zero);
+        ObjectAddMethodBlock(Number, zero, String("equals*"), Block(NumberEquals), zero);
+        ObjectAddMethodBlock(Number, zero, String("compare*"), Block(NumberCompare), zero);
+        ObjectAddMethodBlock(Number, zero, String("copy"), Block(NumberCopy), zero);
+
+        ObjectAddMethodBlock(Block, zero, String("create"), Block(BlockCreate), zero);
+        ObjectAddMethodBlock(Block, zero, String("is-mutable"), Block(BlockIsMutable), zero);
+        ObjectAddMethodBlock(Block, zero, String("description"), Block(BlockDescription), zero);
+
+        ObjectAddMethodBlock(Data, zero, String("create"), Block(DataCreate), zero);
+        ObjectAddMethodBlock(Data, zero, String("destroy"), Block(DataDestroy), zero);
+        ObjectAddMethodBlock(Data, zero, String("init"), Block(DataInit), zero);
+        ObjectAddMethodBlock(Data, zero, String("init-with-capacity*"), Block(DataInitWithCapacity), zero);
+        ObjectAddMethodBlock(Data, zero, String("is-mutable"), Block(DataIsMutable), zero);
+        ObjectAddMethodBlock(Data, zero, String("description"), Block(DataDescription), zero);
+        ObjectAddMethodBlock(Data, zero, String("hash"), Block(DataHash), zero);
+        ObjectAddMethodBlock(Data, zero, String("equals*"), Block(DataEquals), zero);
+        ObjectAddMethodBlock(Data, zero, String("copy"), Block(DataCopy), zero);
+        ObjectAddMethodBlock(Data, zero, String("at*count*"), Block(DataAtCount), zero);
+        ObjectAddMethodBlock(Data, zero, String("replace-at*count*with*"), Block(DataReplaceAtCountWith), zero);
+        ObjectAddMethodBlock(Data, zero, String("count"), Block(DataCount), zero);
+
+        ObjectAddMethodBlock(Array, zero, String("create"), Block(ArrayCreate), zero);
+        ObjectAddMethodBlock(Array, zero, String("destroy"), Block(ArrayDestroy), zero);
+        ObjectAddMethodBlock(Array, zero, String("init"), Block(ArrayInit), zero);
+        ObjectAddMethodBlock(Array, zero, String("init-with-capacity*"), Block(ArrayInitWithCapacity), zero);
+        ObjectAddMethodBlock(Array, zero, String("is-mutable"), Block(ArrayIsMutable), zero);
+        ObjectAddMethodBlock(Array, zero, String("description"), Block(ArrayDescription), zero);
+        ObjectAddMethodBlock(Array, zero, String("hash"), Block(ArrayHash), zero);
+        ObjectAddMethodBlock(Array, zero, String("equals*"), Block(ArrayEquals), zero);
+        ObjectAddMethodBlock(Array, zero, String("copy"), Block(ArrayCopy), zero);
+        ObjectAddMethodBlock(Array, zero, String("at*"), Block(ArrayAt), zero);
+        ObjectAddMethodBlock(Array, zero, String("count"), Block(ArrayCount), zero);
+        ObjectAddMethodBlock(Array, zero, String("replace-at*count*with*"), Block(ArrayReplaceAtCountWith), zero);
+
+        ObjectAddMethodBlock(String, zero, String("create"), Block(StringCreate), zero);
+        ObjectAddMethodBlock(String, zero, String("destroy"), Block(StringDestroy), zero);
+        ObjectAddMethodBlock(String, zero, String("init"), Block(StringInit), zero);
+        ObjectAddMethodBlock(String, zero, String("init-with-capacity*"), Block(StringInitWithCapacity), zero);
+        ObjectAddMethodBlock(String, zero, String("is-mutable"), Block(StringIsMutable), zero);
+        ObjectAddMethodBlock(String, zero, String("description"), Block(StringDescription), zero);
+        ObjectAddMethodBlock(String, zero, String("hash"), Block(StringHash), zero);
+        ObjectAddMethodBlock(String, zero, String("equals*"), Block(StringEquals), zero);
+        ObjectAddMethodBlock(String, zero, String("compare*"), Block(StringCompare), zero);
+        ObjectAddMethodBlock(String, zero, String("copy"), Block(StringCopy), zero);
+        ObjectAddMethodBlock(String, zero, String("at*count*"), Block(StringAtCount), zero);
+        ObjectAddMethodBlock(String, zero, String("length"), Block(StringLength), zero);
+        ObjectAddMethodBlock(String, zero, String("replace-at*count*with*"), Block(StringReplaceAtCountWith), zero);
+
+        ObjectAddMethodBlock(Dictionary, zero, String("create"), Block(DictionaryCreate), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("destroy"), Block(DictionaryDestroy), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("init"), Block(DictionaryInit), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("init-with-capacity*"), Block(DictionaryInitWithCapacity), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("is-mutable"), Block(DictionaryIsMutable), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("description"), Block(DictionaryDescription), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("hash"), Block(DictionaryHash), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("equals*"), Block(DictionaryEquals), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("copy"), Block(DictionaryCopy), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("get*"), Block(DictionaryGet), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("set*to*"), Block(DictionarySetTo), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("remove*"), Block(DictionaryRemove), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("count"), Block(DictionaryCount), zero);
+
+        ObjectAddMethodBlock(null, zero, String("create"), Block(NullCreate), zero);
+        ObjectAddMethodBlock(null, zero, String("destroy"), Block(NullDestroy), zero);
+        ObjectAddMethodBlock(null, zero, String("init"), Block(NullInit), zero);
+        ObjectAddMethodBlock(null, zero, String("description"), Block(NullDescription), zero);
+        ObjectAddMethodBlock(null, zero, String("is-mutable"), Block(NullIsMutable), zero);
+        ObjectAddMethodBlock(null, zero, String("equals*"), Block(NullEquals), zero);
+        ObjectAddMethodBlock(null, zero, String("copy"), Block(NullCopy), zero);
+
+        Init(&ObjectBehavior.children, 64);
+        Init(&BooleanBehavior.children, 1);
+        Init(&NumberBehavior.children, 1);
+        Init(&BlockBehavior.children, 1);
+        Init(&DataBehavior.children, 1);
+        Init(&ArrayBehavior.children, 1);
+        Init(&StringBehavior.children, 1);
+        Init(&DictionaryBehavior.children, 1);
+        Init(&NullBehavior.children, 1);
+
+        Put(&ObjectBehavior.children, Boolean, yes, ZERO, ZERO);
+        Put(&ObjectBehavior.children, Number, yes, ZERO, ZERO);
+        Put(&ObjectBehavior.children, Block, yes, ZERO, ZERO);
+        Put(&ObjectBehavior.children, Data, yes, ZERO, ZERO);
+        Put(&ObjectBehavior.children, Array, yes, ZERO, ZERO);
+        Put(&ObjectBehavior.children, String, yes, ZERO, ZERO);
+        Put(&ObjectBehavior.children, Dictionary, yes, ZERO, ZERO);
+        Put(&ObjectBehavior.children, null, yes, ZERO, ZERO);
+
+        // TODO: implement.
+
+        GenericException = preserve(String("GenericException"));
+        OutOfBoundsException = preserve(String("OutOfBoundsException"));
+        InvalidArgumentException = preserve(String("InvalidArgumentException"));
+        CommandNotAllowedException = preserve(String("CommandNotAllowedException"));
+        InternalInconsistencyException = preserve(String("InternalInconsistencyException"));
+    }
 }
 
 
