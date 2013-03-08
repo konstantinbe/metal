@@ -154,7 +154,7 @@ task 'profile:summary' => [:prepare, 'profile:collect'] do
   end
 
   total_title = "Total"
-  total_fraction = (total_number_of_lines_covered / total_number_of_lines) * 100
+  total_fraction = if total_number_of_lines != 0 then (total_number_of_lines_covered / total_number_of_lines) * 100 else 0 end
   total_number_of_lines = total_number_of_lines.to_s
 
   color = :red
