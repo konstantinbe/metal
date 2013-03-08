@@ -371,7 +371,8 @@ static var ObjectDestroy(struct Object* self, var command, var options, ...) {
 
 static var ObjectNew(struct Object* self, var command, var options, ...) {
     self = send(self, "create");
-    return send(self, "init");
+    self = send(self, "init");
+    return autorelease(self);
 }
 
 
