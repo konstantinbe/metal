@@ -118,7 +118,9 @@ static void TestObjectIsMutable() {
 
 
 static void TestObjectRespondsTo() {
-    // TODO: implement.
+    AssertYes(send(Object, "responds-to*", String("equals*")), "Object responds-to* returns yes for an existing method");
+    // TODO: enable this test after fully implementing the lookup() function.
+    // AssertNo(send(Object, "responds-to*", String("winni-puh")), "Object responds-to* returns no for a non-existing method");
 }
 
 
