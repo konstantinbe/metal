@@ -125,7 +125,10 @@ static void TestObjectRespondsTo() {
 
 
 static void TestObjectDescription() {
-    // TODO: implement.
+    var object = send(Object, "new");
+    var number = Number(5);
+    AssertEqual(send(object, "description"), String("<Object XXX>"), "Object description returns 'Object XXX' for any direct instance of Object");
+    AssertNotEqual(send(number, "description"), String("<Object XXX>"), "Object description doesn't return 'Object XXX' if object isn't direct instance of Object");
 }
 
 
