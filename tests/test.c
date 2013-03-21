@@ -110,7 +110,10 @@ static void TestObjectIsKindOf() {
 
 
 static void TestObjectIsMutable() {
-    // TODO: implement.
+    var object = send(Object, "new");
+    var number = Number(5);
+    AssertYes(send(object, "is-mutable"), "Object is-mutable returns yes (all objects are mutable by default)");
+
 }
 
 
