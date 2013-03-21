@@ -404,7 +404,7 @@ static var ObjectRespondsTo(struct Object* self, var command, var commandToCheck
 
 static var ObjectDescription(struct Object* self, var command, var options, ...) {
     // TODO: put in the address of the object.
-    return autorelease(String("<Object XXX>"));
+    return String("<Object XXX>");
 }
 
 
@@ -522,9 +522,9 @@ static var BooleanEquals(struct Boolean* self, var command, var object, var opti
 
 static var BooleanCompare(struct Boolean* self, var command, var object, var options, ...) {
     if (object != yes && object != no) throw(InvalidArgumentException);
-    if (self == no && object == yes) return autorelease(Number(-1));
-    if (self == yes && object == no) return autorelease(Number(+1));
-    return autorelease(Number(0));
+    if (self == no && object == yes) return Number(-1);
+    if (self == yes && object == no) return Number(+1);
+    return Number(0);
 }
 
 
@@ -581,9 +581,9 @@ static var NumberEquals(struct Number* self, var command, var object, var option
 static var NumberCompare(struct Number* self, var command, var object, var options, ...) {
     const decimal number1 = DecimalFrom(self);
     const decimal number2 = DecimalFrom(object);
-    if (number1 < number2) return autorelease(Number(-1));
-    if (number1 > number2) return autorelease(Number(+1));
-    return autorelease(Number(0));
+    if (number1 < number2) return Number(-1);
+    if (number1 > number2) return Number(+1);
+    return Number(0);
 }
 
 
