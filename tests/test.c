@@ -95,7 +95,17 @@ static void TestObjectNew() {
 
 
 static void TestObjectIsKindOf() {
-    // TODO: implement.
+    var object = send(Object, "new");
+    var number = Number(5);
+    AssertYes(send(Object, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking Object whether it is a kind of itself");
+    AssertYes(send(object, "is-kind-of*", object), "Object is-kind-of* returns yes when asking an object whether it is a kind of itself");
+    AssertYes(send(Number, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking Number whether it is a kind of Object");
+    AssertYes(send(object, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking an object whether it is a kind of Object");
+    AssertYes(send(number, "is-kind-of*", Number), "Object is-kind-of* returns yes when asking a number whether it is a kind of Number");
+    AssertYes(send(number, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking a number whether it is a kind of Object");
+    AssertNo(send(Object, "is-kind-of*", object), "Object is-kind-of* returns no when asking Object whether it is a kind of an object");
+    AssertNo(send(object, "is-kind-of*", Number), "Object is-kind-of* returns no when asking an object whether it is a kind of Number");
+    AssertNo(send(number, "is-kind-of*", object), "Object is-kind-of* returns no when asking a number whether it is a kind of object");
 }
 
 
