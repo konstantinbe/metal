@@ -1,0 +1,12 @@
+language: c
+compiler:
+  - gcc
+  - clang
+branches:
+  only:
+    - master
+    - develop
+script: rake test
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq rake
