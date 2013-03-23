@@ -1,4 +1,4 @@
-# Metal
+# Metal [![Build Status](https://travis-ci.org/konstantinbe/metal.png)](https://travis-ci.org/konstantinbe/metal)
 
 Experimental prototype-based object model runtime in C99. Inspired by
 Objective-C, Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
