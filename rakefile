@@ -201,7 +201,8 @@ end
 
 task :test => [:prepare, 'build:tests'] do
   puts "Running #{WHITE_BRIGHT}Metal#{RESET} Tests ... "
-  run "cd build; ./test", :silent => true
+  code = run "cd build; ./test", :silent => true
+  exit code
 end
 
 task :debug => [:prepare] do
@@ -321,6 +322,7 @@ end
 def run(command, options = {})
   success = system command
   check success unless options[:silent]
+  success
 end
 
 def put(string)
