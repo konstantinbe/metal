@@ -133,7 +133,8 @@ static void TestObjectDescription() {
 
 
 static void TestObjectHash() {
-    // TODO: implement.
+    var object = send(Object, "new");
+    AssertEqual(send(object, "hash"), Number((natural)object), "Object hash returns its address as a number");
 }
 
 
