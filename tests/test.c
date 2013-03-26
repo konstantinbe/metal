@@ -151,7 +151,7 @@ static void TestObjectEquals() {
 
 
 static void TestObjectCompare() {
-    // TODO: implement.
+    AssertThrows("Some message") send(Object, "compare*", null);
 }
 
 
