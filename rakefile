@@ -70,10 +70,14 @@ $config = $configs["icc"] if ICC_INSTALLED
 $config = $configs['gcc'] if GCC_INSTALLED
 $config = $configs['clang'] if CLANG_INSTALLED
 
+$config = $configs["icc"] if ENV['CC'] == "icc"
+$config = $configs['gcc'] if ENV['CC'] == "gcc"
+$config = $configs['clang'] if ENV['CC'] == "clang"
+
 GDB_INSTALLED = `which gdb 2> /dev/null`.size > 0
 LLDB_INSTALLED = `which lldb 2> /dev/null`.size > 0
 
-$debugger = "gdb" if GCC_INSTALLED
+$debugger = "gdb" if GDB_INSTALLED
 $debugger = "lldb" if LLDB_INSTALLED
 
 # ---------------------------------------------------------- Custom Tasks ------
