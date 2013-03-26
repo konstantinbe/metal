@@ -28,6 +28,10 @@
 // --------------------------------------------------- Constants & Macros ------
 
 
+#define AssertThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNotNull(TryCatchBlockCatch(tryCatchBlock), message); true;}) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
+#define AssertNotThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNull(TryCatchBlockCatch(tryCatchBlock), message); true;}) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
+
+
 static const char* WHITE = "\x1B[0;97m";
 static const char* RED = "\x1B[0;31m";
 static const char* GREEN = "\x1B[0;32m";
