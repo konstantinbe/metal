@@ -156,7 +156,7 @@ static void TestObjectCompare() {
 
 
 static void TestObjectCopy() {
-    // TODO: implement.
+    AssertThrows("Object copy throws an exception by default, regular objects don't support copying") send(Object, "copy", null);
 }
 
 
