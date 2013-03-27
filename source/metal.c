@@ -881,8 +881,14 @@ static var StringEquals(struct String* self, var command, var object, var option
 
 
 static var StringCompare(struct String* self, var command, var object, var options, ...) {
-    // TODO: implement.
-    return null;
+    if (self == object) return yes;
+    if (send(object, "is-kind-of*", String) == no) return null;
+
+    struct String* string1 = self;
+    struct String* string2 = object;
+
+    const int result = strncmp(string1->characters, string2->characters, string1->length);
+    return autorelease(NumberMake(result));
 }
 
 
