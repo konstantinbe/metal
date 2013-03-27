@@ -521,7 +521,7 @@ static var BooleanEquals(struct Boolean* self, var command, var object, var opti
 
 
 static var BooleanCompare(struct Boolean* self, var command, var object, var options, ...) {
-    if (object != yes && object != no) throw(InvalidArgumentException);
+    if (object != yes && object != no) return null;
     if (self == no && object == yes) return Number(-1);
     if (self == yes && object == no) return Number(+1);
     return Number(0);
