@@ -151,7 +151,7 @@ static void TestObjectEquals() {
 
 
 static void TestObjectCompare() {
-    AssertThrows("Some message") send(Object, "compare*", null);
+    AssertThrows("Object compare* throws an exception by default, regular objects don't support comparing") send(Object, "compare*", null);
 }
 
 
