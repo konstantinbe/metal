@@ -706,7 +706,7 @@ static var DataReplaceAtCountWith(struct Data* self, var index, var count, var d
 
 
 static var DataCount(struct Data* self) {
-    return NumberMake(self->count);
+    return autorelease(NumberMake(self->count));
 }
 
 
@@ -801,7 +801,7 @@ static var ArrayAt(struct Array* self, var index) {
 
 
 static var ArrayCount(struct Array* self) {
-    return NumberMake(self->count);
+    return autorelease(NumberMake(self->count));
 }
 
 
@@ -900,7 +900,7 @@ static var StringAtCount(struct String* self, var index, var count) {
 
 
 static var StringLength(struct String* self) {
-    return NumberMake(self->length);
+    return autorelease(NumberMake(self->length));
 }
 
 
@@ -1063,7 +1063,7 @@ static var DictionaryRemove(struct Dictionary* self, var key) {
 
 
 static var DictionaryCount(struct Dictionary* self) {
-    return NumberMake(self->count);
+    return autorelease(NumberMake(self->count));
 }
 
 
