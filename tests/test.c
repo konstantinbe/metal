@@ -277,6 +277,36 @@ static void TestBoolean() {
 // --------------------------------------------------------- Number Tests ------
 
 
+static void TestNumberCreate() {
+    // TODO: implement.
+}
+
+
+static void TestNumberDestroy() {
+    // TODO: implement.
+}
+
+
+static void TestNumberInit() {
+    // TODO: implement.
+}
+
+
+static void TestNumberAsString() {
+    // TODO: implement.
+}
+
+
+static void TestNumberIsMutable() {
+    // TODO: implement.
+}
+
+
+static void TestNumberHash() {
+    // TODO: implement.
+}
+
+
 static void TestNumberEquals() {
     AssertYes(send(Number(1), "equals*", Number(1)), "Number equals* returns yes for same integer numbers");
     AssertNo(send(Number(1), "equals*", Number(2)), "Number equals* returns no for different numbers");
@@ -285,9 +315,25 @@ static void TestNumberEquals() {
 }
 
 
+static void TestNumberCompare() {
+    // TODO: implement.
+}
+
+
+static void TestNumberCopy() {
+    // TODO: implement.
+}
+
+
 static void TestNumber() {
+    TestNumberCreate();
+    TestNumberDestroy();
+    TestNumberInit();
+    TestNumberAsString();
+    TestNumberIsMutable();
     TestNumberEquals();
-    // TODO: add more tests.
+    TestNumberCompare();
+    TestNumberCopy();
 }
 
 
