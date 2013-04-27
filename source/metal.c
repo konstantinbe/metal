@@ -212,11 +212,24 @@ static struct TryCatchBlock* TryCatchBlockTop = ZERO;
 static struct Table StringTable = {0, 0, ZERO};
 
 
-var GenericException = ZERO;
-var OutOfBoundsException = ZERO;
-var InvalidArgumentException = ZERO;
-var CommandNotAllowedException = ZERO;
-var InternalInconsistencyException = ZERO;
+static struct String* ObjectName = ZERO;
+static struct String* BooleanName = ZERO;
+static struct String* NumberName = ZERO;
+static struct String* BlockName = ZERO;
+static struct String* DataName = ZERO;
+static struct String* ArrayName = ZERO;
+static struct String* StringName = ZERO;
+static struct String* DictionaryName = ZERO;
+static struct String* NullName = ZERO;
+
+static struct String* noAsString = ZERO;
+static struct String* yesAsString = ZERO;
+
+static struct String* GenericException = ZERO;
+static struct String* OutOfBoundsException = ZERO;
+static struct String* InvalidArgumentException = ZERO;
+static struct String* CommandNotAllowedException = ZERO;
+static struct String* InternalInconsistencyException = ZERO;
 
 
 // ---------------------------------------------------- Helper Functions -------
@@ -402,7 +415,8 @@ static var ObjectRespondsTo(struct Object* self, var command, var commandToCheck
 }
 
 
-static var ObjectDescription(struct Object* self, var command, var options, ...) {
+static var ObjectAsString(struct Object* self, var command, var options, ...) {
+    if (self == Object) return ObjectName;
     // TODO: put in the address of the object.
     return String("<Object XXX>");
 }
@@ -491,18 +505,10 @@ static var BooleanInit(struct Boolean* self, var command, var options, ...) {
 }
 
 
-static var BooleanDescription(struct Boolean* self, var command, var options, ...) {
-    static struct String* yesDescription = ZERO;
-    static struct String* noDescription = ZERO;
-
-    if (yesDescription == ZERO || noDescription == ZERO) {
-        yesDescription = preserve(String("yes"));
-        noDescription = preserve(String("no"));
-    }
-
-    if (self == yes) return yesDescription;
-    if (self == no) return noDescription;
-
+static var BooleanAsString(struct Boolean* self, var command, var options, ...) {
+    if (self == Boolean) return BooleanName;
+    if (self == yes) return yesAsString;
+    if (self == no) return noAsString;
     throw(InternalInconsistencyException);
     return null;
 }
@@ -513,14 +519,8 @@ static var BooleanIsMutable(struct Boolean* self, var command, var options, ...)
 }
 
 
-static var BooleanEquals(struct Boolean* self, var command, var object, var options, ...) {
-    if (self == yes && object == yes) return yes;
-    if (self == no && object == no) return yes;
-    return no;
-}
-
-
 static var BooleanCompare(struct Boolean* self, var command, var object, var options, ...) {
+    if (self == Boolean) return null;
     if (object != yes && object != no) return null;
     if (self == no && object == yes) return Number(-1);
     if (self == yes && object == no) return Number(+1);
@@ -529,7 +529,7 @@ static var BooleanCompare(struct Boolean* self, var command, var object, var opt
 
 
 static var BooleanCopy(struct Boolean* self, var command, var options, ...) {
-    return retain(self);
+    return self;
 }
 
 
@@ -550,7 +550,9 @@ static var NumberIsMutable(struct Number* self, var command, var options, ...) {
 }
 
 
-static var NumberDescription(struct Number* self, var command, var options, ...) {
+static var NumberAsString(struct Number* self, var command, var options, ...) {
+    if (self == Number) return NumberName;
+
     // TODO: tweak to not print trailing zeros.
     decimal integerPart = 0;
     decimal fractionalPart = modf(self->number, &integerPart);
@@ -609,13 +611,15 @@ static var BlockIsMutable(struct Block* self, var command, var options, ...) {
 }
 
 
-static var BlockDescription(struct Block* self, var command, var options, ...) {
-    static struct String* description = ZERO;
-    if (description == ZERO) {
+static var BlockAsString(struct Block* self, var command, var options, ...) {
+    if (self == Block) return BlockName;
+
+    static struct String* string = ZERO;
+    if (string == ZERO) {
         // TODO: put in the address of the block.
-        description = preserve(String("<Block XXX>"));
+        string = preserve(String("<Block XXX>"));
     }
-    return description;
+    return string;
 }
 
 
@@ -660,9 +664,11 @@ static var DataIsMutable(struct Data* self, var command, var options, ...) {
 }
 
 
-static var DataDescription(struct Data* self, var command, var options, ...) {
-    char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static var DataAsString(struct Data* self, var command, var options, ...) {
+    if (self == Data) return DataName;
+
     // TODO: implement Base64 encoding.
+    char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     return null;
 }
 
@@ -754,7 +760,8 @@ static var ArrayIsMutable(struct Array* self, var command, var options, ...) {
 }
 
 
-static var ArrayDescription(struct Array* self, var command, var options, ...) {
+static var ArrayAsString(struct Array* self, var command, var options, ...) {
+    if (self == Array) return ArrayName;
     // TODO: implement.
     return null;
 }
@@ -856,7 +863,8 @@ static var StringIsMutable(struct String* self, var command, var options, ...) {
 }
 
 
-static var StringDescription(struct String* self, var command, var options, ...) {
+static var StringAsString(struct String* self, var command, var options, ...) {
+    if (self == String) return StringName;
     return autorelease(send(self, "copy"));
 }
 
@@ -962,7 +970,8 @@ static var DictionaryIsMutable(struct Dictionary* self, var command, var options
 }
 
 
-static var DictionaryDescription(struct Dictionary* self, var command, var options, ...) {
+static var DictionaryAsString(struct Dictionary* self, var command, var options, ...) {
+    if (self == Dictionary) return DictionaryName;
     // TODO: implement.
     return null;
 }
@@ -1094,12 +1103,8 @@ static var NullInit(struct Object* self, var command, var options, ...) {
 }
 
 
-static var NullDescription(struct Object* self, var command, var options, ...) {
-    static struct String* nullDescription = ZERO;
-    if (nullDescription == ZERO) {
-        nullDescription = preserve(String("null"));
-    }
-    return nullDescription;
+static var NullAsString(struct Object* self, var command, var options, ...) {
+    return NullName;
 }
 
 
@@ -1485,7 +1490,7 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Object, zero, String("is-kind-of*"), Block(ObjectIsKindOf), zero);
         ObjectAddMethodBlock(Object, zero, String("is-mutable"), Block(ObjectIsMutable), zero);
         ObjectAddMethodBlock(Object, zero, String("responds-to*"), Block(ObjectRespondsTo), zero);
-        ObjectAddMethodBlock(Object, zero, String("description"), Block(ObjectDescription), zero);
+        ObjectAddMethodBlock(Object, zero, String("as-string"), Block(ObjectAsString), zero);
         ObjectAddMethodBlock(Object, zero, String("hash"), Block(ObjectHash), zero);
         ObjectAddMethodBlock(Object, zero, String("equals*"), Block(ObjectEquals), zero);
         ObjectAddMethodBlock(Object, zero, String("compare*"), Block(ObjectCompare), zero);
@@ -1498,15 +1503,14 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Boolean, zero, String("create"), Block(BooleanCreate), zero);
         ObjectAddMethodBlock(Boolean, zero, String("destroy"), Block(BooleanDestroy), zero);
         ObjectAddMethodBlock(Boolean, zero, String("init"), Block(BooleanInit), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("description"), Block(BooleanDescription), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("as-string"), Block(BooleanAsString), zero);
         ObjectAddMethodBlock(Boolean, zero, String("is-mutable"), Block(BooleanIsMutable), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("equals*"), Block(BooleanEquals), zero);
         ObjectAddMethodBlock(Boolean, zero, String("compare*"), Block(BooleanCompare), zero);
         ObjectAddMethodBlock(Boolean, zero, String("copy"), Block(BooleanCopy), zero);
 
         ObjectAddMethodBlock(Number, zero, String("create"), Block(NumberCreate), zero);
         ObjectAddMethodBlock(Number, zero, String("is-mutable"), Block(NumberIsMutable), zero);
-        ObjectAddMethodBlock(Number, zero, String("description"), Block(NumberDescription), zero);
+        ObjectAddMethodBlock(Number, zero, String("as-string"), Block(NumberAsString), zero);
         ObjectAddMethodBlock(Number, zero, String("hash"), Block(NumberHash), zero);
         ObjectAddMethodBlock(Number, zero, String("equals*"), Block(NumberEquals), zero);
         ObjectAddMethodBlock(Number, zero, String("compare*"), Block(NumberCompare), zero);
@@ -1514,14 +1518,14 @@ bootstrap static void Metal() {
 
         ObjectAddMethodBlock(Block, zero, String("create"), Block(BlockCreate), zero);
         ObjectAddMethodBlock(Block, zero, String("is-mutable"), Block(BlockIsMutable), zero);
-        ObjectAddMethodBlock(Block, zero, String("description"), Block(BlockDescription), zero);
+        ObjectAddMethodBlock(Block, zero, String("as-string"), Block(BlockAsString), zero);
 
         ObjectAddMethodBlock(Data, zero, String("create"), Block(DataCreate), zero);
         ObjectAddMethodBlock(Data, zero, String("destroy"), Block(DataDestroy), zero);
         ObjectAddMethodBlock(Data, zero, String("init"), Block(DataInit), zero);
         ObjectAddMethodBlock(Data, zero, String("init-with-capacity*"), Block(DataInitWithCapacity), zero);
         ObjectAddMethodBlock(Data, zero, String("is-mutable"), Block(DataIsMutable), zero);
-        ObjectAddMethodBlock(Data, zero, String("description"), Block(DataDescription), zero);
+        ObjectAddMethodBlock(Data, zero, String("as-string"), Block(DataAsString), zero);
         ObjectAddMethodBlock(Data, zero, String("hash"), Block(DataHash), zero);
         ObjectAddMethodBlock(Data, zero, String("equals*"), Block(DataEquals), zero);
         ObjectAddMethodBlock(Data, zero, String("copy"), Block(DataCopy), zero);
@@ -1534,7 +1538,7 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Array, zero, String("init"), Block(ArrayInit), zero);
         ObjectAddMethodBlock(Array, zero, String("init-with-capacity*"), Block(ArrayInitWithCapacity), zero);
         ObjectAddMethodBlock(Array, zero, String("is-mutable"), Block(ArrayIsMutable), zero);
-        ObjectAddMethodBlock(Array, zero, String("description"), Block(ArrayDescription), zero);
+        ObjectAddMethodBlock(Array, zero, String("as-string"), Block(ArrayAsString), zero);
         ObjectAddMethodBlock(Array, zero, String("hash"), Block(ArrayHash), zero);
         ObjectAddMethodBlock(Array, zero, String("equals*"), Block(ArrayEquals), zero);
         ObjectAddMethodBlock(Array, zero, String("copy"), Block(ArrayCopy), zero);
@@ -1547,7 +1551,7 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(String, zero, String("init"), Block(StringInit), zero);
         ObjectAddMethodBlock(String, zero, String("init-with-capacity*"), Block(StringInitWithCapacity), zero);
         ObjectAddMethodBlock(String, zero, String("is-mutable"), Block(StringIsMutable), zero);
-        ObjectAddMethodBlock(String, zero, String("description"), Block(StringDescription), zero);
+        ObjectAddMethodBlock(String, zero, String("as-string"), Block(StringAsString), zero);
         ObjectAddMethodBlock(String, zero, String("hash"), Block(StringHash), zero);
         ObjectAddMethodBlock(String, zero, String("equals*"), Block(StringEquals), zero);
         ObjectAddMethodBlock(String, zero, String("compare*"), Block(StringCompare), zero);
@@ -1561,7 +1565,7 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Dictionary, zero, String("init"), Block(DictionaryInit), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("init-with-capacity*"), Block(DictionaryInitWithCapacity), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("is-mutable"), Block(DictionaryIsMutable), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("description"), Block(DictionaryDescription), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("as-string"), Block(DictionaryAsString), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("hash"), Block(DictionaryHash), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("equals*"), Block(DictionaryEquals), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("copy"), Block(DictionaryCopy), zero);
@@ -1573,7 +1577,7 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(null, zero, String("create"), Block(NullCreate), zero);
         ObjectAddMethodBlock(null, zero, String("destroy"), Block(NullDestroy), zero);
         ObjectAddMethodBlock(null, zero, String("init"), Block(NullInit), zero);
-        ObjectAddMethodBlock(null, zero, String("description"), Block(NullDescription), zero);
+        ObjectAddMethodBlock(null, zero, String("as-string"), Block(NullAsString), zero);
         ObjectAddMethodBlock(null, zero, String("is-mutable"), Block(NullIsMutable), zero);
         ObjectAddMethodBlock(null, zero, String("equals*"), Block(NullEquals), zero);
         ObjectAddMethodBlock(null, zero, String("copy"), Block(NullCopy), zero);
@@ -1598,6 +1602,19 @@ bootstrap static void Metal() {
         Put(&ObjectBehavior.children, null, yes, ZERO, ZERO);
 
         // TODO: implement.
+
+        ObjectName = preserve(String("Object"));
+        BooleanName = preserve(String("Boolean"));
+        NumberName = preserve(String("Number"));
+        BlockName = preserve(String("Block"));
+        DataName = preserve(String("Data"));
+        ArrayName = preserve(String("Array"));
+        StringName = preserve(String("String"));
+        DictionaryName = preserve(String("Dictionary"));
+        NullName = preserve(String("Null"));
+
+        noAsString = preserve(String("no"));
+        yesAsString = preserve(String("yes"));
 
         GenericException = preserve(String("GenericException"));
         OutOfBoundsException = preserve(String("OutOfBoundsException"));

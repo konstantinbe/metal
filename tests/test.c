@@ -128,11 +128,10 @@ static void TestObjectRespondsTo() {
 }
 
 
-static void TestObjectDescription() {
+static void TestObjectAsString() {
     var object = send(Object, "new");
-    var number = Number(5);
-    AssertEqual(send(object, "description"), String("<Object XXX>"), "Object description returns 'Object XXX' for any direct instance of Object");
-    AssertNotEqual(send(number, "description"), String("<Object XXX>"), "Object description doesn't return 'Object XXX' if object isn't direct instance of Object");
+    AssertEqual(send(Object, "as-string"), String("Object"), "Object as-string returns 'Object' for Object");
+    AssertEqual(send(object, "as-string"), String("<Object XXX>"), "Object as-string returns '<Object XXX>' for any direct instance of Object");
 }
 
 
@@ -188,7 +187,7 @@ static void TestObject() {
     TestObjectIsKindOf();
     TestObjectIsMutable();
     TestObjectRespondsTo();
-    TestObjectDescription();
+    TestObjectAsString();
     TestObjectHash();
     TestObjectEquals();
     TestObjectCompare();
@@ -204,27 +203,31 @@ static void TestObject() {
 
 
 static void TestBooleanCreate() {
-    // TODO: implement.
+    AssertThrows("Boolean create throws an exception, creating booleans is not allowed") send(Boolean, "create");
 }
 
 
 static void TestBooleanDestroy() {
-    // TODO: implement.
+    AssertThrows("Boolean destroy throws an exception, destroying booleans is not allowed") send(Boolean, "destroy");
 }
 
 
 static void TestBooleanInit() {
-    // TODO: implement.
+    AssertThrows("Boolean init throws an exception, initializing booleans is not allowed") send(Boolean, "init");
 }
 
 
-static void TestBooleanDescription() {
-    // TODO: implement.
+static void TestBooleanAsString() {
+    AssertEqual(send(Boolean, "as-string"), String("Boolean"), "Boolean as-string returns 'Boolean' for Boolean");
+    AssertEqual(send(yes, "as-string"), String("yes"), "Boolean as-string returns 'yes' for yes");
+    AssertEqual(send(no, "as-string"), String("no"), "Boolean as-string returns 'no' for no");
 }
 
 
 static void TestBooleanIsMutable() {
-    // TODO: implement.
+    AssertNo(send(Boolean, "is-mutable"), "Boolean is-mutable returns no for Boolean itself");
+    AssertNo(send(yes, "is-mutable"), "Boolean is-mutable returns no for yes");
+    AssertNo(send(no, "is-mutable"), "Boolean is-mutable returns no for no");
 }
 
 
@@ -238,12 +241,24 @@ static void TestBooleanEquals() {
 
 
 static void TestBooleanCompare() {
-    // TODO: implement.
+    AssertEqual(send(no, "compare*", no), Number(0), "Boolean compare* returns 0 when comparing no to no");
+    AssertEqual(send(no, "compare*", yes), Number(-1), "Boolean compare* returns -1 when comparing no to yes");
+    AssertEqual(send(yes, "compare*", no), Number(+1), "Boolean compare* returns +1 when comparing yes to no");
+    AssertEqual(send(yes, "compare*", yes), Number(0), "Boolean compare* returns 0 when comparing yes to yes");
+    AssertNull(send(Boolean, "compare*", no), "Boolean compare* returns null when comparing Boolean to no");
+    AssertNull(send(Boolean, "compare*", yes), "Boolean compare* returns null when comparing Boolean to yes");
+    AssertNull(send(Boolean, "compare*", Number(0)), "Boolean compare* returns null when comparing Boolean to anything (here a number)");
+    AssertNull(send(no, "compare*", Boolean), "Boolean compare* returns null when comparing no to Boolean");
+    AssertNull(send(yes, "compare*", Boolean), "Boolean compare* returns null when comparing yes to Boolean");
+    AssertNull(send(no, "compare*", Number(0)), "Boolean compare* returns null when comparing no to anything (here a number)");
+    AssertNull(send(yes, "compare*", Number(0)), "Boolean compare* returns null when comparing yes to anything (here a number)");
 }
 
 
 static void TestBooleanCopy() {
-    // TODO: implement.
+    AssertIdentical(send(no, "copy"), no, "Boolean copy returns the exact same instance (here: no)");
+    AssertIdentical(send(yes, "copy"), yes, "Boolean copy returns the exact same instance (here: yes)");
+    AssertIdentical(send(Boolean, "copy"), Boolean, "Boolean copy returns the exact same instance (here: Boolean)");
 }
 
 
@@ -251,7 +266,7 @@ static void TestBoolean() {
     TestBooleanCreate();
     TestBooleanDestroy();
     TestBooleanInit();
-    TestBooleanDescription();
+    TestBooleanAsString();
     TestBooleanIsMutable();
     TestBooleanEquals();
     TestBooleanCompare();
@@ -285,7 +300,7 @@ static void TestBlockEquals() {
 
 
 static void TestBlock() {
-    // TODO: add more tests.
+    TestBlockEquals();
 }
 
 
@@ -380,6 +395,11 @@ static void TestDictionary() {
 
 
 // ----------------------------------------------------------- Null Tests ------
+
+
+static void TestNullCreate() {
+    AssertThrows("Null create throws an exception, creating instances of Null is not allowed") send(null, "create");
+}
 
 
 static void TestNullEquals() {
