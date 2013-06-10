@@ -260,7 +260,7 @@ static void Init(struct Table* table, integer capacity) {
 
 
 static void Clear(struct Table* table) {
-    const integer capacity = table->mask + 1;
+    integer const capacity = table->mask + 1;
     memset(table->entries, 0, sizeof(void*) * 2 * capacity);
     table->count = 0;
 }
@@ -270,7 +270,7 @@ static void* Get(struct Table* table, void* key, natural (*hash)(void*), bool (*
     assert(key > ZERO);
     assert(key < MORE);
 
-    const natural mask = table->mask;
+    natural const mask = table->mask;
     void** const entries = table->entries;
 
     integer index = hash ? hash(key) & mask : (natural)key & mask;
@@ -291,15 +291,15 @@ static integer Put(struct Table* table, void* key, void* value, natural (*hash)(
     assert(key < MORE);
     assert(value < MORE);
 
-    const natural mask = table->mask;
-    const integer count = table->count;
+    natural const mask = table->mask;
+    integer const count = table->count;
 
     if (value > 0) {
-        const integer oldCapacity = mask + 1;
-        const integer requiredCapacity = count + 1;
-        const integer oneFourthOfOldCapacity = oldCapacity >> 2;
-        const integer threeFourthOfOldCapacity = oldCapacity - oneFourthOfOldCapacity;
-        const integer newCapacity = RoundUpToPowerOfTwo(requiredCapacity + (requiredCapacity >> 1));
+        integer const oldCapacity = mask + 1;
+        integer const requiredCapacity = count + 1;
+        integer const oneFourthOfOldCapacity = oldCapacity >> 2;
+        integer const threeFourthOfOldCapacity = oldCapacity - oneFourthOfOldCapacity;
+        integer const newCapacity = RoundUpToPowerOfTwo(requiredCapacity + (requiredCapacity >> 1));
 
         if (requiredCapacity >= threeFourthOfOldCapacity) {
             void** const oldEntries = table->entries;
@@ -556,7 +556,7 @@ static var NumberAsString(struct Number* self, var command, var options, ...) {
     // TODO: tweak to not print trailing zeros.
     decimal integerPart = 0;
     decimal fractionalPart = modf(self->number, &integerPart);
-    const int bufferSize = 1024 * 1024;
+    integer const bufferSize = 1024 * 1024;
     char buffer[bufferSize + 1];
     int length = 0;
 
@@ -581,8 +581,8 @@ static var NumberEquals(struct Number* self, var command, var object, var option
 
 
 static var NumberCompare(struct Number* self, var command, var object, var options, ...) {
-    const decimal number1 = DecimalFrom(self);
-    const decimal number2 = DecimalFrom(object);
+    decimal const number1 = DecimalFrom(self);
+    decimal const number2 = DecimalFrom(object);
     if (number1 < number2) return Number(-1);
     if (number1 > number2) return Number(+1);
     return Number(0);
@@ -674,7 +674,7 @@ static var DataAsString(struct Data* self, var command, var options, ...) {
 
 
 static var DataHash(struct Data* self, var command, var options, ...) {
-    const natural digest = Digest(self->count, self->bytes);
+    natural const digest = Digest(self->count, self->bytes);
     return autorelease(NumberMake((decimal)digest));
 }
 
@@ -687,7 +687,7 @@ static var DataEquals(struct Data* self, var command, var object, var options, .
     if (send(object, "is-kind-of*", Data) == no) return no;
     if (data1->count != data2->count) return no;
 
-    const int result = memcmp(data1->bytes, data2->bytes, data1->count);
+    integer const result = memcmp(data1->bytes, data2->bytes, data1->count);
     return result == 0 ? yes : no;
 }
 
@@ -800,8 +800,8 @@ static var ArrayCopy(struct Array* self, var command, var options, ...) {
 
 
 static var ArrayAt(struct Array* self, var index) {
-    const integer integerIndex = IntegerFrom(index);
-    const integer integerCount = self->count;
+    integer const integerIndex = IntegerFrom(index);
+    integer const integerCount = self->count;
     if (integerIndex < 0 || integerIndex >= integerCount) throw(OutOfBoundsException);
     return self->objects[integerIndex];
 }
@@ -870,7 +870,7 @@ static var StringAsString(struct String* self, var command, var options, ...) {
 
 
 static var StringHash(struct String* self, var command, var options, ...) {
-    const natural hash = Digest(self->length, self->characters);
+    natural const hash = Digest(self->length, self->characters);
     return autorelease(NumberMake((decimal)hash));
 }
 
@@ -883,7 +883,7 @@ static var StringEquals(struct String* self, var command, var object, var option
     struct String* string2 = object;
     if (string1->length != string2->length) return no;
 
-    const int result = strncmp(string1->characters, string2->characters, string1->length);
+    integer const result = strncmp(string1->characters, string2->characters, string1->length);
     return result == 0 ? yes : no;
 }
 
@@ -895,7 +895,7 @@ static var StringCompare(struct String* self, var command, var object, var optio
     struct String* string1 = self;
     struct String* string2 = object;
 
-    const int result = strncmp(string1->characters, string2->characters, string1->length);
+    integer const result = strncmp(string1->characters, string2->characters, string1->length);
     return autorelease(NumberMake(result));
 }
 
@@ -997,13 +997,13 @@ static var DictionaryCopy(struct Dictionary* self, var command, var options, ...
 
 
 static var DictionaryGet(struct Dictionary* self, var command, var key, var options, ...) {
-    const natural mask = self->mask;
-    const natural hash = NaturalFrom(send(key, "hash"));
+    natural const mask = self->mask;
+    natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
 
     for (int i = 0; i <= mask; i += 1) {
-        const int indexOfKey = index * 2;
-        const int indexOfValue = indexOfKey + 1;
+        integer const indexOfKey = index * 2;
+        integer const indexOfValue = indexOfKey + 1;
         var keyAtIndex = self->entries[indexOfKey];
         var valueAtIndex = self->entries[indexOfValue];
         if (send(keyAtIndex, "equals*", key) == yes) {
@@ -1019,13 +1019,13 @@ static var DictionaryGet(struct Dictionary* self, var command, var key, var opti
 static var DictionarySetTo(struct Dictionary* self, var command, var key, var value, var options, ...) {
     DictionaryEnsureCapacity(self, self->count + 1);
 
-    const natural mask = self->mask;
-    const natural hash = NaturalFrom(send(key, "hash"));
+    natural const mask = self->mask;
+    natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
 
     for (int i = 0; i <= mask; i += 1) {
-        const int indexOfKey = index * 2;
-        const int indexOfValue = indexOfKey + 1;
+        integer const indexOfKey = index * 2;
+        integer const indexOfValue = indexOfKey + 1;
         var keyAtIndex = self->entries[indexOfKey];
         var valueAtIndex = self->entries[indexOfValue];
 
@@ -1055,13 +1055,13 @@ static var DictionarySetTo(struct Dictionary* self, var command, var key, var va
 
 
 static var DictionaryRemove(struct Dictionary* self, var key) {
-    const natural mask = self->mask;
-    const natural hash = NaturalFrom(send(key, "hash"));
+    natural const mask = self->mask;
+    natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
 
     for (int i = 0; i <= mask; i += 1) {
-        const int indexOfKey = index * 2;
-        const int indexOfValue = indexOfKey + 1;
+        integer const indexOfKey = index * 2;
+        integer const indexOfValue = indexOfKey + 1;
         var keyAtIndex = self->entries[indexOfKey];
         var valueAtIndex = self->entries[indexOfValue];
         if (send(keyAtIndex, "equals*", key) == yes) {
@@ -1185,8 +1185,8 @@ var ArrayMake(long count, ...) {
 var StringMake(long length, const char* characters) {
     assert(length >= 0);
 
-    const natural hash = Digest(length, characters);
-    const bool couldBeCommandOrKey = length <= MAX_KEY_AND_COMMAND_LENGTH;
+    natural const hash = Digest(length, characters);
+    bool const couldBeCommandOrKey = length <= MAX_KEY_AND_COMMAND_LENGTH;
 
     if (couldBeCommandOrKey) {
         struct String proxy = {&StringBehavior, RETAIN_COUNT_MAX, -1, length, hash, (char*)characters};
@@ -1325,7 +1325,7 @@ var retain(var object) {
 
 
 var release(var object) {
-    const integer retainCount = object(object).retainCount;
+    integer const retainCount = object(object).retainCount;
 
     if (retainCount >= RETAIN_COUNT_MAX) {
         return object;
@@ -1358,8 +1358,8 @@ var autorelease(var object) {
         fprintf(stderr, "[WARNING] No collect block found, leaking ...\n");
         return object;
     }
-    const integer capacity = CollectBlockTop->capacity;
-    const integer count = CollectBlockTop->count;
+    integer const capacity = CollectBlockTop->capacity;
+    integer const count = CollectBlockTop->count;
     if (count >= capacity) {
         assert(capacity > 0);
         var* objects = calloc(capacity * 2, sizeof(var));
@@ -1654,10 +1654,10 @@ static void StringEnsureCapacity(struct String* string, integer requiredCapacity
 
 static void DictionaryEnsureCapacity(struct Dictionary* dictionary, integer requiredCapacity) {
     if (requiredCapacity <= DICTIONARY_DEFAULT_CAPACITY) requiredCapacity = DICTIONARY_DEFAULT_CAPACITY;
-    const integer oldCapacity = dictionary->capacity;
-    const integer oneFourthOfOldCapacity = oldCapacity >> 2;
-    const integer threeFourthOfOldCapacity = oldCapacity - oneFourthOfOldCapacity;
-    const integer newCapacity = RoundUpToPowerOfTwo(requiredCapacity + (requiredCapacity >> 1));
+    integer const oldCapacity = dictionary->capacity;
+    integer const oneFourthOfOldCapacity = oldCapacity >> 2;
+    integer const threeFourthOfOldCapacity = oldCapacity - oneFourthOfOldCapacity;
+    integer const newCapacity = RoundUpToPowerOfTwo(requiredCapacity + (requiredCapacity >> 1));
     if (requiredCapacity < threeFourthOfOldCapacity) return;
 
     var* oldEntries = dictionary->entries;
@@ -1706,14 +1706,14 @@ static inline natural RoundDownToPowerOfTwo(natural number) {
 
 
 static natural Digest(integer count, const void* bytes) {
-    static const uint64_t defaultSeed = 0;
-    const uint64_t seed = defaultSeed;
-    const uint64_t m = 0xc6a4a7935bd1e995;
-    const int64_t r = 47;
+    static uint64_t const defaultSeed = 0;
+    uint64_t const seed = defaultSeed;
+    uint64_t const m = 0xc6a4a7935bd1e995;
+    int64_t const r = 47;
 
     uint64_t h = seed ^ (count * m);
 
-    const uint64_t* data = (const uint64_t *)bytes;
+    const uint64_t* data = (const uint64_t*)bytes;
     const uint64_t* end = data + (count / 8);
 
     while (data != end) {

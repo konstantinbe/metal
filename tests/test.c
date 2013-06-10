@@ -32,10 +32,10 @@
 #define AssertNotThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNull(TryCatchBlockCatch(tryCatchBlock), message); true;}) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
 
 
-static const char* WHITE = "\x1B[0;97m";
-static const char* RED = "\x1B[0;31m";
-static const char* GREEN = "\x1B[0;32m";
-static const char* RESET = "\x1B[0m";
+static const char* const WHITE = "\x1B[0;97m";
+static const char* const RED = "\x1B[0;31m";
+static const char* const GREEN = "\x1B[0;32m";
+static const char* const RESET = "\x1B[0m";
 
 
 // ------------------------------------------------------------ Variables ------
@@ -493,7 +493,7 @@ static void TestBegin() {
 
 
 static void TestEnd() {
-    const char *color = RESET;
+    const char* color = RESET;
     if (NumberOfFailedExamples <= 0) color = GREEN;
     if (NumberOfFailedExamples >= 1) color = RED;
 
