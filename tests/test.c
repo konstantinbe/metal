@@ -179,6 +179,26 @@ static void TestObjectSetProto() {
 }
 
 
+static void TestObjectInfo() {
+    // TODO: implement.
+}
+
+
+static void TestObjectWarning() {
+    // TODO: implement.
+}
+
+
+static void TestObjectError() {
+    // TODO: implement.
+}
+
+
+static void TestObjectDebug() {
+    // TODO: implement.
+}
+
+
 static void TestObject() {
     TestObjectCreate();
     TestObjectDestroy();
@@ -196,6 +216,10 @@ static void TestObject() {
     TestObjectRemoveMethod();
     TestObjectProto();
     TestObjectSetProto();
+    TestObjectInfo();
+    TestObjectWarning();
+    TestObjectError();
+    TestObjectDebug();
 }
 
 

@@ -230,6 +230,7 @@ static struct String* OutOfBoundsException = ZERO;
 static struct String* InvalidArgumentException = ZERO;
 static struct String* CommandNotAllowedException = ZERO;
 static struct String* InternalInconsistencyException = ZERO;
+static struct String* ErrorOccuredException = ZERO;
 
 
 // ---------------------------------------------------- Helper Functions -------
@@ -481,6 +482,35 @@ static var ObjectProto(struct Object* self, var command, var options, ...) {
 static var ObjectSetProto(struct Object* self, var command, var proto, var options, ...) {
     // TODO: implement.
     return null;
+}
+
+
+static var ObjectInfo(struct Object* self, var command, var message, var options, ...) {
+    var description = send(message, "as-string");
+    fprintf(stdout, "[INFO] %s\n", string(description).characters);
+    return self;
+}
+
+
+static var ObjectWarning(struct Object* self, var command, var message, var options, ...) {
+    var description = send(message, "as-string");
+    fprintf(stderr, "[WARNING] %s\n", string(description).characters);
+    return self;
+}
+
+
+static var ObjectError(struct Object* self, var command, var message, var options, ...) {
+    var description = send(message, "as-string");
+    fprintf(stderr, "[ERROR] %s\n", string(description).characters);
+    throw(ErrorOccuredException);
+    return self;
+}
+
+
+static var ObjectDebug(struct Object* self, var command, var message, var options, ...) {
+    var description = send(message, "as-string");
+    fprintf(stdout, "[DEBUG] %s\n", string(description).characters);
+    return self;
 }
 
 
@@ -1499,6 +1529,10 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Object, zero, String("remove-method*"), Block(ObjectRemoveMethod), zero);
         ObjectAddMethodBlock(Object, zero, String("proto"), Block(ObjectProto), zero);
         ObjectAddMethodBlock(Object, zero, String("set-proto*"), Block(ObjectSetProto), zero);
+        ObjectAddMethodBlock(Object, zero, String("info*"), Block(ObjectInfo), zero);
+        ObjectAddMethodBlock(Object, zero, String("warning*"), Block(ObjectWarning), zero);
+        ObjectAddMethodBlock(Object, zero, String("error*"), Block(ObjectError), zero);
+        ObjectAddMethodBlock(Object, zero, String("debug*"), Block(ObjectDebug), zero);
 
         ObjectAddMethodBlock(Boolean, zero, String("create"), Block(BooleanCreate), zero);
         ObjectAddMethodBlock(Boolean, zero, String("destroy"), Block(BooleanDestroy), zero);
@@ -1621,6 +1655,7 @@ bootstrap static void Metal() {
         InvalidArgumentException = preserve(String("InvalidArgumentException"));
         CommandNotAllowedException = preserve(String("CommandNotAllowedException"));
         InternalInconsistencyException = preserve(String("InternalInconsistencyException"));
+        ErrorOccuredException = preserve(String("ErrorOccuredException"));
     }
 }
 
