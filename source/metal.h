@@ -91,14 +91,15 @@ decimal DecimalFrom(var number);
 
 void* CollectBlockPush();
 void* CollectBlockPop(void* collectBlock);
+
 void* TryCatchBlockPush();
 void* TryCatchBlockPop(void* tryCatchBlock);
 void* TryCatchBlockTry(void* tryCatchBlock);
 var TryCatchBlockCatch(void* tryCatchBlock);
 
+var preserve(var object);
 var retain(var object);
 var release(var object);
-var preserve(var object);
 var autorelease(var object);
 
 var import(const char* name);

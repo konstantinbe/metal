@@ -1348,6 +1348,12 @@ var TryCatchBlockCatch(void* tryCatchBlock) {
 // ---------------------------------------------------- Keyword Functions ------
 
 
+var preserve(var object) {
+    object(object).retainCount = RETAIN_COUNT_MAX;
+    return object;
+}
+
+
 var retain(var object) {
     if (object(object).retainCount < RETAIN_COUNT_MAX) object(object).retainCount += 1;
     return object;
@@ -1373,12 +1379,6 @@ var release(var object) {
 
     fprintf(stderr, "[WARNING] Released an object with retain count 0, retain/release calls seem to be unbalanced, aborting ...\n");
     return null;
-}
-
-
-var preserve(var object) {
-    object(object).retainCount = RETAIN_COUNT_MAX;
-    return object;
 }
 
 
