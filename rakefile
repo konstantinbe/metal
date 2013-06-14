@@ -276,9 +276,7 @@ end
 
 task 'build:tests' => ['build:library'] do
   put "Building Metal Tests (#{$config[:title]}) ... "
-  delete_file_if_exists "build/tests"
-  run "mkdir build/tests"
-  run "cd build/tests; #{compiler} #{flags} -I../ ../../tests/*.c ../metal/metal.library -o ../test"
+  run "cd build; #{compiler} #{flags} -I./ ../tests/*.c metal/metal.library -o test"
   run "chmod +x build/test"
   puts OK
 end
