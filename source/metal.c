@@ -632,7 +632,7 @@ static var BlockCreate(struct Block* self, var command, var options, ...) {
     block->behavior = self->behavior;
     block->retainCount = 1;
     block->code = ZERO;
-    return null;
+    return block;
 }
 
 
