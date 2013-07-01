@@ -822,9 +822,9 @@ static var ArrayEquals(struct Array* self, var command, var object, var options,
 
 
 static var ArrayCopy(struct Array* self, var command, var options, ...) {
-    var mutable = option(String("mutable"), no);
-    if (self->capacity < 0) return retain(self);
-    // TODO: make an immutable copy.
+    // TODO: implement.
+    // var mutable = option(String("mutable"), no);
+    // if (self->capacity < 0) return retain(self);
     return null;
 }
 
@@ -1057,7 +1057,6 @@ static var DictionarySetTo(struct Dictionary* self, var command, var key, var va
         integer const indexOfKey = index * 2;
         integer const indexOfValue = indexOfKey + 1;
         var keyAtIndex = self->entries[indexOfKey];
-        var valueAtIndex = self->entries[indexOfValue];
 
         if (keyAtIndex == zero) {
             retain(key);
