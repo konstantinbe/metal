@@ -487,7 +487,7 @@ static var ObjectSetProto(struct Object* self, var command, var proto, var optio
 
 static var ObjectInfo(struct Object* self, var command, var message, var options, ...) {
     var description = send(message, "as-string");
-    fprintf(stdout, "[INFO] %s\n", string(description).characters);
+    fprintf(stderr, "[INFO] %s\n", string(description).characters);
     return self;
 }
 
@@ -509,7 +509,7 @@ static var ObjectError(struct Object* self, var command, var message, var option
 
 static var ObjectDebug(struct Object* self, var command, var message, var options, ...) {
     var description = send(message, "as-string");
-    fprintf(stdout, "[DEBUG] %s\n", string(description).characters);
+    fprintf(stderr, "[DEBUG] %s\n", string(description).characters);
     return self;
 }
 
