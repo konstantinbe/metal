@@ -82,15 +82,18 @@ $debugger = "lldb" if LLDB_INSTALLED
 
 # ---------------------------------------------------------- Custom Tasks ------
 
+desc "build everything"
 task :build => ['build:library', 'build:tests', 'build:benchmarks'] do
 end
 
+desc "analyze code with the Clang Analyzer"
 task :analyze => [:prepare] do
   put "Analyzing Metal ... "
   run "cd build; #{compiler} --analyze #{flags} ../source/*.c"
   puts OK
 end
 
+desc "profile code & report results"
 task :profile => ['profile:collect', 'profile:details', 'profile:summary']
 
 task 'profile:collect' => [:prepare] do
@@ -168,6 +171,7 @@ task 'profile:summary' => [:prepare, 'profile:collect'] do
   printf "\nUnit tests cover %s of %s executable lines of code.\n\n", colorize(total_fraction.to_i.to_s + " %", color), total_number_of_lines
 end
 
+desc ""
 task 'profile:details' => ['profile:collect'] do
   source_files = `cd source; find *.c`.split("\n").each do |source_file|
     raw = `cd build/coverage; gcov -f #{source_file} 2> gcov-error.log`
@@ -203,12 +207,14 @@ task 'profile:details' => ['profile:collect'] do
   end
 end
 
+desc "build & run tests"
 task :test => [:prepare, 'build:tests'] do
   puts "Running #{WHITE_BRIGHT}Metal#{RESET} Tests ... "
   code = run "cd build; ./test", :silent => true
   exit code
 end
 
+desc "build & run in debugger (gdb or lldb)"
 task :debug => [:prepare] do
   configure 'icc:debug' if ICC_INSTALLED
   configure 'gcc:debug' if GCC_INSTALLED
@@ -222,6 +228,7 @@ task :debug => [:prepare] do
   puts OK
 end
 
+desc "run preprocessor for metal only"
 task :preprocess => [:prepare] do
   put "Preprocessing Metal Library (#{$config[:title]}) ... "
 
@@ -229,6 +236,7 @@ task :preprocess => [:prepare] do
   puts OK
 end
 
+desc "check for memory leaks with Valgrind"
 task :valgrind => [:prepare] do
   configure 'icc:debug' if ICC_INSTALLED
   configure 'gcc:debug' if GCC_INSTALLED
@@ -242,22 +250,26 @@ task :valgrind => [:prepare] do
   puts OK
 end
 
+desc "build & run benchmarks"
 task :benchmark => [:prepare, 'build:benchmarks'] do
   put "Running Metal Benchmarks (#{$config[:title]}) ... "
   run "build/benchmark"
   puts OK
 end
 
+desc "create the build directory"
 task :prepare do
   run "mkdir build" unless File.exists? "build"
 end
 
+desc "delete the build directory"
 task :clean do
   put "Cleaning ... "
   delete_file_if_exists "build"
   puts OK
 end
 
+desc "build the Metal library"
 task 'build:library' => [:prepare] do
   put "Building Metal Library (#{$config[:title]}) ... "
 
@@ -274,6 +286,7 @@ task 'build:library' => [:prepare] do
   puts OK
 end
 
+desc "build all tests"
 task 'build:tests' => ['build:library'] do
   put "Building Metal Tests (#{$config[:title]}) ... "
   run "cd build; #{compiler} #{flags} -I./ ../tests/*.c metal/metal.library -o test"
@@ -281,6 +294,7 @@ task 'build:tests' => ['build:library'] do
   puts OK
 end
 
+desc "build all benchmarks"
 task 'build:benchmarks' => ['build:library'] do
   put "Building Metal Benchmarks (#{$config[:title]}) ... "
   delete_file_if_exists "build/benchmarks"
@@ -290,16 +304,19 @@ task 'build:benchmarks' => ['build:library'] do
   puts OK
 end
 
+desc "test with Clang"
 task 'test:clang' do
   configure 'clang'
   invoke 'test'
 end
 
+desc "test with GCC"
 task 'test:gcc' do
   configure 'gcc'
   invoke 'test'
 end
 
+desc "test with ICC"
 task 'test:icc' do
   configure 'icc'
   invoke 'test'
