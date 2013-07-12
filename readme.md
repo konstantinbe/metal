@@ -46,6 +46,7 @@ For memory analysis (optional):
 * No arbitrary abbreviations, such as `src`, `mod`, `obj`, ...
 * Source must be "white-space-clean", the [white](https://github.com/konstantinbe/white)
   command line utility will cleanup whitespace for you
+* Use [Semantic Versioning](http://semver.org) for releases
 
 ## License
 
