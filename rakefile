@@ -21,26 +21,28 @@
 
 # ------------------------------------------------------------- Constants ------
 
-BOLD = "\x1B[0;1m"
-BLACK = "\x1B[0;30m"
-RED = "\x1B[0;31m"
-GREEN = "\x1B[0;32m"
-YELLOW = "\x1B[0;33m"
-BLUE = "\x1B[0;34m"
-MAGENTA = "\x1B[0;35m"
-CYAN = "\x1B[0;36m"
-WHITE = "\x1B[0;37m"
+TERMINAL = STDOUT.tty?
 
-BLACK_BRIGHT = "\x1B[1;30m"
-RED_BRIGHT = "\x1B[1;31m"
-GREEN_BRIGHT = "\x1B[1;32m"
-YELLOW_BRIGHT = "\x1B[1;33m"
-BLUE_BRIGHT = "\x1B[1;34m"
-MAGENTA_BRIGHT = "\x1B[1;35m"
-CYAN_BRIGHT = "\x1B[1;36m"
-WHITE_BRIGHT = "\x1B[1;37m"
+BOLD = TERMINAL ? "\x1B[0;1m" : ""
+BLACK = TERMINAL ? "\x1B[0;30m" : ""
+RED = TERMINAL ? "\x1B[0;31m" : ""
+GREEN = TERMINAL ? "\x1B[0;32m" : ""
+YELLOW = TERMINAL ? "\x1B[0;33m" : ""
+BLUE = TERMINAL ? "\x1B[0;34m" : ""
+MAGENTA = TERMINAL ? "\x1B[0;35m" : ""
+CYAN = TERMINAL ? "\x1B[0;36m" : ""
+WHITE = TERMINAL ? "\x1B[0;37m" : ""
 
-RESET = "\x1B[0m"
+BLACK_BRIGHT = TERMINAL ? "\x1B[1;30m" : ""
+RED_BRIGHT = TERMINAL ? "\x1B[1;31m" : ""
+GREEN_BRIGHT = TERMINAL ? "\x1B[1;32m" : ""
+YELLOW_BRIGHT = TERMINAL ? "\x1B[1;33m" : ""
+BLUE_BRIGHT = TERMINAL ? "\x1B[1;34m" : ""
+MAGENTA_BRIGHT = TERMINAL ? "\x1B[1;35m" : ""
+CYAN_BRIGHT = TERMINAL ? "\x1B[1;36m" : ""
+WHITE_BRIGHT = TERMINAL ? "\x1B[1;37m" : ""
+
+RESET = TERMINAL ? "\x1B[0m" : ""
 
 OK = GREEN + "OK" + RESET
 FAILED = RED + "FAILED" + RESET
@@ -114,14 +116,13 @@ task 'profile:collect' => [:prepare] do
   run "cd build/coverage; #{compiler} #{flags} -I../coverage -iquote../../source -iquote../../tests *.c -o coverage"
   puts OK
 
-  put "Profiling (#{$config[:title]}) ... "
+  puts "Profiling by running #{WHITE_BRIGHT}Metal#{RESET} tests (#{$config[:title]}) ..."
   run "cd build/coverage; ./coverage"
-  puts OK
 end
 
 task 'profile:summary' => [:prepare, 'profile:collect'] do
   puts ""
-  puts "--------------------------- Code Coverage Results ------"
+  puts "--------------------------------------------------- Code Coverage Results ------"
 
   source_files = `cd source; find *.c`.split("\n").join(" ")
   raw = `cd build/coverage; gcov #{source_files} 2> gcov-error.log`
@@ -148,26 +149,26 @@ task 'profile:summary' => [:prepare, 'profile:collect'] do
   end
 
   details.reverse.each do |detail|
-    color = :red
-    color = :yellow if detail[:fraction] >= 0.7
-    color = :green if detail[:fraction] >= 0.9
+    color = RED
+    color = YELLOW if detail[:fraction] >= 0.7
+    color = GREEN if detail[:fraction] >= 0.9
 
     title = detail[:title]
     fraction = (detail[:fraction] * 100).to_i.to_s + " %"
-    number_of_lines = detail[:number_of_lines].to_s + " lines"
+    number_of_lines = detail[:number_of_lines_covered].round.to_s +  " of " + detail[:number_of_lines].to_s
 
-    printf "%-35s %30s %18s\n", colorize(title, :bright_cyan), colorize(number_of_lines, :black), colorize(fraction, color)
+    printf "#{CYAN_BRIGHT}%-40s #{BLACK_BRIGHT}%20s #{color}%18s#{RESET}\n", title, number_of_lines, fraction
   end
 
   total_title = "Total"
   total_fraction = if total_number_of_lines != 0 then (total_number_of_lines_covered / total_number_of_lines) * 100 else 0 end
   total_number_of_lines = total_number_of_lines.to_s
 
-  color = :red
-  color = :yellow if total_fraction >= 70
-  color = :green if total_fraction >= 90
+  color = RED
+  color = YELLOW if total_fraction >= 70
+  color = GREEN if total_fraction >= 90
 
-  printf "\nUnit tests cover %s of %s executable lines of code.\n\n", colorize(total_fraction.to_i.to_s + " %", color), total_number_of_lines
+  printf "\nUnit tests cover #{color}%s#{RESET} of %s executable lines of code.\n\n", total_fraction.to_i.to_s + " %", total_number_of_lines
 end
 
 desc ""
@@ -193,15 +194,15 @@ task 'profile:details' => ['profile:collect'] do
     end
 
     details.reverse.each do |detail|
-      color = :red
-      color = :yellow if detail[:fraction] >= 0.7
-      color = :green if detail[:fraction] >= 0.9
+      color = RED
+      color = YELLOW if detail[:fraction] >= 0.7
+      color = GREEN if detail[:fraction] >= 0.9
 
       title = detail[:title]
       fraction = (detail[:fraction] * 100).to_i.to_s + " %"
-      number_of_lines = detail[:number_of_lines].to_s + " lines"
+      number_of_lines = detail[:number_of_lines_covered].round.to_s + " of " +  detail[:number_of_lines].to_s
 
-      printf "%-59s %30s %18s\n", colorize(title, :bright_cyan), colorize(number_of_lines, :black), colorize(fraction, color)
+      printf "#{CYAN_BRIGHT}%-40s #{BLACK_BRIGHT}%20s #{color}%18s#{RESET}\n", title, number_of_lines, fraction
     end
   end
 end
@@ -373,53 +374,4 @@ end
 
 def flags
   $config[:flags]
-end
-
-def colorize(string, color)
-  color_code_begin = "\33[0m"
-  color_code_end = "\33[0m"
-
-  color_code_begin = "\33[30m" if color == :black
-  color_code_begin = "\33[31m" if color == :red
-  color_code_begin = "\33[32m" if color == :green
-  color_code_begin = "\33[33m" if color == :yellow
-  color_code_begin = "\33[34m" if color == :blue
-  color_code_begin = "\33[35m" if color == :magenta
-  color_code_begin = "\33[36m" if color == :cyan
-  color_code_begin = "\33[37m" if color == :white
-
-  color_code_begin = "\33[1;30m" if color == :bright_black
-  color_code_begin = "\33[1;31m" if color == :bright_red
-  color_code_begin = "\33[1;32m" if color == :bright_green
-  color_code_begin = "\33[1;33m" if color == :bright_yellow
-  color_code_begin = "\33[1;34m" if color == :bright_blue
-  color_code_begin = "\33[1;35m" if color == :bright_magenta
-  color_code_begin = "\33[1;36m" if color == :bright_cyan
-  color_code_begin = "\33[1;37m" if color == :bright_white
-
-  color_code_begin + string + color_code_end
-end
-
-def red(string)
-  colorize string, :red
-end
-
-def green(string)
-  colorize string, :green
-end
-
-def yellow(string)
-  colorize string, :yellow
-end
-
-def blue(string)
-  colorize string, :blue
-end
-
-def magenta(string)
-  colorize string, :magenta
-end
-
-def cyan(string)
-  colorize string, :cyan
 end
