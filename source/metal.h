@@ -97,10 +97,10 @@ void* TryCatchBlockPop(void* tryCatchBlock);
 void* TryCatchBlockTry(void* tryCatchBlock);
 var TryCatchBlockCatch(void* tryCatchBlock);
 
-var preserve(var object);
 var retain(var object);
 var release(var object);
 var autorelease(var object);
+var preserve(var object);
 
 var import(const char* name);
 var export(const char* name, void* code);

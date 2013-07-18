@@ -1340,12 +1340,6 @@ var TryCatchBlockCatch(void* tryCatchBlock) {
 // ---------------------------------------------------- Keyword Functions ------
 
 
-var preserve(var object) {
-    object(object).retainCount = RETAIN_COUNT_MAX;
-    return object;
-}
-
-
 var retain(var object) {
     if (object(object).retainCount < RETAIN_COUNT_MAX) object(object).retainCount += 1;
     return object;
@@ -1392,6 +1386,12 @@ var autorelease(var object) {
     }
     CollectBlockTop->objects[count] = object;
     CollectBlockTop->count += 1;
+    return object;
+}
+
+
+var preserve(var object) {
+    object(object).retainCount = RETAIN_COUNT_MAX;
     return object;
 }
 
