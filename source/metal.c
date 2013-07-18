@@ -1288,7 +1288,7 @@ void* CollectBlockPush() {
 
 
 void* CollectBlockPop(void* collectBlock) {
-    // TODO: remove  all child collect blocks from the stack
+    // TODO: remove all child collect blocks from the stack
     // and release its objects if landed here through exception.
     assert(collectBlock == CollectBlockTop);
     struct CollectBlock* collectBlockToPop = collectBlock;
