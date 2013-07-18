@@ -73,33 +73,18 @@ static void AssertNotIdentical(var subject, var actual, const char* message);
 
 static void TestObjectCreate() {
     var object = send(Object, "create");
-    AssertNotNull(object, "Object create returns a newly created object");
-    release(object);
+    AssertNotNull(object, "Object create calls allocate and returns the newly allocated object");
 }
 
 
 static void TestObjectDestroy() {
-    var object = send(Object, "create");
+    var object = send(Object, "allocate");
     AssertNull(send(object, "destroy"), "Object destroy destroys an object and returns null");
 }
 
 
-static void TestObjectInit() {
-    var object1 = send(Object, "create");
-    var object2 = send(object1, "init");
-    AssertIdentical(object1, object2, "Object init does nothing and returns the object");
-    release(object1);
-}
-
-
-static void TestObjectNew() {
-    var object = send(Object, "new");
-    AssertNotNull(object, "Object new returns a newly created an initialized object");
-}
-
-
 static void TestObjectIsKindOf() {
-    var object = send(Object, "new");
+    var object = send(Object, "create");
     var number = Number(5);
     AssertYes(send(Object, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking Object whether it is a kind of itself");
     AssertYes(send(object, "is-kind-of*", object), "Object is-kind-of* returns yes when asking an object whether it is a kind of itself");
@@ -114,7 +99,7 @@ static void TestObjectIsKindOf() {
 
 
 static void TestObjectIsMutable() {
-    var object = send(Object, "new");
+    var object = send(Object, "create");
     var number = Number(5);
     AssertYes(send(object, "is-mutable"), "Object is-mutable returns yes (all objects are mutable by default)");
 
@@ -129,21 +114,21 @@ static void TestObjectRespondsTo() {
 
 
 static void TestObjectAsString() {
-    var object = send(Object, "new");
+    var object = send(Object, "create");
     AssertEqual(send(Object, "as-string"), String("Object"), "Object as-string returns 'Object' for Object");
     AssertEqual(send(object, "as-string"), String("<Object XXX>"), "Object as-string returns '<Object XXX>' for any direct instance of Object");
 }
 
 
 static void TestObjectHash() {
-    var object = send(Object, "new");
+    var object = send(Object, "create");
     AssertEqual(send(object, "hash"), Number((natural)object), "Object hash returns its address as a number");
 }
 
 
 static void TestObjectEquals() {
-    var object1 = send(Object, "new");
-    var object2 = send(Object, "new");
+    var object1 = send(Object, "create");
+    var object2 = send(Object, "create");
     AssertYes(send(object1, "equals*", object1), "Object equals* returns yes for identical objects");
     AssertNo(send(object1, "equals*", object2), "Object equals* returns no when objects are not identical");
 }
@@ -202,8 +187,6 @@ static void TestObjectDebug() {
 static void TestObject() {
     TestObjectCreate();
     TestObjectDestroy();
-    TestObjectInit();
-    TestObjectNew();
     TestObjectIsKindOf();
     TestObjectIsMutable();
     TestObjectRespondsTo();
@@ -227,17 +210,12 @@ static void TestObject() {
 
 
 static void TestBooleanCreate() {
-    AssertThrows("Boolean create throws an exception, creating booleans is not allowed") send(Boolean, "create");
+    AssertThrows("Boolean create throws an exception, initializing booleans is not allowed") send(Boolean, "create");
 }
 
 
 static void TestBooleanDestroy() {
     AssertThrows("Boolean destroy throws an exception, destroying booleans is not allowed") send(Boolean, "destroy");
-}
-
-
-static void TestBooleanInit() {
-    AssertThrows("Boolean init throws an exception, initializing booleans is not allowed") send(Boolean, "init");
 }
 
 
@@ -289,7 +267,6 @@ static void TestBooleanCopy() {
 static void TestBoolean() {
     TestBooleanCreate();
     TestBooleanDestroy();
-    TestBooleanInit();
     TestBooleanAsString();
     TestBooleanIsMutable();
     TestBooleanEquals();
@@ -307,11 +284,6 @@ static void TestNumberCreate() {
 
 
 static void TestNumberDestroy() {
-    // TODO: implement.
-}
-
-
-static void TestNumberInit() {
     // TODO: implement.
 }
 
@@ -350,9 +322,8 @@ static void TestNumberCopy() {
 
 
 static void TestNumber() {
-    TestNumberCreate();
     TestNumberDestroy();
-    TestNumberInit();
+    TestNumberCreate();
     TestNumberAsString();
     TestNumberIsMutable();
     TestNumberEquals();
@@ -465,11 +436,6 @@ static void TestDictionary() {
 
 
 // ----------------------------------------------------------- Null Tests ------
-
-
-static void TestNullCreate() {
-    AssertThrows("Null create throws an exception, creating instances of Null is not allowed") send(null, "create");
-}
 
 
 static void TestNullEquals() {

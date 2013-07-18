@@ -369,7 +369,7 @@ static integer Put(struct Table* table, void* key, void* value, natural (*hash)(
 // ------------------------------------------------------- Object Methods ------
 
 
-static var ObjectCreate(struct Object* self, var command, var options, ...) {
+static var ObjectAllocate(struct Object* self, var command, var options, ...) {
     struct Object* object = calloc(1, sizeof(struct Object));
     object->behavior = self->behavior;
     object->retainCount = 1;
@@ -377,21 +377,14 @@ static var ObjectCreate(struct Object* self, var command, var options, ...) {
 }
 
 
+static var ObjectCreate(struct Object* self, var command, var options, ...) {
+    return send(self, "allocate");
+}
+
+
 static var ObjectDestroy(struct Object* self, var command, var options, ...) {
     free(self);
     return null;
-}
-
-
-static var ObjectNew(struct Object* self, var command, var options, ...) {
-    self = send(self, "create");
-    self = send(self, "init");
-    return autorelease(self);
-}
-
-
-static var ObjectInit(struct Object* self, var command, var options, ...) {
-    return self;
 }
 
 
@@ -517,6 +510,12 @@ static var ObjectDebug(struct Object* self, var command, var message, var option
 // ------------------------------------------------------ Boolean Methods ------
 
 
+static var BooleanAllocate(struct Boolean* self, var command, var options, ...) {
+    throw(CommandNotAllowedException);
+    return null;
+}
+
+
 static var BooleanCreate(struct Boolean* self, var command, var options, ...) {
     throw(CommandNotAllowedException);
     return null;
@@ -524,12 +523,6 @@ static var BooleanCreate(struct Boolean* self, var command, var options, ...) {
 
 
 static var BooleanDestroy(struct Boolean* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
-    return null;
-}
-
-
-static var BooleanInit(struct Boolean* self, var command, var options, ...) {
     throw(CommandNotAllowedException);
     return null;
 }
@@ -566,7 +559,7 @@ static var BooleanCopy(struct Boolean* self, var command, var options, ...) {
 // ------------------------------------------------------- Number Methods ------
 
 
-static var NumberCreate(struct Number* self, var command, var options, ...) {
+static var NumberAllocate(struct Number* self, var command, var options, ...) {
     struct Number* number = calloc(1, sizeof(struct Number));
     number->behavior = self->behavior;
     number->retainCount = 1;
@@ -627,7 +620,7 @@ static var NumberCopy(struct Number* self, var command, var options, ...) {
 // -------------------------------------------------------- Block Methods ------
 
 
-static var BlockCreate(struct Block* self, var command, var options, ...) {
+static var BlockAllocate(struct Block* self, var command, var options, ...) {
     struct Block* block = calloc(1, sizeof(struct Block));
     block->behavior = self->behavior;
     block->retainCount = 1;
@@ -656,7 +649,7 @@ static var BlockAsString(struct Block* self, var command, var options, ...) {
 // --------------------------------------------------------- Data Methods ------
 
 
-static var DataCreate(struct Data* self, var command, var options, ...) {
+static var DataAllocate(struct Data* self, var command, var options, ...) {
     struct Data* data = calloc(1, sizeof(struct Data));
     data->behavior = self->behavior;
     data->retainCount = 1;
@@ -667,25 +660,25 @@ static var DataCreate(struct Data* self, var command, var options, ...) {
 }
 
 
-static var DataDestroy(struct Data* self, var command, var options, ...) {
-    free(self->bytes);
-    return super(self, "destroy");
+static var DataCreate(struct Data* self, var command, var options, ...) {
+    return send(self, "create-with-capacity*", Number(1));
 }
 
 
-static var DataInit(struct Data* self, var command, var options, ...) {
-    return send(self, "init-with-capacity*", Number(1));
-}
-
-
-static var DataInitWithCapacity(struct Data* self, var command, var capacity, var options, ...) {
-    self = super(self, "init");
+static var DataCreateWithCapacity(struct Data* self, var command, var capacity, var options, ...) {
+    self = super(self, "create");
     self->capacity = IntegerFrom(capacity);
     self->capacity = MAX(self->capacity, DATA_DEFAULT_CAPACITY);
     self->capacity = RoundUpToPowerOfTwo(self->capacity);
     self->count = 0;
     self->bytes = calloc(self->capacity, 1);
     return self;
+}
+
+
+static var DataDestroy(struct Data* self, var command, var options, ...) {
+    free(self->bytes);
+    return super(self, "destroy");
 }
 
 
@@ -749,7 +742,7 @@ static var DataCount(struct Data* self) {
 // -------------------------------------------------------- Array Methods ------
 
 
-static var ArrayCreate(struct Array* self, var command, var options, ...) {
+static var ArrayAllocate(struct Array* self, var command, var options, ...) {
     struct Array* array = calloc(1, sizeof(struct Array));
     array->behavior = self->behavior;
     array->retainCount = 1;
@@ -760,28 +753,28 @@ static var ArrayCreate(struct Array* self, var command, var options, ...) {
 }
 
 
-static var ArrayDestroy(struct Array* self, var command, var options, ...) {
-    for (int i = 0; i < self->count; i += 1) {
-        release(self->objects[i]);
-    }
-    free(self->objects);
-    return super(self, "destroy");
+static var ArrayCreate(struct Array* self, var command, var options, ...) {
+    return send(self, "create-with-capacity*", Number(1));
 }
 
 
-static var ArrayInit(struct Array* self, var command, var options, ...) {
-    return send(self, "init-with-capacity*", Number(1));
-}
-
-
-static var ArrayInitWithCapacity(struct Array* self, var command, var capacity, var options, ...) {
-    self = super(self, "init");
+static var ArrayCreateWithCapacity(struct Array* self, var command, var capacity, var options, ...) {
+    self = super(self, "create");
     self->capacity = IntegerFrom(capacity);
     self->capacity = MAX(self->capacity, ARRAY_DEFAULT_CAPACITY);
     self->capacity = RoundUpToPowerOfTwo(self->capacity);
     self->count = 0;
     self->objects = calloc(self->capacity, sizeof(var));
     return self;
+}
+
+
+static var ArrayDestroy(struct Array* self, var command, var options, ...) {
+    for (int i = 0; i < self->count; i += 1) {
+        release(self->objects[i]);
+    }
+    free(self->objects);
+    return super(self, "destroy");
 }
 
 
@@ -851,7 +844,7 @@ static var ArrayReplaceAtCountWith(struct Array* self, var index, var count, var
 // ------------------------------------------------------- String Methods ------
 
 
-static var StringCreate(struct String* self, var command, var options, ...) {
+static var StringAllocate(struct String* self, var command, var options, ...) {
     struct String* string = calloc(1, sizeof(struct String));
     string->behavior = self->behavior;
     string->retainCount = 1;
@@ -862,6 +855,22 @@ static var StringCreate(struct String* self, var command, var options, ...) {
 }
 
 
+static var StringCreate(struct String* self, var command, var options, ...) {
+    return send(self, "create-with-capacity*", Number(1));
+}
+
+
+static var StringCreateWithCapacity(struct String* self, var command, var capacity, var options, ...) {
+    self = super(self, "create");
+    self->capacity = IntegerFrom(capacity);
+    self->capacity = MAX(self->capacity, STRING_DEFAULT_CAPACITY);
+    self->capacity = RoundUpToPowerOfTwo(self->capacity + 1) - 1;
+    self->length = 0;
+    self->characters = calloc(self->capacity + 1, sizeof(char));
+    return self;
+}
+
+
 static var StringDestroy(struct String* self, var command, var options, ...) {
     if (self->capacity < 0) {
         Put(&StringTable, self, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
@@ -869,22 +878,6 @@ static var StringDestroy(struct String* self, var command, var options, ...) {
 
     free(self->characters);
     return super(self, "destroy");
-}
-
-
-static var StringInit(struct String* self, var command, var options, ...) {
-    return send(self, "init-with-capacity*", Number(1));
-}
-
-
-static var StringInitWithCapacity(struct String* self, var command, var capacity, var options, ...) {
-    self = super(self, "init");
-    self->capacity = IntegerFrom(capacity);
-    self->capacity = MAX(self->capacity, STRING_DEFAULT_CAPACITY);
-    self->capacity = RoundUpToPowerOfTwo(self->capacity + 1) - 1;
-    self->length = 0;
-    self->characters = calloc(self->capacity + 1, sizeof(char));
-    return self;
 }
 
 
@@ -957,7 +950,7 @@ static var StringReplaceAtCountWith(struct String* self, var index, var count, v
 // --------------------------------------------------- Dictionary Methods ------
 
 
-static var DictionaryCreate(struct Dictionary* self, var command, var options, ...) {
+static var DictionaryAllocate(struct Dictionary* self, var command, var options, ...) {
     struct Dictionary* dictionary = calloc(1, sizeof(struct Dictionary));
     dictionary->behavior = self->behavior;
     dictionary->retainCount = 1;
@@ -969,6 +962,22 @@ static var DictionaryCreate(struct Dictionary* self, var command, var options, .
 }
 
 
+static var DictionaryCreate(struct Dictionary* self, var command, var options, ...) {
+    return send(self, "create-with-capacity*", Number(1));
+}
+
+
+static var DictionaryCreateWithCapacity(struct Dictionary* self, var command, var capacity, var options, ...) {
+    self = super(self, "create");
+    self->capacity = MAX(IntegerFrom(capacity), DICTIONARY_DEFAULT_CAPACITY);
+    self->capacity = RoundUpToPowerOfTwo(self->capacity);
+    self->count = 0;
+    self->mask = self->capacity - 1;
+    self->entries = calloc(self->capacity * 2, sizeof(var));
+    return self;
+}
+
+
 static var DictionaryDestroy(struct Dictionary* self, var command, var options, ...) {
     for (int i = 0; i < self->count; i += 2) {
         release(self->entries[i]);
@@ -976,22 +985,6 @@ static var DictionaryDestroy(struct Dictionary* self, var command, var options, 
     }
     free(self->entries);
     return super(self, "destroy");
-}
-
-
-static var DictionaryInit(struct Dictionary* self, var command, var options, ...) {
-    return send(self, "init-with-capacity*", Number(1));
-}
-
-
-static var DictionaryInitWithCapacity(struct Dictionary* self, var command, var capacity, var options, ...) {
-    self = super(self, "init");
-    self->capacity = MAX(IntegerFrom(capacity), DICTIONARY_DEFAULT_CAPACITY);
-    self->capacity = RoundUpToPowerOfTwo(self->capacity);
-    self->count = 0;
-    self->mask = self->capacity - 1;
-    self->entries = calloc(self->capacity * 2, sizeof(var));
-    return self;
 }
 
 
@@ -1114,6 +1107,12 @@ static var DictionaryCount(struct Dictionary* self) {
 // --------------------------------------------------------- Null Methods ------
 
 
+static var NullAllocate(struct Object* self, var command, var options, ...) {
+    throw(CommandNotAllowedException);
+    return null;
+}
+
+
 static var NullCreate(struct Object* self, var command, var options, ...) {
     throw(CommandNotAllowedException);
     return null;
@@ -1121,12 +1120,6 @@ static var NullCreate(struct Object* self, var command, var options, ...) {
 
 
 static var NullDestroy(struct Object* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
-    return null;
-}
-
-
-static var NullInit(struct Object* self, var command, var options, ...) {
     throw(CommandNotAllowedException);
     return null;
 }
@@ -1512,10 +1505,9 @@ bootstrap static void Metal() {
         Init(&DictionaryBehavior.methods, 32);
         Init(&NullBehavior.methods, 32);
 
-        ObjectAddMethodBlock(Object, zero, String("create"), Block(ObjectCreate), zero);
+        ObjectAddMethodBlock(Object, zero, String("allocate"), Block(ObjectAllocate), zero);
         ObjectAddMethodBlock(Object, zero, String("destroy"), Block(ObjectDestroy), zero);
-        ObjectAddMethodBlock(Object, zero, String("init"), Block(ObjectInit), zero);
-        ObjectAddMethodBlock(Object, zero, String("new"), Block(ObjectNew), zero);
+        ObjectAddMethodBlock(Object, zero, String("create"), Block(ObjectCreate), zero);
         ObjectAddMethodBlock(Object, zero, String("is-kind-of*"), Block(ObjectIsKindOf), zero);
         ObjectAddMethodBlock(Object, zero, String("is-mutable"), Block(ObjectIsMutable), zero);
         ObjectAddMethodBlock(Object, zero, String("responds-to*"), Block(ObjectRespondsTo), zero);
@@ -1533,15 +1525,15 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Object, zero, String("error*"), Block(ObjectError), zero);
         ObjectAddMethodBlock(Object, zero, String("debug*"), Block(ObjectDebug), zero);
 
-        ObjectAddMethodBlock(Boolean, zero, String("create"), Block(BooleanCreate), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("allocate"), Block(BooleanAllocate), zero);
         ObjectAddMethodBlock(Boolean, zero, String("destroy"), Block(BooleanDestroy), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("init"), Block(BooleanInit), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("create"), Block(BooleanCreate), zero);
         ObjectAddMethodBlock(Boolean, zero, String("as-string"), Block(BooleanAsString), zero);
         ObjectAddMethodBlock(Boolean, zero, String("is-mutable"), Block(BooleanIsMutable), zero);
         ObjectAddMethodBlock(Boolean, zero, String("compare*"), Block(BooleanCompare), zero);
         ObjectAddMethodBlock(Boolean, zero, String("copy"), Block(BooleanCopy), zero);
 
-        ObjectAddMethodBlock(Number, zero, String("create"), Block(NumberCreate), zero);
+        ObjectAddMethodBlock(Number, zero, String("allocate"), Block(NumberAllocate), zero);
         ObjectAddMethodBlock(Number, zero, String("is-mutable"), Block(NumberIsMutable), zero);
         ObjectAddMethodBlock(Number, zero, String("as-string"), Block(NumberAsString), zero);
         ObjectAddMethodBlock(Number, zero, String("hash"), Block(NumberHash), zero);
@@ -1549,14 +1541,14 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Number, zero, String("compare*"), Block(NumberCompare), zero);
         ObjectAddMethodBlock(Number, zero, String("copy"), Block(NumberCopy), zero);
 
-        ObjectAddMethodBlock(Block, zero, String("create"), Block(BlockCreate), zero);
+        ObjectAddMethodBlock(Block, zero, String("allocate"), Block(BlockAllocate), zero);
         ObjectAddMethodBlock(Block, zero, String("is-mutable"), Block(BlockIsMutable), zero);
         ObjectAddMethodBlock(Block, zero, String("as-string"), Block(BlockAsString), zero);
 
-        ObjectAddMethodBlock(Data, zero, String("create"), Block(DataCreate), zero);
+        ObjectAddMethodBlock(Data, zero, String("allocate"), Block(DataAllocate), zero);
         ObjectAddMethodBlock(Data, zero, String("destroy"), Block(DataDestroy), zero);
-        ObjectAddMethodBlock(Data, zero, String("init"), Block(DataInit), zero);
-        ObjectAddMethodBlock(Data, zero, String("init-with-capacity*"), Block(DataInitWithCapacity), zero);
+        ObjectAddMethodBlock(Data, zero, String("create"), Block(DataCreate), zero);
+        ObjectAddMethodBlock(Data, zero, String("create-with-capacity*"), Block(DataCreateWithCapacity), zero);
         ObjectAddMethodBlock(Data, zero, String("is-mutable"), Block(DataIsMutable), zero);
         ObjectAddMethodBlock(Data, zero, String("as-string"), Block(DataAsString), zero);
         ObjectAddMethodBlock(Data, zero, String("hash"), Block(DataHash), zero);
@@ -1566,10 +1558,10 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Data, zero, String("replace-at*count*with*"), Block(DataReplaceAtCountWith), zero);
         ObjectAddMethodBlock(Data, zero, String("count"), Block(DataCount), zero);
 
-        ObjectAddMethodBlock(Array, zero, String("create"), Block(ArrayCreate), zero);
+        ObjectAddMethodBlock(Array, zero, String("allocate"), Block(ArrayAllocate), zero);
         ObjectAddMethodBlock(Array, zero, String("destroy"), Block(ArrayDestroy), zero);
-        ObjectAddMethodBlock(Array, zero, String("init"), Block(ArrayInit), zero);
-        ObjectAddMethodBlock(Array, zero, String("init-with-capacity*"), Block(ArrayInitWithCapacity), zero);
+        ObjectAddMethodBlock(Array, zero, String("create"), Block(ArrayCreate), zero);
+        ObjectAddMethodBlock(Array, zero, String("create-with-capacity*"), Block(ArrayCreateWithCapacity), zero);
         ObjectAddMethodBlock(Array, zero, String("is-mutable"), Block(ArrayIsMutable), zero);
         ObjectAddMethodBlock(Array, zero, String("as-string"), Block(ArrayAsString), zero);
         ObjectAddMethodBlock(Array, zero, String("hash"), Block(ArrayHash), zero);
@@ -1579,10 +1571,10 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Array, zero, String("count"), Block(ArrayCount), zero);
         ObjectAddMethodBlock(Array, zero, String("replace-at*count*with*"), Block(ArrayReplaceAtCountWith), zero);
 
-        ObjectAddMethodBlock(String, zero, String("create"), Block(StringCreate), zero);
+        ObjectAddMethodBlock(String, zero, String("allocate"), Block(StringAllocate), zero);
         ObjectAddMethodBlock(String, zero, String("destroy"), Block(StringDestroy), zero);
-        ObjectAddMethodBlock(String, zero, String("init"), Block(StringInit), zero);
-        ObjectAddMethodBlock(String, zero, String("init-with-capacity*"), Block(StringInitWithCapacity), zero);
+        ObjectAddMethodBlock(String, zero, String("create"), Block(StringCreate), zero);
+        ObjectAddMethodBlock(String, zero, String("create-with-capacity*"), Block(StringCreateWithCapacity), zero);
         ObjectAddMethodBlock(String, zero, String("is-mutable"), Block(StringIsMutable), zero);
         ObjectAddMethodBlock(String, zero, String("as-string"), Block(StringAsString), zero);
         ObjectAddMethodBlock(String, zero, String("hash"), Block(StringHash), zero);
@@ -1593,10 +1585,10 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(String, zero, String("length"), Block(StringLength), zero);
         ObjectAddMethodBlock(String, zero, String("replace-at*count*with*"), Block(StringReplaceAtCountWith), zero);
 
-        ObjectAddMethodBlock(Dictionary, zero, String("create"), Block(DictionaryCreate), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("allocate"), Block(DictionaryAllocate), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("destroy"), Block(DictionaryDestroy), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("init"), Block(DictionaryInit), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("init-with-capacity*"), Block(DictionaryInitWithCapacity), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("create"), Block(DictionaryCreate), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("create-with-capacity*"), Block(DictionaryCreateWithCapacity), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("is-mutable"), Block(DictionaryIsMutable), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("as-string"), Block(DictionaryAsString), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("hash"), Block(DictionaryHash), zero);
@@ -1607,9 +1599,9 @@ bootstrap static void Metal() {
         ObjectAddMethodBlock(Dictionary, zero, String("remove*"), Block(DictionaryRemove), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("count"), Block(DictionaryCount), zero);
 
-        ObjectAddMethodBlock(null, zero, String("create"), Block(NullCreate), zero);
+        ObjectAddMethodBlock(null, zero, String("allocate"), Block(NullAllocate), zero);
         ObjectAddMethodBlock(null, zero, String("destroy"), Block(NullDestroy), zero);
-        ObjectAddMethodBlock(null, zero, String("init"), Block(NullInit), zero);
+        ObjectAddMethodBlock(null, zero, String("create"), Block(NullCreate), zero);
         ObjectAddMethodBlock(null, zero, String("as-string"), Block(NullAsString), zero);
         ObjectAddMethodBlock(null, zero, String("is-mutable"), Block(NullIsMutable), zero);
         ObjectAddMethodBlock(null, zero, String("equals*"), Block(NullEquals), zero);
