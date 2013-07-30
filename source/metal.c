@@ -45,8 +45,8 @@
 #define COLLECT_BLOCK_DEFAULT_CAPACITY 2048
 #define SYMBOL_TABLE_DEFAULT_CAPACITY 2048
 #define STRING_TABLE_DEFAULT_CAPACITY 2048
-#define EXPORT_TABLE_DEFAULT_CAPACITY 2048
 #define IMPORT_TABLE_DEFAULT_CAPACITY 2048
+#define EXPORT_TABLE_DEFAULT_CAPACITY 2048
 #define MAX_KEY_AND_COMMAND_LENGTH 1024
 
 
@@ -1403,13 +1403,50 @@ var preserve(var object) {
 
 
 var import(const char* name) {
-    // TODO: implement.
-    return null;
+    integer const nameLength = strlen(name);
+    var const key = autorelease(StringMake(nameLength, name));
+
+    void* const imported = Get(&ImportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
+    void* const exported = Get(&ExportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
+
+    // TODO: detect cycles.
+    // throw(ImportCycleException);
+
+    var object = null;
+
+    if (imported != ZERO && exported != ZERO) throw(InternalInconsistencyException);
+    if (imported != ZERO && exported == ZERO) object = imported;
+
+    if (imported == ZERO && exported == ZERO) object = null;
+    if (imported == ZERO && exported != ZERO) {
+        Put(&ImportTable, key, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
+        Put(&ExportTable, key, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
+        var (*code)() = exported;
+        object = code();
+        retain(object);
+        retain(key);
+        Put(&ImportTable, key, object, ComputeHashOfString, CheckIfStringsAreEqual);
+    }
+
+    return object;
 }
 
 
 var export(const char* name, void* code) {
-    // TODO: implement.
+    integer const nameLength = strlen(name);
+    var const key = preserve(StringMake(nameLength, name));
+
+    void* const imported = Get(&ImportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
+    void* const exported = Get(&ExportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
+
+    if (imported != ZERO && exported != ZERO) throw(InternalInconsistencyException);
+    if (imported != ZERO && exported == ZERO) throw(InvalidArgumentException);
+
+    if (imported == ZERO && exported != ZERO) throw(InvalidArgumentException);
+    if (imported == ZERO && exported == ZERO) {
+        Put(&ExportTable, key, code, ComputeHashOfString, CheckIfStringsAreEqual);
+    }
+
     return null;
 }
 
@@ -1466,11 +1503,11 @@ void throw(var exception) {
 // -------------------------------------------------------- Bootstrapping ------
 
 
-bootstrap static void Metal() {
+static void bootstrap Metal() {
     collect {
         Init(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
+        Init(&ImportTable, IMPORT_TABLE_DEFAULT_CAPACITY);
         Init(&ExportTable, EXPORT_TABLE_DEFAULT_CAPACITY);
-        Init(&ImportTable, EXPORT_TABLE_DEFAULT_CAPACITY);
 
         ObjectBehavior.owner = &ObjectState;
         BooleanBehavior.owner = &BooleanState;
