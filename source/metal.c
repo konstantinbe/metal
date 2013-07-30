@@ -231,6 +231,7 @@ static struct String* InvalidArgumentException = ZERO;
 static struct String* CommandNotAllowedException = ZERO;
 static struct String* InternalInconsistencyException = ZERO;
 static struct String* ErrorOccuredException = ZERO;
+static struct String* ImportCycleException = ZERO;
 
 
 // ---------------------------------------------------- Helper Functions -------
@@ -1647,6 +1648,7 @@ bootstrap static void Metal() {
         CommandNotAllowedException = preserve(String("CommandNotAllowedException"));
         InternalInconsistencyException = preserve(String("InternalInconsistencyException"));
         ErrorOccuredException = preserve(String("ErrorOccuredException"));
+        ImportCycleException = preserve(String("ImportCycleException"));
     }
 }
 
