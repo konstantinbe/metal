@@ -45,6 +45,8 @@
 #define COLLECT_BLOCK_DEFAULT_CAPACITY 2048
 #define SYMBOL_TABLE_DEFAULT_CAPACITY 2048
 #define STRING_TABLE_DEFAULT_CAPACITY 2048
+#define EXPORT_TABLE_DEFAULT_CAPACITY 2048
+#define IMPORT_TABLE_DEFAULT_CAPACITY 2048
 #define MAX_KEY_AND_COMMAND_LENGTH 1024
 
 
@@ -210,6 +212,8 @@ var const no = &noState;
 static struct CollectBlock* CollectBlockTop = ZERO;
 static struct TryCatchBlock* TryCatchBlockTop = ZERO;
 static struct Table StringTable = {0, 0, ZERO};
+static struct Table ExportTable = {0, 0, ZERO};
+static struct Table ImportTable = {0, 0, ZERO};
 
 
 static struct String* ObjectName = ZERO;
@@ -1465,6 +1469,8 @@ void throw(var exception) {
 bootstrap static void Metal() {
     collect {
         Init(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
+        Init(&ExportTable, EXPORT_TABLE_DEFAULT_CAPACITY);
+        Init(&ImportTable, EXPORT_TABLE_DEFAULT_CAPACITY);
 
         ObjectBehavior.owner = &ObjectState;
         BooleanBehavior.owner = &BooleanState;
