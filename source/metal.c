@@ -34,10 +34,10 @@
 // --------------------------------------------------- Constants & Macros ------
 
 
-#define RETAIN_COUNT_MAX LONG_MAX
+#define RETAIN_COUNT_MAX INTEGER_MAX
 #define DATA_DEFAULT_CAPACITY 16
 #define ARRAY_DEFAULT_CAPACITY 16
-#define STRING_DEFAULT_CAPACITY 15 // +1 for zero
+#define STRING_DEFAULT_CAPACITY 15 // +1 for '\0'
 #define DICTIONARY_DEFAULT_CAPACITY 8
 #define CACHE_DEFAULT_CAPACITY 32
 #define CHILDREN_DEFAULT_CAPACITY 8
@@ -48,8 +48,8 @@
 #define MAX_KEY_AND_COMMAND_LENGTH 1024
 
 
-#define MAX(value1, value2) (value1 > value2 ? value1 : value2)
-#define MIN(value1, value2) (value1 < value2 ? value1 : value2)
+#define MAX(value1, value2) ((value1) > (value2) ? (value1) : (value2))
+#define MIN(value1, value2) ((value1) < (value2) ? (value1) : (value2))
 
 
 #define table(pointer) (*((struct Table*)pointer))
@@ -1430,7 +1430,7 @@ void* lookup(var self, var command, natural level) {
 
     // TOOD: add fallback.
 
-    // cache found method.
+    // Cache found method.
     assert(code != ZERO);
     Put(cache, key, code, ZERO, ZERO);
     preserve(command);
