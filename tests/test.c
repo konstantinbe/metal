@@ -452,6 +452,25 @@ static void TestNull() {
 }
 
 
+// ------------------------------------------------ Import & Export Tests ------
+
+
+static var ImportExportTestObject() {
+    return Object;
+}
+
+
+static void TestImportAndExport() {
+    const char* name = "ImportExport.TestObject";
+    var const objectBefore = import(name);
+    export(name, ImportExportTestObject);
+    var const objectAfter = import(name);
+
+    AssertNull(objectBefore, "Importing an object that hasn't been exported yet should return null");
+    AssertEqual(objectAfter, Object, "Importing an object that has been exported should return the exported object");
+}
+
+
 // ---------------------------------------------------------------- Main -------
 
 
@@ -467,6 +486,7 @@ int main(int argumentsCount, char const* arguments[]) {
         TestString();
         TestDictionary();
         TestNull();
+        TestImportAndExport();
         TestEnd();
     }
     return NumberOfFailedExamples > 0 ? 1 : 0;
