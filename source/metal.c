@@ -230,6 +230,7 @@ static struct String* OutOfBoundsException = ZERO;
 static struct String* InvalidArgumentException = ZERO;
 static struct String* CommandNotAllowedException = ZERO;
 static struct String* InternalInconsistencyException = ZERO;
+static struct String* ObjectNotMutableException = ZERO;
 static struct String* ErrorOccuredException = ZERO;
 static struct String* ImportCycleException = ZERO;
 
@@ -1647,6 +1648,7 @@ bootstrap static void Metal() {
         InvalidArgumentException = preserve(String("InvalidArgumentException"));
         CommandNotAllowedException = preserve(String("CommandNotAllowedException"));
         InternalInconsistencyException = preserve(String("InternalInconsistencyException"));
+        ObjectNotMutableException = preserve(String("ObjectNotMutableException"));
         ErrorOccuredException = preserve(String("ErrorOccuredException"));
         ImportCycleException = preserve(String("ImportCycleException"));
     }
