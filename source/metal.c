@@ -729,19 +729,19 @@ static var DataCopy(struct Data* self, var command, var options, ...) {
 }
 
 
-static var DataAtCount(struct Data* self, var index, var count) {
+static var DataAtCount(struct Data* self, var command, var index, var count, var options, ...) {
     // TODO: implement.
     return null;
 }
 
 
-static var DataReplaceAtCountWith(struct Data* self, var index, var count, var data) {
+static var DataReplaceAtCountWith(struct Data* self, var command, var index, var count, var data, var options, ...) {
     // TODO: implement.
     return self;
 }
 
 
-static var DataCount(struct Data* self) {
+static var DataCount(struct Data* self, var command, var options, ...) {
     return Number(self->count);
 }
 
@@ -829,7 +829,7 @@ static var ArrayCopy(struct Array* self, var command, var options, ...) {
 }
 
 
-static var ArrayAt(struct Array* self, var index) {
+static var ArrayAt(struct Array* self, var command, var index, var options, ...) {
     integer const integerIndex = IntegerFrom(index);
     integer const integerCount = self->count;
     if (integerIndex < 0 || integerIndex >= integerCount) throw(OutOfBoundsException);
@@ -837,13 +837,12 @@ static var ArrayAt(struct Array* self, var index) {
 }
 
 
-static var ArrayCount(struct Array* self) {
+static var ArrayCount(struct Array* self, var command, var options, ...) {
     return Number(self->count);
 }
 
 
-static var ArrayReplaceAtCountWith(struct Array* self, var index, var count, var array) {
-    // TODO: implement.
+static var ArrayReplaceAtCountWith(struct Array* self, var command, var index, var count, var objects, var options, ...) {
     return self;
 }
 
@@ -937,18 +936,18 @@ static var StringCopy(struct String* self, var command, var options, ...) {
 }
 
 
-static var StringAtCount(struct String* self, var index, var count) {
+static var StringAtCount(struct String* self, var command, var index, var count, var options, ...) {
     // TODO: implement.
     return null;
 }
 
 
-static var StringLength(struct String* self) {
+static var StringLength(struct String* self, var command, var options, ...) {
     return Number(self->length);
 }
 
 
-static var StringReplaceAtCountWith(struct String* self, var index, var count, var string) {
+static var StringReplaceAtCountWith(struct String* self, var command, var index, var count, var string, var options, ...) {
     // TODO: implement.
     return self;
 }
@@ -1083,7 +1082,7 @@ static var DictionarySetTo(struct Dictionary* self, var command, var key, var va
 }
 
 
-static var DictionaryRemove(struct Dictionary* self, var key) {
+static var DictionaryRemove(struct Dictionary* self, var command, var key, var options, ...) {
     natural const mask = self->mask;
     natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
@@ -1106,7 +1105,7 @@ static var DictionaryRemove(struct Dictionary* self, var key) {
 }
 
 
-static var DictionaryCount(struct Dictionary* self) {
+static var DictionaryCount(struct Dictionary* self, var command, var options, ...) {
     return Number(self->count);
 }
 
