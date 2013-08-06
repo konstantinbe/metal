@@ -62,7 +62,7 @@ static void AssertYes(var object, const char* message);
 static void AssertNo(var object, const char* message);
 static void AssertNull(var object, const char* message);
 static void AssertNotNull(var object, const char* message);
-static void AssertEqual(var subject, var actual, const char* message);
+static void AssertEquals(var subject, var actual, const char* message);
 static void AssertNotEqual(var subject, var actual, const char* message);
 static void AssertIdentical(var subject, var actual, const char* message);
 static void AssertNotIdentical(var subject, var actual, const char* message);
@@ -115,14 +115,14 @@ static void TestObjectRespondsTo() {
 
 static void TestObjectAsString() {
     var object = send(Object, "create");
-    AssertEqual(send(Object, "as-string"), String("Object"), "Object as-string returns 'Object' for Object");
-    AssertEqual(send(object, "as-string"), String("<Object XXX>"), "Object as-string returns '<Object XXX>' for any direct instance of Object");
+    AssertEquals(send(Object, "as-string"), String("Object"), "Object as-string returns 'Object' for Object");
+    AssertEquals(send(object, "as-string"), String("<Object XXX>"), "Object as-string returns '<Object XXX>' for any direct instance of Object");
 }
 
 
 static void TestObjectHash() {
     var object = send(Object, "create");
-    AssertEqual(send(object, "hash"), Number((natural)object), "Object hash returns its address as a number");
+    AssertEquals(send(object, "hash"), Number((natural)object), "Object hash returns its address as a number");
 }
 
 
@@ -220,9 +220,9 @@ static void TestBooleanDestroy() {
 
 
 static void TestBooleanAsString() {
-    AssertEqual(send(Boolean, "as-string"), String("Boolean"), "Boolean as-string returns 'Boolean' for Boolean");
-    AssertEqual(send(yes, "as-string"), String("yes"), "Boolean as-string returns 'yes' for yes");
-    AssertEqual(send(no, "as-string"), String("no"), "Boolean as-string returns 'no' for no");
+    AssertEquals(send(Boolean, "as-string"), String("Boolean"), "Boolean as-string returns 'Boolean' for Boolean");
+    AssertEquals(send(yes, "as-string"), String("yes"), "Boolean as-string returns 'yes' for yes");
+    AssertEquals(send(no, "as-string"), String("no"), "Boolean as-string returns 'no' for no");
 }
 
 
@@ -243,10 +243,10 @@ static void TestBooleanEquals() {
 
 
 static void TestBooleanCompare() {
-    AssertEqual(send(no, "compare*", no), Number(0), "Boolean compare* returns 0 when comparing no to no");
-    AssertEqual(send(no, "compare*", yes), Number(-1), "Boolean compare* returns -1 when comparing no to yes");
-    AssertEqual(send(yes, "compare*", no), Number(+1), "Boolean compare* returns +1 when comparing yes to no");
-    AssertEqual(send(yes, "compare*", yes), Number(0), "Boolean compare* returns 0 when comparing yes to yes");
+    AssertEquals(send(no, "compare*", no), Number(0), "Boolean compare* returns 0 when comparing no to no");
+    AssertEquals(send(no, "compare*", yes), Number(-1), "Boolean compare* returns -1 when comparing no to yes");
+    AssertEquals(send(yes, "compare*", no), Number(+1), "Boolean compare* returns +1 when comparing yes to no");
+    AssertEquals(send(yes, "compare*", yes), Number(0), "Boolean compare* returns 0 when comparing yes to yes");
     AssertNull(send(Boolean, "compare*", no), "Boolean compare* returns null when comparing Boolean to no");
     AssertNull(send(Boolean, "compare*", yes), "Boolean compare* returns null when comparing Boolean to yes");
     AssertNull(send(Boolean, "compare*", Number(0)), "Boolean compare* returns null when comparing Boolean to anything (here a number)");
@@ -554,7 +554,7 @@ static void AssertNotNull(var object, const char* message) {
 }
 
 
-static void AssertEqual(var subject, var actual, const char* message) {
+static void AssertEquals(var subject, var actual, const char* message) {
     AssertYes(send(subject, "equals*", actual), message);
 }
 
