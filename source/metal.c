@@ -424,7 +424,7 @@ static var ObjectAsString(struct Object* self, var command, var options, ...) {
 
 
 static var ObjectHash(struct Object* self, var command, var options, ...) {
-    return autorelease(NumberMake((natural)self));
+    return Number((natural)self);
 }
 
 
@@ -705,7 +705,7 @@ static var DataAsString(struct Data* self, var command, var options, ...) {
 
 static var DataHash(struct Data* self, var command, var options, ...) {
     natural const digest = Digest(self->count, self->bytes);
-    return autorelease(NumberMake((decimal)digest));
+    return Number((decimal)digest);
 }
 
 
@@ -742,7 +742,7 @@ static var DataReplaceAtCountWith(struct Data* self, var index, var count, var d
 
 
 static var DataCount(struct Data* self) {
-    return autorelease(NumberMake(self->count));
+    return Number(self->count);
 }
 
 
@@ -838,7 +838,7 @@ static var ArrayAt(struct Array* self, var index) {
 
 
 static var ArrayCount(struct Array* self) {
-    return autorelease(NumberMake(self->count));
+    return Number(self->count);
 }
 
 
@@ -901,7 +901,7 @@ static var StringAsString(struct String* self, var command, var options, ...) {
 
 static var StringHash(struct String* self, var command, var options, ...) {
     natural const hash = Digest(self->length, self->characters);
-    return autorelease(NumberMake((decimal)hash));
+    return Number((decimal)hash);
 }
 
 
@@ -926,7 +926,7 @@ static var StringCompare(struct String* self, var command, var object, var optio
     struct String* string2 = object;
 
     integer const result = strncmp(string1->characters, string2->characters, string1->length);
-    return autorelease(NumberMake(result));
+    return Number(result);
 }
 
 
@@ -944,7 +944,7 @@ static var StringAtCount(struct String* self, var index, var count) {
 
 
 static var StringLength(struct String* self) {
-    return autorelease(NumberMake(self->length));
+    return Number(self->length);
 }
 
 
@@ -1107,7 +1107,7 @@ static var DictionaryRemove(struct Dictionary* self, var key) {
 
 
 static var DictionaryCount(struct Dictionary* self) {
-    return autorelease(NumberMake(self->count));
+    return Number(self->count);
 }
 
 
