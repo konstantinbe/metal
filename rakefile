@@ -257,6 +257,21 @@ task :benchmark => [:prepare, 'build:benchmarks'] do
   puts OK
 end
 
+desc "build website"
+task :website do
+  invoke :prepare
+
+  put "Building website ... "
+  run "mkdir -p build/website"
+  run "rm -rf build/website/*"
+  run "cp website/* build/website/"
+  index_html = read_from_file "website/index.html"
+  content_md = read_from_file "website/content.md"
+  index_html = index_html.gsub "<!-- content.md -->", content_md # TODO: convert markdown
+  write_to_file index_html, "build/website/index.html"
+  puts OK
+end
+
 desc "create the build directory"
 task :prepare do
   run "mkdir build" unless File.exists? "build"
@@ -353,15 +368,22 @@ def invoke(task)
   Rake::Task[task].invoke
 end
 
+def read_from_file(file_path)
+  File.open(file_path, "r") { |file| file.read }
+end
+
+def write_to_file(string, file_path)
+  File.open(file_path, "w") { |file| file.write string }
+end
+
 def delete_file_if_exists(path)
   run "rm -rf #{path}" if File.exists? path
 end
 
 def replace_in_file(file_path, pattern, replacement)
-  string = nil
-  File.open(file_path, "r") { |file| string = file.read }
+  string = read_from_file file_path
   string.gsub! pattern, replacement
-  File.open(file_path, "w") { |file| file.write string }
+  write_to_file file_path, string
 end
 
 def configure(name)

@@ -22,7 +22,7 @@
 #include "benchmark.h"
 
 
-int main(int arguments_count, char const* arguments[]) {
+int main(int argumentsCount, char const* arguments[]) {
     // TODO: add benchmarks.
     return 0;
 }

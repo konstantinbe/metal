@@ -22,14 +22,15 @@
 #ifndef METAL_H
 #define METAL_H
 
+#include <float.h>
 #include <setjmp.h>
 #include <limits.h>
 #include <stdbool.h>
 
-#define ZERO (void*)0
+#define ZERO (void*)0ul
 #define MORE (void*)ULLONG_MAX
 
-#define zero (var)0
+#define zero (var)0ul
 #define more (var)ULLONG_MAX
 
 #define metalHelperJoinJoin(x, y) x ## y
@@ -44,7 +45,9 @@
 
 #define send(self, command, ...) ((var (*)(var, var, ...))lookup((self), metalHelperStringify(command), 0))((self), metalHelperStringify(command), ## __VA_ARGS__, zero)
 #define super(self, command, ...) ((var (*)(var, var, ...))lookup((self), metalHelperStringify(command), 1))((self), metalHelperStringify(command), ## __VA_ARGS__, zero)
-#define option(name, initial) ({ va_list list; va_start(list, options); var key = options; var value; while (key != zero && key != (name)) { value = va_arg(list, var); key = va_arg(list, var); } va_end(list); key ? value : (initial); });
+
+#define option(name, initial) ({ var nameAsString = metalHelperStringify(name); va_list list; va_start(list, options); var key = options; var value = zero; while (key != zero && key != (nameAsString)) { value = va_arg(list, var); key = va_arg(list, var); } va_end(list); key ? va_arg(list, var) : (initial); });
+#define options(...) __VA_ARGS__
 
 #define Boolean(boolean) ((boolean) ? yes : no)
 #define Number(number) autorelease(NumberMake((decimal)(number)))
@@ -58,7 +61,10 @@
 #define INTEGER_MIN LONG_MIN
 
 #define NATURAL_MAX ULONG_MAX
-#define NATURAL_MIN 0
+#define NATURAL_MIN 0ul
+
+#define DECIMAL_MAX DBL_MAX
+#define DECIMAL_MIN DBL_MIN
 
 typedef void* var;
 typedef long integer;
@@ -84,6 +90,7 @@ var DataMake(long count, const void* bytes);
 var ArrayMake(long count, ...);
 var StringMake(long length, const char* characters);
 var DictionaryMake(long count, ...);
+var OptionsMake(long count, ...);
 
 integer IntegerFrom(var number);
 natural NaturalFrom(var number);

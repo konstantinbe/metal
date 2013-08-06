@@ -23,7 +23,6 @@
 #include "metal.h"
 #include <math.h>
 #include <limits.h>
-#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -34,7 +33,7 @@
 // --------------------------------------------------- Constants & Macros ------
 
 
-#define RETAIN_COUNT_MAX INTEGER_MAX
+#define RETAIN_COUNT_MAX NATURAL_MAX
 #define DATA_DEFAULT_CAPACITY 16
 #define ARRAY_DEFAULT_CAPACITY 16
 #define STRING_DEFAULT_CAPACITY 15 // +1 for '\0'
@@ -47,9 +46,8 @@
 #define STRING_TABLE_DEFAULT_CAPACITY 2048
 #define IMPORT_TABLE_DEFAULT_CAPACITY 2048
 #define EXPORT_TABLE_DEFAULT_CAPACITY 2048
-#define MAX_KEY_AND_COMMAND_LENGTH 1024
+#define MAX_KEY_AND_COMMAND_LENGTH 2048
 #define MUTABLE_FLAG ((natural)1 << 0)
-#define VALUE_FLAG ((natural)1 << 1)
 
 
 #define MAX(value1, value2) ((value1) > (value2) ? (value1) : (value2))
@@ -57,7 +55,7 @@
 
 
 #define table(pointer) (*((struct Table*)pointer))
-#define behavior(pointer) (*((struct Behavior*)pointer))
+#define meta(pointer) (*((struct Meta*)pointer))
 #define object(pointer) (*((struct Object*)pointer))
 #define boolean(pointer) (*((struct Boolean*)pointer))
 #define number(pointer) (*((struct Number*)pointer))
@@ -66,7 +64,11 @@
 #define array(pointer) (*((struct Array*)pointer))
 #define string(pointer) (*((struct String*)pointer))
 #define dictionary(pointer) (*((struct Dictionary*)pointer))
+
+
 #define bootstrap __attribute__((constructor(128)))
+#define assert(condition, message, args...) if (!(condition)) { fprintf(stderr, "[ERROR] Assertion failure in function %s in file %s line %d: " message, __FUNCTION__, __FILE__, __LINE__, ## args); int* pointer = NULL; *pointer = 0; }
+#define fail(message, args...) { fprintf(stderr, "[ERROR] Failed in function %s in file %s line %d: " message, __FUNCTION__, __FILE__, __LINE__, ## args); int* pointer = NULL; *pointer = 0; }
 
 
 // ----------------------------------------------------------- Structures ------
@@ -79,9 +81,10 @@ struct Table {
 };
 
 
-struct Behavior {
+struct Meta {
     var owner;
     var parent;
+    natural size;
     struct Table cache;
     struct Table methods;
     struct Table children;
@@ -89,38 +92,39 @@ struct Behavior {
 
 
 struct Object {
-    struct Behavior* behavior;
-    integer retainCount;
+    struct Meta* meta;
+    natural retainCount;
     natural flags;
 };
 
 
 struct Boolean {
-    struct Behavior* behavior;
-    integer retainCount;
+    struct Meta* meta;
+    natural retainCount;
     natural flags;
 };
 
 
 struct Number {
-    struct Behavior* behavior;
-    integer retainCount;
+    struct Meta* meta;
+    natural retainCount;
     natural flags;
     double number;
 };
 
 
 struct Block {
-    struct Behavior* behavior;
-    integer retainCount;
+    struct Meta* meta;
+    natural retainCount;
     natural flags;
     void* code;
 };
 
 
 struct Data {
-    struct Behavior* behavior;
-    integer retainCount;
+    struct Meta* meta;
+    natural retainCount;
+    natural flags;
     integer capacity;
     integer count;
     natural hash;
@@ -129,8 +133,8 @@ struct Data {
 
 
 struct Array {
-    struct Behavior* behavior;
-    integer retainCount;
+    struct Meta* meta;
+    natural retainCount;
     natural flags;
     integer capacity;
     integer count;
@@ -140,8 +144,8 @@ struct Array {
 
 
 struct String {
-    struct Behavior* behavior;
-    integer retainCount;
+    struct Meta* meta;
+    natural retainCount;
     natural flags;
     integer capacity;
     integer length;
@@ -151,8 +155,8 @@ struct String {
 
 
 struct Dictionary {
-    struct Behavior* behavior;
-    integer retainCount;
+    struct Meta* meta;
+    natural retainCount;
     natural flags;
     integer capacity;
     integer count;
@@ -181,28 +185,28 @@ struct TryCatchBlock {
 // ------------------------------------------------------------ Variables ------
 
 
-static struct Behavior ObjectBehavior;
-static struct Behavior BooleanBehavior;
-static struct Behavior NumberBehavior;
-static struct Behavior BlockBehavior;
-static struct Behavior DataBehavior;
-static struct Behavior ArrayBehavior;
-static struct Behavior StringBehavior;
-static struct Behavior DictionaryBehavior;
-static struct Behavior NullBehavior;
+static struct Meta ObjectMeta;
+static struct Meta BooleanMeta;
+static struct Meta NumberMeta;
+static struct Meta BlockMeta;
+static struct Meta DataMeta;
+static struct Meta ArrayMeta;
+static struct Meta StringMeta;
+static struct Meta DictionaryMeta;
+static struct Meta NullMeta;
 
 
-static struct Object ObjectState = {&ObjectBehavior, RETAIN_COUNT_MAX, 0};
-static struct Boolean BooleanState = {&BooleanBehavior, RETAIN_COUNT_MAX, 0};
-static struct Number NumberState = {&NumberBehavior, RETAIN_COUNT_MAX, 0};
-static struct Block BlockState = {&BlockBehavior, RETAIN_COUNT_MAX, 0};
-static struct Data DataState = {&DataBehavior, RETAIN_COUNT_MAX, 0};
-static struct Array ArrayState = {&ArrayBehavior, RETAIN_COUNT_MAX, 0};
-static struct String StringState = {&StringBehavior, RETAIN_COUNT_MAX, 0};
-static struct Dictionary DictionaryState = {&DictionaryBehavior, RETAIN_COUNT_MAX, 0};
-static struct Object NullState = {&NullBehavior, RETAIN_COUNT_MAX, 0};
-static struct Boolean yesState = {&BooleanBehavior, RETAIN_COUNT_MAX, 0};
-static struct Boolean noState = {&BooleanBehavior, RETAIN_COUNT_MAX, 0};
+static struct Object ObjectState = {&ObjectMeta, RETAIN_COUNT_MAX, 0};
+static struct Boolean BooleanState = {&BooleanMeta, RETAIN_COUNT_MAX, 0};
+static struct Number NumberState = {&NumberMeta, RETAIN_COUNT_MAX, 0};
+static struct Block BlockState = {&BlockMeta, RETAIN_COUNT_MAX, 0};
+static struct Data DataState = {&DataMeta, RETAIN_COUNT_MAX, 0};
+static struct Array ArrayState = {&ArrayMeta, RETAIN_COUNT_MAX, 0};
+static struct String StringState = {&StringMeta, RETAIN_COUNT_MAX, 0};
+static struct Dictionary DictionaryState = {&DictionaryMeta, RETAIN_COUNT_MAX, 0};
+static struct Object NullState = {&NullMeta, RETAIN_COUNT_MAX, 0};
+static struct Boolean YesState = {&BooleanMeta, RETAIN_COUNT_MAX, 0};
+static struct Boolean NoState = {&BooleanMeta, RETAIN_COUNT_MAX, 0};
 
 
 var const Object = &ObjectState;
@@ -214,12 +218,14 @@ var const Array = &ArrayState;
 var const String = &StringState;
 var const Dictionary = &DictionaryState;
 var const null = &NullState;
-var const yes = &yesState;
-var const no = &noState;
+var const yes = &YesState;
+var const no = &NoState;
 
 
 static struct CollectBlock* CollectBlockTop = ZERO;
 static struct TryCatchBlock* TryCatchBlockTop = ZERO;
+
+
 static struct Table StringTable = {0, 0, ZERO};
 static struct Table ExportTable = {0, 0, ZERO};
 static struct Table ImportTable = {0, 0, ZERO};
@@ -234,18 +240,12 @@ static struct String* ArrayName = ZERO;
 static struct String* StringName = ZERO;
 static struct String* DictionaryName = ZERO;
 static struct String* NullName = ZERO;
+static struct String* NoAsString = ZERO;
+static struct String* YesAsString = ZERO;
 
-static struct String* noAsString = ZERO;
-static struct String* yesAsString = ZERO;
 
-static struct String* GenericException = ZERO;
-static struct String* OutOfBoundsException = ZERO;
 static struct String* InvalidArgumentException = ZERO;
-static struct String* CommandNotAllowedException = ZERO;
 static struct String* InternalInconsistencyException = ZERO;
-static struct String* ObjectNotMutableException = ZERO;
-static struct String* ErrorOccuredException = ZERO;
-static struct String* ImportCycleException = ZERO;
 
 
 // ---------------------------------------------------- Helper Functions -------
@@ -265,8 +265,8 @@ static bool CheckIfStringsAreEqual(void* string1, void* string2);
 // ----------------------------------------------------- Table Functions -------
 
 
-static void Init(struct Table* table, integer capacity) {
-    assert(table->entries == ZERO);
+static void TableInit(struct Table* table, integer capacity) {
+    assert(table->entries == ZERO, "When initializing a table view, its entries should be ZERO");
     capacity = RoundUpToPowerOfTwo(capacity);
     if (capacity < 1) capacity = 1;
     table->mask = capacity - 1;
@@ -275,16 +275,16 @@ static void Init(struct Table* table, integer capacity) {
 }
 
 
-static void Clear(struct Table* table) {
+static void TableClear(struct Table* table) {
     integer const capacity = table->mask + 1;
     memset(table->entries, 0, sizeof(void*) * 2 * capacity);
     table->count = 0;
 }
 
 
-static void* Get(struct Table* table, void* key, natural (*hash)(void*), bool (*equals)(void*, void*)) {
-    assert(key > ZERO);
-    assert(key < MORE);
+static void* TableGet(struct Table* table, void* key, natural (*hash)(void*), bool (*equals)(void*, void*)) {
+    assert(key > ZERO, "When getting a value for key from a table, key must be > ZERO");
+    assert(key < MORE, "When getting a value for key from a table, key must be < MORE");
 
     natural const mask = table->mask;
     void** const entries = table->entries;
@@ -303,10 +303,10 @@ static void* Get(struct Table* table, void* key, natural (*hash)(void*), bool (*
 }
 
 
-static integer Put(struct Table* table, void* key, void* value, natural (*hash)(void*), bool (*equals)(void*, void*)) {
-    assert(key > ZERO);
-    assert(key < MORE);
-    assert(value < MORE);
+static integer TablePut(struct Table* table, void* key, void* value, natural (*hash)(void*), bool (*equals)(void*, void*)) {
+    assert(key > ZERO, "When putting a value for key into a table, key must be > ZERO");
+    assert(key < MORE, "When putting a value for key into a table, key must be < MORE");
+    assert(value < MORE, "When putting a value for key into a table, value must be < MORE");
 
     natural const mask = table->mask;
     integer const count = table->count;
@@ -329,7 +329,7 @@ static integer Put(struct Table* table, void* key, void* value, natural (*hash)(
             for (int index = 0; index < oldCapacity; index += 1) {
                 void* const key = oldEntries[index * 2];
                 void* const value = oldEntries[index * 2 + 1];
-                if (key > ZERO && key < MORE) Put(table, key, value, hash, equals);
+                if (key > ZERO && key < MORE) TablePut(table, key, value, hash, equals);
             }
 
             free(oldEntries);
@@ -386,16 +386,31 @@ static integer Put(struct Table* table, void* key, void* value, natural (*hash)(
 
 
 static var ObjectAllocate(struct Object* self, var command, var options, ...) {
-    struct Object* object = calloc(1, sizeof(struct Object));
-    object->behavior = self->behavior;
-    object->retainCount = 1;
-    return object;
+    return calloc(1, self->meta->size);
 }
 
 
 static var ObjectCreate(struct Object* self, var command, var options, ...) {
-    self = send(self, "allocate");
-    return self;
+    var mutable = option("mutable", no);
+    var copy = option("copy", null);
+
+    if (copy != null) {
+        send(self, "error*", String("InvalidOptionException | Can't create a copy of X"));
+        return null;
+    }
+
+    struct Meta* meta = self->meta;
+    struct Object* object = self;
+
+    if (object->retainCount > 0) {
+        object = send(self, "allocate", options(String("mutable"), mutable));
+        object->meta = meta;
+    }
+
+    object->retainCount = 1;
+    object->flags = mutable == yes ? MUTABLE_FLAG : 0;
+
+    return autorelease(object);
 }
 
 
@@ -416,11 +431,12 @@ static var ObjectIsKindOf(struct Object* self, var command, var object, var opti
 
 
 static var ObjectIsMutable(struct Object* self, var command, var options, ...) {
-    return yes;
+    return self->flags & MUTABLE_FLAG ? yes : no;
 }
 
 
 static var ObjectRespondsTo(struct Object* self, var command, var commandToCheck, var options, ...) {
+    // TODO: optimize.
     void* code = lookup(self, commandToCheck, 0);
     return Boolean(code != ZERO);
 }
@@ -430,6 +446,11 @@ static var ObjectAsString(struct Object* self, var command, var options, ...) {
     if (self == Object) return ObjectName;
     // TODO: put in the address of the object.
     return String("<Object XXX>");
+}
+
+
+static var ObjectSelf(struct Object* self, var command, var options, ...) {
+    return self;
 }
 
 
@@ -443,36 +464,21 @@ static var ObjectEquals(struct Object* self, var command, var object, var option
 }
 
 
-static var ObjectCompare(struct Object* self, var command, var object, var options, ...) {
-    throw(CommandNotAllowedException);
-    return null;
-}
-
-
-static var ObjectSelf(struct Object* self, var command, var options, ...) {
-    return self;
-}
-
-
-static var ObjectCopy(struct Object* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
-    return null;
-}
-
-
 static var ObjectAddMethodBlock(struct Object* self, var command, var method, var block, var options, ...) {
-    if (self->behavior->owner != self) {
-        struct Object* parent = self->behavior->owner;
-        self->behavior = calloc(1, sizeof(struct Behavior));
-        self->behavior->owner = self;
-        self->behavior->parent = parent;
-        Init(&self->behavior->cache, parent->behavior->cache.count);
-        Init(&self->behavior->methods, METHODS_DEFAULT_CAPACITY);
-        Init(&self->behavior->children, CHILDREN_DEFAULT_CAPACITY);
-        Put(&parent->behavior->children, self, yes, ZERO, ZERO);
+    if (self->meta->owner != self) {
+        struct Object* parent = self->meta->owner;
+
+        self->meta = calloc(1, sizeof(struct Meta));
+        self->meta->owner = self;
+        self->meta->parent = parent;
+
+        TableInit(&self->meta->cache, parent->meta->cache.count);
+        TableInit(&self->meta->methods, METHODS_DEFAULT_CAPACITY);
+        TableInit(&self->meta->children, CHILDREN_DEFAULT_CAPACITY);
+        TablePut(&parent->meta->children, self, yes, ZERO, ZERO);
     }
 
-    Put(&self->behavior->methods, method, block(block).code, ZERO, ZERO);
+    TablePut(&self->meta->methods, method, block(block).code, ZERO, ZERO);
     preserve(method);
 
     // TODO: clear cache of all children.
@@ -488,8 +494,8 @@ static var ObjectRemoveMethod(struct Object* self, var command, var method, var 
 
 
 static var ObjectProto(struct Object* self, var command, var options, ...) {
-    struct Object* parent = self->behavior->parent;
-    struct Object* owner = self->behavior->owner;
+    struct Object* parent = self->meta->parent;
+    struct Object* owner = self->meta->owner;
     return owner == self ? parent : owner;
 }
 
@@ -515,9 +521,7 @@ static var ObjectWarning(struct Object* self, var command, var message, var opti
 
 
 static var ObjectError(struct Object* self, var command, var message, var options, ...) {
-    var description = send(message, "as-string");
-    fprintf(stderr, "[ERROR] %s\n", string(description).characters);
-    throw(ErrorOccuredException);
+    throw(message);
     return self;
 }
 
@@ -532,43 +536,35 @@ static var ObjectDebug(struct Object* self, var command, var message, var option
 // ------------------------------------------------------ Boolean Methods ------
 
 
-static var BooleanAllocate(struct Boolean* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
-    return null;
-}
-
-
 static var BooleanCreate(struct Boolean* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
+    send(self, "error*", String("InvalidCommandException | Can't create a Boolean"));
     return null;
 }
 
 
 static var BooleanDestroy(struct Boolean* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
+    send(self, "error*", String("InvalidCommandException | Can't destroy a Boolean"));
     return null;
 }
 
 
 static var BooleanAsString(struct Boolean* self, var command, var options, ...) {
     if (self == Boolean) return BooleanName;
-    if (self == yes) return yesAsString;
-    if (self == no) return noAsString;
-    throw(InternalInconsistencyException);
+    if (self == yes) return YesAsString;
+    if (self == no) return NoAsString;
+
+    send(self, "error*", String("InternalInconsistencyException | Can't return boolean as-string, self is neither yes, nor no, nor Boolean"));
     return null;
-}
-
-
-static var BooleanIsMutable(struct Boolean* self, var command, var options, ...) {
-    return no;
 }
 
 
 static var BooleanCompare(struct Boolean* self, var command, var object, var options, ...) {
     if (self == Boolean) return null;
     if (object != yes && object != no) return null;
+
     if (self == no && object == yes) return Number(-1);
     if (self == yes && object == no) return Number(+1);
+
     return Number(0);
 }
 
@@ -581,17 +577,9 @@ static var BooleanCopy(struct Boolean* self, var command, var options, ...) {
 // ------------------------------------------------------- Number Methods ------
 
 
-static var NumberAllocate(struct Number* self, var command, var options, ...) {
-    struct Number* number = calloc(1, sizeof(struct Number));
-    number->behavior = self->behavior;
-    number->retainCount = 1;
-    number->number = 0;
-    return number;
-}
-
-
-static var NumberIsMutable(struct Number* self, var command, var options, ...) {
-    return no;
+static var NumberCreate(struct Number* self, var command, var options, ...) {
+    send(self, "error*", String("InvalidCommandException | Can't create a Number"));
+    return null;
 }
 
 
@@ -607,7 +595,8 @@ static var NumberAsString(struct Number* self, var command, var options, ...) {
 
     if (fractionalPart == 0) {
         length = snprintf(buffer, bufferSize + 1, "%li", (integer)self->number);
-    } else {
+    }
+    else {
         length = snprintf(buffer, bufferSize + 1, "%f", self->number);
     }
 
@@ -628,8 +617,10 @@ static var NumberEquals(struct Number* self, var command, var object, var option
 static var NumberCompare(struct Number* self, var command, var object, var options, ...) {
     decimal const number1 = DecimalFrom(self);
     decimal const number2 = DecimalFrom(object);
+
     if (number1 < number2) return Number(-1);
     if (number1 > number2) return Number(+1);
+
     return Number(0);
 }
 
@@ -642,17 +633,9 @@ static var NumberCopy(struct Number* self, var command, var options, ...) {
 // -------------------------------------------------------- Block Methods ------
 
 
-static var BlockAllocate(struct Block* self, var command, var options, ...) {
-    struct Block* block = calloc(1, sizeof(struct Block));
-    block->behavior = self->behavior;
-    block->retainCount = 1;
-    block->code = ZERO;
-    return block;
-}
-
-
-static var BlockIsMutable(struct Block* self, var command, var options, ...) {
-    return no;
+static var BlockCreate(struct Block* self, var command, var options, ...) {
+    send(self, "error*", String("InvalidCommandException | Can't create a Block"));
+    return null;
 }
 
 
@@ -671,29 +654,20 @@ static var BlockAsString(struct Block* self, var command, var options, ...) {
 // --------------------------------------------------------- Data Methods ------
 
 
-static var DataAllocate(struct Data* self, var command, var options, ...) {
-    struct Data* data = calloc(1, sizeof(struct Data));
-    data->behavior = self->behavior;
-    data->retainCount = 1;
-    data->capacity = 0;
-    data->count = 0;
-    data->bytes = ZERO;
-    return data;
-}
-
-
 static var DataCreate(struct Data* self, var command, var options, ...) {
-    return send(self, "create-with-capacity*", Number(1));
-}
+    var mutable = option("mutable", no);
+    var capacity = option("capacity", Number(1));
+    var copy = option("copy", null);
 
+    // TODO: copy if needed.
 
-static var DataCreateWithCapacity(struct Data* self, var command, var capacity, var options, ...) {
-    self = super(self, "create");
+    self = super(self, "create", String("mutable"), mutable);
     self->capacity = IntegerFrom(capacity);
     self->capacity = MAX(self->capacity, DATA_DEFAULT_CAPACITY);
     self->capacity = RoundUpToPowerOfTwo(self->capacity);
     self->count = 0;
     self->bytes = calloc(self->capacity, 1);
+
     return self;
 }
 
@@ -704,17 +678,12 @@ static var DataDestroy(struct Data* self, var command, var options, ...) {
 }
 
 
-static var DataIsMutable(struct Data* self, var command, var options, ...) {
-    return self->capacity >= 0 ? yes : no;
-}
-
-
 static var DataAsString(struct Data* self, var command, var options, ...) {
     if (self == Data) return DataName;
 
     // TODO: implement Base64 encoding.
     char* table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    return null;
+    return String("<Data XXX>");
 }
 
 
@@ -725,11 +694,12 @@ static var DataHash(struct Data* self, var command, var options, ...) {
 
 
 static var DataEquals(struct Data* self, var command, var object, var options, ...) {
+    if (self == object) return yes;
+    if (send(object, "is-kind-of*", Data) == no) return no;
+
     struct Data* data1 = self;
     struct Data* data2 = object;
 
-    if (self == object) return yes;
-    if (send(object, "is-kind-of*", Data) == no) return no;
     if (data1->count != data2->count) return no;
 
     integer const result = memcmp(data1->bytes, data2->bytes, data1->count);
@@ -764,29 +734,20 @@ static var DataCount(struct Data* self, var command, var options, ...) {
 // -------------------------------------------------------- Array Methods ------
 
 
-static var ArrayAllocate(struct Array* self, var command, var options, ...) {
-    struct Array* array = calloc(1, sizeof(struct Array));
-    array->behavior = self->behavior;
-    array->retainCount = 1;
-    array->capacity = 0;
-    array->count = 0;
-    array->objects = ZERO;
-    return array;
-}
-
-
 static var ArrayCreate(struct Array* self, var command, var options, ...) {
-    return send(self, "create-with-capacity*", Number(1));
-}
+    var mutable = option("mutable", no);
+    var capacity = option("capacity", Number(1));
+    var copy = option("copy", null);
 
+    // TODO: copy if needed.
 
-static var ArrayCreateWithCapacity(struct Array* self, var command, var capacity, var options, ...) {
-    self = super(self, "create");
+    self = super(self, "create", String("mutable"), mutable);
     self->capacity = IntegerFrom(capacity);
     self->capacity = MAX(self->capacity, ARRAY_DEFAULT_CAPACITY);
     self->capacity = RoundUpToPowerOfTwo(self->capacity);
     self->count = 0;
     self->objects = calloc(self->capacity, sizeof(var));
+
     return self;
 }
 
@@ -800,15 +761,9 @@ static var ArrayDestroy(struct Array* self, var command, var options, ...) {
 }
 
 
-static var ArrayIsMutable(struct Array* self, var command, var options, ...) {
-    return self->capacity >= 0 ? yes : no;
-}
-
-
 static var ArrayAsString(struct Array* self, var command, var options, ...) {
     if (self == Array) return ArrayName;
-    // TODO: implement.
-    return null;
+    return String("<Array XXX>");
 }
 
 
@@ -819,11 +774,12 @@ static var ArrayHash(struct Array* self, var command, var options, ...) {
 
 
 static var ArrayEquals(struct Array* self, var command, var object, var options, ...) {
+    if (self == object) return yes;
+    if (send(object, "is-kind-of*", Array) == no) return no;
+
     struct Array* array1 = self;
     struct Array* array2 = object;
 
-    if (self == object) return yes;
-    if (send(object, "is-kind-of*", Array) == no) return no;
     if (array1->count != array2->count) return no;
 
     for (int index = 0; index < array1->count; index += 1) {
@@ -837,17 +793,20 @@ static var ArrayEquals(struct Array* self, var command, var object, var options,
 
 
 static var ArrayCopy(struct Array* self, var command, var options, ...) {
-    // TODO: implement.
-    // var mutable = option(String("mutable"), no);
-    // if (self->capacity < 0) return retain(self);
-    return null;
+    var mutable = option(String("mutable"), no);
+    // TODO: don't copy if mutable = no and object is immutable
+    return send(self, "create", options(String("mutable"), mutable, String("copy"), yes));
 }
 
 
 static var ArrayAt(struct Array* self, var command, var index, var options, ...) {
     integer const integerIndex = IntegerFrom(index);
     integer const integerCount = self->count;
-    if (integerIndex < 0 || integerIndex >= integerCount) throw(OutOfBoundsException);
+
+    if (integerIndex < 0 || integerIndex >= integerCount) {
+        send(self, "error*", String("RangeException | Can't access object at index X"));
+    }
+
     return self->objects[integerIndex];
 }
 
@@ -858,6 +817,55 @@ static var ArrayCount(struct Array* self, var command, var options, ...) {
 
 
 static var ArrayReplaceAtCountWith(struct Array* self, var command, var index, var count, var objects, var options, ...) {
+    integer const integerIndex = IntegerFrom(index);
+    integer const integerCount = IntegerFrom(count);
+
+    // Make sure array is mutable:
+    if (send(self, "is-mutable") == no) {
+        send(self, "error*", String("ImmutableException | Can't replace X objects at index Y with Z, object isn't mutable"));
+    }
+
+    // Validate arguments:
+    if (integerIndex < 0 || integerIndex > self->count) {
+        send(self, "error*", String("RangeException | Can't replace X objects at index Y with Z, index Y is out of range [0, B]"));
+    }
+
+    if (integerCount < 0) {
+        send(self, "error*", String("RangeException | Can't replace X objects at index Y with Z, count Y out of range [0, ∞]"));
+    }
+
+    // Gather information:
+    integer const revisedCount = MIN(self->count - integerIndex, integerCount);
+    integer const countOfObjects = IntegerFrom(send(objects, "count"));
+    integer const requiredCapacity = self->count + countOfObjects - revisedCount;
+
+    // Ensure enough capacity:
+    if (self->capacity < requiredCapacity) {
+        ArrayEnsureCapacity(self, requiredCapacity);
+    }
+
+    // Remove & release objects to be replaced:
+    for (integer i = integerIndex; i < integerIndex + revisedCount; i += 1) {
+        release(self->objects[i]);
+        self->objects[i] = ZERO;
+    }
+
+    // Make room for new objects:
+    for (integer j = self->count - 1; j >= integerIndex + revisedCount; j -= 1) {
+        self->objects[j + countOfObjects - revisedCount] = self->objects[j];
+        self->objects[j] = ZERO;
+    }
+
+    // Insert & retain new objects:
+    for (integer k = 0; k < countOfObjects; k += 1) {
+        var const object = send(objects, "at*", Number(k));
+        self->objects[k + integerIndex] = retain(object);
+    }
+
+    // Update own properties:
+    self->count = self->count + countOfObjects - revisedCount;
+
+    // Done.
     return self;
 }
 
@@ -865,45 +873,31 @@ static var ArrayReplaceAtCountWith(struct Array* self, var command, var index, v
 // ------------------------------------------------------- String Methods ------
 
 
-static var StringAllocate(struct String* self, var command, var options, ...) {
-    struct String* string = calloc(1, sizeof(struct String));
-    string->behavior = self->behavior;
-    string->retainCount = 1;
-    string->capacity = -1;
-    string->length = 0;
-    string->characters = ZERO;
-    return string;
-}
-
-
 static var StringCreate(struct String* self, var command, var options, ...) {
-    return send(self, "create-with-capacity*", Number(1));
-}
+    var mutable = option("mutable", no);
+    var capacity = option("capacity", Number(1));
+    var copy = option("copy", null);
 
+    // TODO: copy if needed.
 
-static var StringCreateWithCapacity(struct String* self, var command, var capacity, var options, ...) {
-    self = super(self, "create");
+    self = super(self, "create", String("mutable"), mutable);
     self->capacity = IntegerFrom(capacity);
     self->capacity = MAX(self->capacity, STRING_DEFAULT_CAPACITY);
     self->capacity = RoundUpToPowerOfTwo(self->capacity + 1) - 1;
     self->length = 0;
     self->characters = calloc(self->capacity + 1, sizeof(char));
+
     return self;
 }
 
 
 static var StringDestroy(struct String* self, var command, var options, ...) {
     if (self->capacity < 0) {
-        Put(&StringTable, self, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
+        TablePut(&StringTable, self, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
     }
 
     free(self->characters);
     return super(self, "destroy");
-}
-
-
-static var StringIsMutable(struct String* self, var command, var options, ...) {
-    return self->capacity >= 0 ? yes : no;
 }
 
 
@@ -925,6 +919,7 @@ static var StringEquals(struct String* self, var command, var object, var option
 
     struct String* string1 = self;
     struct String* string2 = object;
+
     if (string1->length != string2->length) return no;
 
     integer const result = strncmp(string1->characters, string2->characters, string1->length);
@@ -971,53 +966,46 @@ static var StringReplaceAtCountWith(struct String* self, var command, var index,
 // --------------------------------------------------- Dictionary Methods ------
 
 
-static var DictionaryAllocate(struct Dictionary* self, var command, var options, ...) {
-    struct Dictionary* dictionary = calloc(1, sizeof(struct Dictionary));
-    dictionary->behavior = self->behavior;
-    dictionary->retainCount = 1;
-    dictionary->capacity = 0;
-    dictionary->count = 0;
-    dictionary->mask = 0;
-    dictionary->entries = ZERO;
-    return dictionary;
-}
-
-
 static var DictionaryCreate(struct Dictionary* self, var command, var options, ...) {
-    return send(self, "create-with-capacity*", Number(1));
-}
+    var mutable = option("mutable", no);
+    var capacity = option("capacity", Number(1));
+    var copy = option("copy", null);
 
+    // TODO: copy if needed.
 
-static var DictionaryCreateWithCapacity(struct Dictionary* self, var command, var capacity, var options, ...) {
-    self = super(self, "create");
+    self = super(self, "create", String("mutable"), mutable);
     self->capacity = MAX(IntegerFrom(capacity), DICTIONARY_DEFAULT_CAPACITY);
     self->capacity = RoundUpToPowerOfTwo(self->capacity);
     self->count = 0;
     self->mask = self->capacity - 1;
     self->entries = calloc(self->capacity * 2, sizeof(var));
+
     return self;
 }
 
 
 static var DictionaryDestroy(struct Dictionary* self, var command, var options, ...) {
     for (int i = 0; i < self->count; i += 2) {
-        release(self->entries[i]);
-        release(self->entries[i + 1]);
+        var key = self->entries[i];
+        var value = self->entries[i + 1];
+
+        if (key != zero && key != more) {
+            release(key);
+            release(value);
+        }
+
+        self->entries[i] = zero;
+        self->entries[i + 1] = zero;
     }
     free(self->entries);
     return super(self, "destroy");
 }
 
 
-static var DictionaryIsMutable(struct Dictionary* self, var command, var options, ...) {
-    return self->capacity >= 0 ? yes : no;
-}
-
-
 static var DictionaryAsString(struct Dictionary* self, var command, var options, ...) {
     if (self == Dictionary) return DictionaryName;
     // TODO: implement.
-    return null;
+    return String("<Dictionary XXX>");
 }
 
 
@@ -1028,8 +1016,24 @@ static var DictionaryHash(struct Dictionary* self, var command, var options, ...
 
 
 static var DictionaryEquals(struct Dictionary* self, var command, var object, var options, ...) {
-    // TODO: implement.
-    return null;
+    if (self == object) return yes;
+    if (send(object, "is-kind-of*", Dictionary) == no) return no;
+
+    struct Dictionary* dictionary1 = self;
+    struct Dictionary* dictionary2 = object;
+
+    if (dictionary1->count != dictionary2->count) return no;
+
+    for (int index = 0; index < dictionary1->count; index += 1) {
+        var key = dictionary1->entries[index * 2];
+        if (key != zero) {
+            var value1 = dictionary1->entries[index * 2 + 1];
+            var value2 = send(dictionary2, "get*", key);
+            if (send(value1, "equals*", value2) == no) return no;
+        }
+    }
+
+    return yes;
 }
 
 
@@ -1048,11 +1052,21 @@ static var DictionaryGet(struct Dictionary* self, var command, var key, var opti
     for (int i = 0; i <= mask; i += 1) {
         integer const indexOfKey = index * 2;
         integer const indexOfValue = indexOfKey + 1;
-        var keyAtIndex = self->entries[indexOfKey];
-        var valueAtIndex = self->entries[indexOfValue];
+        var const keyAtIndex = self->entries[indexOfKey];
+        var const valueAtIndex = self->entries[indexOfValue];
+
+        if (keyAtIndex == more) {
+            continue;
+        }
+
+        if (keyAtIndex == zero) {
+            return null;
+        }
+
         if (send(keyAtIndex, "equals*", key) == yes) {
             return valueAtIndex;
         }
+
         index = (index + 1) & mask;
     }
 
@@ -1070,13 +1084,14 @@ static var DictionarySetTo(struct Dictionary* self, var command, var key, var va
     for (int i = 0; i <= mask; i += 1) {
         integer const indexOfKey = index * 2;
         integer const indexOfValue = indexOfKey + 1;
-        var keyAtIndex = self->entries[indexOfKey];
+        var const keyAtIndex = self->entries[indexOfKey];
 
-        if (keyAtIndex == zero) {
+        if (keyAtIndex == zero || keyAtIndex == more) {
             retain(key);
             retain(value);
             self->entries[indexOfKey] = key;
             self->entries[indexOfValue] = value;
+            self->count += 1;
             break;
         }
 
@@ -1105,14 +1120,27 @@ static var DictionaryRemove(struct Dictionary* self, var command, var key, var o
     for (int i = 0; i <= mask; i += 1) {
         integer const indexOfKey = index * 2;
         integer const indexOfValue = indexOfKey + 1;
-        var keyAtIndex = self->entries[indexOfKey];
-        var valueAtIndex = self->entries[indexOfValue];
+        var const keyAtIndex = self->entries[indexOfKey];
+        var const valueAtIndex = self->entries[indexOfValue];
+
+        if (keyAtIndex == more) {
+            continue;
+        }
+
+        if (keyAtIndex == zero) {
+            return self;
+        }
+
         if (send(keyAtIndex, "equals*", key) == yes) {
             release(keyAtIndex);
             release(valueAtIndex);
-            self->entries[indexOfKey] = zero;
+
+            self->entries[indexOfKey] = more;
             self->entries[indexOfValue] = zero;
+
+            return self;
         }
+
         index = (index + 1) & mask;
     }
 
@@ -1128,31 +1156,20 @@ static var DictionaryCount(struct Dictionary* self, var command, var options, ..
 // --------------------------------------------------------- Null Methods ------
 
 
-static var NullAllocate(struct Object* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
-    return null;
-}
-
-
 static var NullCreate(struct Object* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
+    send(self, "error*", String("InvalidCommandException | Can't create a Null"));
     return null;
 }
 
 
 static var NullDestroy(struct Object* self, var command, var options, ...) {
-    throw(CommandNotAllowedException);
+    send(self, "error*", String("InvalidCommandException | Can't destroy a Null"));
     return null;
 }
 
 
 static var NullAsString(struct Object* self, var command, var options, ...) {
     return NullName;
-}
-
-
-static var NullIsMutable(struct Object* self, var command, var options, ...) {
-    return no;
 }
 
 
@@ -1176,7 +1193,7 @@ var BooleanMake(long boolean) {
 
 var NumberMake(double value) {
     struct Number* number = calloc(1, sizeof(struct Number));
-    number->behavior = &NumberBehavior;
+    number->meta = &NumberMeta;
     number->retainCount = 1;
     number->number = value;
     return number;
@@ -1184,9 +1201,9 @@ var NumberMake(double value) {
 
 
 var BlockMake(void* code) {
-    assert(code != ZERO);
+    assert(code != ZERO, "When making a block, code must be != ZERO");
     struct Block* block = calloc(1, sizeof(struct Block));
-    block->behavior = &BlockBehavior;
+    block->meta = &BlockMeta;
     block->retainCount = 1;
     block->code = code;
     return block;
@@ -1194,9 +1211,9 @@ var BlockMake(void* code) {
 
 
 var DataMake(long count, const void* bytes) {
-    assert(count >= 0);
+    assert(count >= 0, "When making a data object, count must be >= 0");
     struct Data* data = calloc(1, sizeof(struct Data));
-    data->behavior = &DataBehavior;
+    data->meta = &DataMeta;
     data->retainCount = 1;
     data->capacity = -1;
     data->count = count;
@@ -1207,71 +1224,121 @@ var DataMake(long count, const void* bytes) {
 
 
 var ArrayMake(long count, ...) {
-    assert(count >= 0);
+    assert(count >= 0, "When making an array, count must be >= 0");
+
+    // Create array:
     struct Array* array = calloc(1, sizeof(struct Array));
-    array->behavior = &ArrayBehavior;
+    array->meta = &ArrayMeta;
     array->retainCount = 1;
     array->capacity = -1;
     array->count = count;
     array->objects = calloc(count, sizeof(var));
+
+    // Collect objects:
     va_list arguments;
     va_start(arguments, count);
     for (int i = 0; i < count; i += 1) {
         var object = va_arg(arguments, var);
-        array->objects[i] = retain(object);
+        array->objects[i] = object;
+
+        // TODO: retain here instaed of the extra pass below.
+
     }
+
+    // Make mutable if needed:
+    if (count > 0 && array->objects[count - 1] == more) {
+        array->flags |= MUTABLE_FLAG;
+        array->objects[count - 1] = ZERO;
+        array->count = count - 1;
+        array->capacity = count;
+        ArrayEnsureCapacity(array, count);
+    }
+
+    // Retain objects:
+    for (int i = 0; i < array->count; i += 1) {
+        retain(array->objects[i]);
+    }
+
+    // Done:
     va_end(arguments);
     return array;
 }
 
 
 var StringMake(long length, const char* characters) {
-    assert(length >= 0);
+    assert(length >= 0, "When making a string, length must be >= 0");
 
     natural const hash = Digest(length, characters);
     bool const couldBeCommandOrKey = length <= MAX_KEY_AND_COMMAND_LENGTH;
 
     if (couldBeCommandOrKey) {
-        struct String proxy = {&StringBehavior, RETAIN_COUNT_MAX, 0, -1, length, hash, (char*)characters};
-        struct String* string = Get(&StringTable, &proxy, ComputeHashOfString, CheckIfStringsAreEqual);
+        struct String proxy = {&StringMeta, RETAIN_COUNT_MAX, 0, -1, length, hash, (char*)characters};
+        struct String* string = TableGet(&StringTable, &proxy, ComputeHashOfString, CheckIfStringsAreEqual);
         if (string != ZERO) return retain(string);
     }
 
     struct String* string = calloc(1, sizeof(struct String));
-    string->behavior = &StringBehavior;
+    string->meta = &StringMeta;
     string->retainCount = 1;
     string->capacity = -1;
     string->length = length;
     string->hash = hash;
     string->characters = calloc(length + 1, sizeof(char));
     strncpy(string->characters, characters, length);
-    if (couldBeCommandOrKey) Put(&StringTable, string, string, ComputeHashOfString, CheckIfStringsAreEqual);
+
+    if (couldBeCommandOrKey) {
+        TablePut(&StringTable, string, string, ComputeHashOfString, CheckIfStringsAreEqual);
+    }
 
     return string;
 }
 
 
 var DictionaryMake(long count, ...) {
-    assert(count >= 0);
-    assert(count % 2 == 0);
+    assert(count >= 0, "When making a dictionary, count must be >= 0");
 
     struct Dictionary* dictionary = calloc(1, sizeof(struct Dictionary));
-    dictionary->behavior = &DictionaryBehavior;
+    dictionary->meta = &DictionaryMeta;
+    dictionary->flags = 0;
+    dictionary->retainCount = 1;
+    dictionary->capacity = 0;
+    dictionary->count = 0;
+    dictionary->mask = 0;
+
+    DictionaryEnsureCapacity(dictionary, count);
+
+    va_list arguments;
+    va_start(arguments, count);
+
+    for (int i = 0; i < count - 1; i += 2) {
+        var key = va_arg(arguments, var);
+        var value = va_arg(arguments, var);
+        DictionarySetTo(dictionary, null, key, value, zero);
+    }
+
+    // Make mutable if needed:
+    if (va_arg(arguments, var) == more) {
+        dictionary->flags = MUTABLE_FLAG;
+    }
+
+    // Done:
+   return dictionary;
+}
+
+
+
+var OptionsMake(long count, ...) {
+    assert(count >= 0, "When making an options dictionary, count must be >= 0");
+    assert(count % 2 == 0, "When making an options dictionary, count must be even (key/value pairs)");
+
+    struct Dictionary* dictionary = calloc(1, sizeof(struct Dictionary));
+    dictionary->meta = &DictionaryMeta;
     dictionary->retainCount = 1;
     dictionary->capacity = -1;
     dictionary->count = 0;
 
-    va_list arguments;
-    // va_start(arguments, first);
-    // var firstKey = first;
-    // var firstValue = va_arg(arguments, var);
-    // DictionarySetTo(dictionary, zero, firstKey, firstValue, zero);
-    // for (int i = 2; i < count; i += 1) {
-    //     var key = va_arg(arguments, var);
-    //     var value = va_arg(arguments, var);
-    //     DictionarySetTo(dictionary, zero, key, value, zero);
-    // }
-    // va_end(arguments);
+    // TODO: implement.
+
     return dictionary;
 }
 
@@ -1311,7 +1378,7 @@ void* CollectBlockPush() {
 void* CollectBlockPop(void* collectBlock) {
     // TODO: remove all child collect blocks from the stack
     // and release its objects if landed here through exception.
-    assert(collectBlock == CollectBlockTop);
+    assert(collectBlock == CollectBlockTop, "When popping a collect block, the top-most one must be the same as the one passed in");
     struct CollectBlock* collectBlockToPop = collectBlock;
     CollectBlockTop = collectBlockToPop->previousCollectBlock;
     for (int index = 0; index < collectBlockToPop->count; index += 1) {
@@ -1337,7 +1404,7 @@ void* TryCatchBlockPush() {
 
 
 void* TryCatchBlockPop(void* tryCatchBlock) {
-    assert(tryCatchBlock == TryCatchBlockTop);
+    assert(tryCatchBlock == TryCatchBlockTop, "When popping a try-catch block, the top-most one must be the same as the one passed in");
     struct TryCatchBlock* tryCatchBlockToPop = tryCatchBlock;
     TryCatchBlockTop = tryCatchBlockToPop->previousTryCatchBlock;
     release(tryCatchBlockToPop->exception);
@@ -1347,13 +1414,13 @@ void* TryCatchBlockPop(void* tryCatchBlock) {
 
 
 void* TryCatchBlockTry(void* tryCatchBlock) {
-    assert(tryCatchBlock == TryCatchBlockTop);
+    assert(tryCatchBlock == TryCatchBlockTop, "When beginning a try block, the top-most try-catch block must be the same as the one passed in");
     return TryCatchBlockTop->destination;
 }
 
 
 var TryCatchBlockCatch(void* tryCatchBlock) {
-    assert(tryCatchBlock == TryCatchBlockTop);
+    assert(tryCatchBlock == TryCatchBlockTop, "When beginning a catch block, the top-most try-catch block must be the same as the one passed in");
     return TryCatchBlockTop->exception;
 }
 
@@ -1395,18 +1462,22 @@ var autorelease(var object) {
         fprintf(stderr, "[WARNING] No collect block found, leaking ...\n");
         return object;
     }
+
     integer const capacity = CollectBlockTop->capacity;
     integer const count = CollectBlockTop->count;
+
     if (count >= capacity) {
-        assert(capacity > 0);
+        assert(capacity > 0, "When increasing the capacity of a collect pool, capacity must be > 0");
         var* objects = calloc(capacity * 2, sizeof(var));
         memcpy(objects, CollectBlockTop->objects, capacity * sizeof(var));
         free(CollectBlockTop->objects);
         CollectBlockTop->objects = objects;
         CollectBlockTop->capacity = capacity * 2;
     }
+
     CollectBlockTop->objects[count] = object;
     CollectBlockTop->count += 1;
+
     return object;
 }
 
@@ -1421,26 +1492,27 @@ var import(const char* name) {
     integer const nameLength = strlen(name);
     var const key = autorelease(StringMake(nameLength, name));
 
-    void* const imported = Get(&ImportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
-    void* const exported = Get(&ExportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
+    void* const imported = TableGet(&ImportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
+    void* const exported = TableGet(&ExportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
 
-    // TODO: detect cycles.
-    // throw(ImportCycleException);
+    if (imported == null) {
+        throw(String("ImportCycleException | Can't import object named X, import stack: Y"));
+    }
 
     var object = null;
 
-    if (imported != ZERO && exported != ZERO) throw(InternalInconsistencyException);
+    if (imported != ZERO && exported != ZERO) throw(String("InternalInconsistencyException | Can't import object named X, entry in import and export table are both ≠ ZERO"));
     if (imported != ZERO && exported == ZERO) object = imported;
 
     if (imported == ZERO && exported == ZERO) object = null;
     if (imported == ZERO && exported != ZERO) {
-        Put(&ImportTable, key, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
-        Put(&ExportTable, key, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
+        TablePut(&ImportTable, key, null, ComputeHashOfString, CheckIfStringsAreEqual);
+        TablePut(&ExportTable, key, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
         var (*code)() = exported;
         object = code();
         retain(object);
         retain(key);
-        Put(&ImportTable, key, object, ComputeHashOfString, CheckIfStringsAreEqual);
+        TablePut(&ImportTable, key, object, ComputeHashOfString, CheckIfStringsAreEqual);
     }
 
     return object;
@@ -1451,15 +1523,15 @@ var export(const char* name, void* code) {
     integer const nameLength = strlen(name);
     var const key = preserve(StringMake(nameLength, name));
 
-    void* const imported = Get(&ImportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
-    void* const exported = Get(&ExportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
+    void* const imported = TableGet(&ImportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
+    void* const exported = TableGet(&ExportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
 
-    if (imported != ZERO && exported != ZERO) throw(InternalInconsistencyException);
-    if (imported != ZERO && exported == ZERO) throw(InvalidArgumentException);
+    if (imported != ZERO && exported != ZERO) throw(String("InternalInconsistencyException | Can't export object named X, entry in import and export table are both ≠ ZERO"));
+    if (imported != ZERO && exported == ZERO) throw(String("InvalidArgumentException | Can't export object named X, entry already exists in import table (i.e. is already initialized)"));
 
-    if (imported == ZERO && exported != ZERO) throw(InvalidArgumentException);
+    if (imported == ZERO && exported != ZERO) throw(String("InvalidArgumentException | Can't export object named X, entry already exists in export table (i.e. is not yet initialized)"));
     if (imported == ZERO && exported == ZERO) {
-        Put(&ExportTable, key, code, ComputeHashOfString, CheckIfStringsAreEqual);
+        TablePut(&ExportTable, key, code, ComputeHashOfString, CheckIfStringsAreEqual);
     }
 
     return null;
@@ -1467,30 +1539,30 @@ var export(const char* name, void* code) {
 
 
 void* lookup(var self, var command, natural level) {
-    struct Behavior* const behavior = object(self).behavior;
-    struct Table* const methods = &behavior->methods;
-    struct Table* const cache = &behavior->cache;
+    struct Meta* const meta = object(self).meta;
+    struct Table* const methods = &meta->methods;
+    struct Table* const cache = &meta->cache;
     void* const key = (void*)((natural)command | level);
 
     // Look up in cache.
-    void* code = Get(cache, key, ZERO, ZERO);
+    void* code = TableGet(cache, key, ZERO, ZERO);
     if (code != ZERO) return code;
 
     // Look up in own methods.
-    assert(string(command).length <= MAX_KEY_AND_COMMAND_LENGTH);
-    code = Get(methods, command, ZERO, ZERO);
+    assert(string(command).length <= MAX_KEY_AND_COMMAND_LENGTH, "When looking up a method for a given command, the length of the command must be <= MAX_KEY_AND_COMMAND_LENGTH");
+    code = TableGet(methods, command, ZERO, ZERO);
 
     // Continue searching in parent's methods if needed.
-    if (behavior->parent != null) {
-        if (code && level > 0) code = lookup(behavior->parent, command, level - 1);
-        if (!code) code = lookup(behavior->parent, command, level);
+    if (meta->parent != null) {
+        if (code && level > 0) code = lookup(meta->parent, command, level - 1);
+        if (!code) code = lookup(meta->parent, command, level);
     }
 
     // TOOD: add fallback.
 
     // Cache found method.
-    assert(code != ZERO);
-    Put(cache, key, code, ZERO, ZERO);
+    assert(code != ZERO, "At this point, code must be either the found method or a fallback method but should enver be ZERO");
+    TablePut(cache, key, code, ZERO, ZERO);
     preserve(command);
 
     // Return found & now cached method.
@@ -1500,17 +1572,21 @@ void* lookup(var self, var command, natural level) {
 
 void throw(var exception) {
     retain(exception);
+
     struct TryCatchBlock* tryCatchBlock = TryCatchBlockTop;
     if (tryCatchBlock != ZERO && tryCatchBlock->thrown) {
         TryCatchBlockPop(tryCatchBlock);
         tryCatchBlock = TryCatchBlockTop;
     }
+
     if (tryCatchBlock == ZERO) {
-        fprintf(stderr, "[ERROR] Exception not catched\n");
-        exit(1);
+        var description = send(exception, "as-string");
+        fprintf(stderr, "[ERROR] %s\n", string(description).characters);
     }
+
     tryCatchBlock->exception = exception;
     tryCatchBlock->thrown = true;
+
     longjmp(tryCatchBlock->destination, 1);
 }
 
@@ -1520,63 +1596,70 @@ void throw(var exception) {
 
 static void bootstrap Metal() {
     collect {
-        Init(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
-        Init(&ImportTable, IMPORT_TABLE_DEFAULT_CAPACITY);
-        Init(&ExportTable, EXPORT_TABLE_DEFAULT_CAPACITY);
+        TableInit(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
+        TableInit(&ImportTable, IMPORT_TABLE_DEFAULT_CAPACITY);
+        TableInit(&ExportTable, EXPORT_TABLE_DEFAULT_CAPACITY);
 
-        ObjectBehavior.owner = &ObjectState;
-        BooleanBehavior.owner = &BooleanState;
-        NumberBehavior.owner = &NumberState;
-        BlockBehavior.owner = &BlockState;
-        DataBehavior.owner = &DataState;
-        ArrayBehavior.owner = &ArrayState;
-        StringBehavior.owner = &StringState;
-        DictionaryBehavior.owner = &DictionaryState;
-        NullBehavior.owner = &NullState;
+        ObjectMeta.owner = &ObjectState;
+        BooleanMeta.owner = &BooleanState;
+        NumberMeta.owner = &NumberState;
+        BlockMeta.owner = &BlockState;
+        DataMeta.owner = &DataState;
+        ArrayMeta.owner = &ArrayState;
+        StringMeta.owner = &StringState;
+        DictionaryMeta.owner = &DictionaryState;
+        NullMeta.owner = &NullState;
 
-        ObjectBehavior.parent = null;
-        BooleanBehavior.parent = &ObjectState;
-        NumberBehavior.parent = &ObjectState;
-        BlockBehavior.parent = &ObjectState;
-        DataBehavior.parent = &ObjectState;
-        ArrayBehavior.parent = &ObjectState;
-        StringBehavior.parent = &ObjectState;
-        DictionaryBehavior.parent = &ObjectState;
-        NullBehavior.parent = &ObjectState;
+        ObjectMeta.parent = null;
+        BooleanMeta.parent = &ObjectState;
+        NumberMeta.parent = &ObjectState;
+        BlockMeta.parent = &ObjectState;
+        DataMeta.parent = &ObjectState;
+        ArrayMeta.parent = &ObjectState;
+        StringMeta.parent = &ObjectState;
+        DictionaryMeta.parent = &ObjectState;
+        NullMeta.parent = &ObjectState;
 
+        ObjectMeta.size = sizeof(struct Object);
+        BooleanMeta.size = sizeof(struct Boolean);
+        NumberMeta.size = sizeof(struct Number);
+        BlockMeta.size = sizeof(struct Block);
+        DataMeta.size = sizeof(struct Data);
+        ArrayMeta.size = sizeof(struct Array);
+        StringMeta.size = sizeof(struct String);
+        DictionaryMeta.size = sizeof(struct Dictionary);
+        NullMeta.size = sizeof(struct Object);
 
-        Init(&ObjectBehavior.cache, CACHE_DEFAULT_CAPACITY);
-        Init(&BooleanBehavior.cache, CACHE_DEFAULT_CAPACITY);
-        Init(&NumberBehavior.cache, CACHE_DEFAULT_CAPACITY);
-        Init(&BlockBehavior.cache, CACHE_DEFAULT_CAPACITY);
-        Init(&DataBehavior.cache, CACHE_DEFAULT_CAPACITY);
-        Init(&ArrayBehavior.cache, CACHE_DEFAULT_CAPACITY);
-        Init(&StringBehavior.cache, CACHE_DEFAULT_CAPACITY);
-        Init(&DictionaryBehavior.cache, CACHE_DEFAULT_CAPACITY);
-        Init(&NullBehavior.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&ObjectMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&BooleanMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&NumberMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&BlockMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&DataMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&ArrayMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&StringMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&DictionaryMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableInit(&NullMeta.cache, CACHE_DEFAULT_CAPACITY);
 
-        Init(&ObjectBehavior.methods, 32);
-        Init(&BooleanBehavior.methods, 32);
-        Init(&NumberBehavior.methods, 32);
-        Init(&BlockBehavior.methods, 32);
-        Init(&DataBehavior.methods, 32);
-        Init(&ArrayBehavior.methods, 32);
-        Init(&StringBehavior.methods, 32);
-        Init(&DictionaryBehavior.methods, 32);
-        Init(&NullBehavior.methods, 32);
+        TableInit(&ObjectMeta.methods, 32);
+        TableInit(&BooleanMeta.methods, 32);
+        TableInit(&NumberMeta.methods, 32);
+        TableInit(&BlockMeta.methods, 32);
+        TableInit(&DataMeta.methods, 32);
+        TableInit(&ArrayMeta.methods, 32);
+        TableInit(&StringMeta.methods, 32);
+        TableInit(&DictionaryMeta.methods, 32);
+        TableInit(&NullMeta.methods, 32);
 
         ObjectAddMethodBlock(Object, zero, String("allocate"), Block(ObjectAllocate), zero);
-        ObjectAddMethodBlock(Object, zero, String("destroy"), Block(ObjectDestroy), zero);
         ObjectAddMethodBlock(Object, zero, String("create"), Block(ObjectCreate), zero);
+        ObjectAddMethodBlock(Object, zero, String("destroy"), Block(ObjectDestroy), zero);
         ObjectAddMethodBlock(Object, zero, String("is-kind-of*"), Block(ObjectIsKindOf), zero);
         ObjectAddMethodBlock(Object, zero, String("is-mutable"), Block(ObjectIsMutable), zero);
         ObjectAddMethodBlock(Object, zero, String("responds-to*"), Block(ObjectRespondsTo), zero);
         ObjectAddMethodBlock(Object, zero, String("as-string"), Block(ObjectAsString), zero);
+        ObjectAddMethodBlock(Object, zero, String("self"), Block(ObjectSelf), zero);
         ObjectAddMethodBlock(Object, zero, String("hash"), Block(ObjectHash), zero);
         ObjectAddMethodBlock(Object, zero, String("equals*"), Block(ObjectEquals), zero);
-        ObjectAddMethodBlock(Object, zero, String("compare*"), Block(ObjectCompare), zero);
-        ObjectAddMethodBlock(Object, zero, String("self"), Block(ObjectSelf), zero);
-        ObjectAddMethodBlock(Object, zero, String("copy"), Block(ObjectCopy), zero);
         ObjectAddMethodBlock(Object, zero, String("add-method*block*"), Block(ObjectAddMethodBlock), zero);
         ObjectAddMethodBlock(Object, zero, String("remove-method*"), Block(ObjectRemoveMethod), zero);
         ObjectAddMethodBlock(Object, zero, String("proto"), Block(ObjectProto), zero);
@@ -1586,31 +1669,24 @@ static void bootstrap Metal() {
         ObjectAddMethodBlock(Object, zero, String("error*"), Block(ObjectError), zero);
         ObjectAddMethodBlock(Object, zero, String("debug*"), Block(ObjectDebug), zero);
 
-        ObjectAddMethodBlock(Boolean, zero, String("allocate"), Block(BooleanAllocate), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("destroy"), Block(BooleanDestroy), zero);
         ObjectAddMethodBlock(Boolean, zero, String("create"), Block(BooleanCreate), zero);
+        ObjectAddMethodBlock(Boolean, zero, String("destroy"), Block(BooleanDestroy), zero);
         ObjectAddMethodBlock(Boolean, zero, String("as-string"), Block(BooleanAsString), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("is-mutable"), Block(BooleanIsMutable), zero);
         ObjectAddMethodBlock(Boolean, zero, String("compare*"), Block(BooleanCompare), zero);
         ObjectAddMethodBlock(Boolean, zero, String("copy"), Block(BooleanCopy), zero);
 
-        ObjectAddMethodBlock(Number, zero, String("allocate"), Block(NumberAllocate), zero);
-        ObjectAddMethodBlock(Number, zero, String("is-mutable"), Block(NumberIsMutable), zero);
+        ObjectAddMethodBlock(Number, zero, String("create"), Block(NumberCreate), zero);
         ObjectAddMethodBlock(Number, zero, String("as-string"), Block(NumberAsString), zero);
         ObjectAddMethodBlock(Number, zero, String("hash"), Block(NumberHash), zero);
         ObjectAddMethodBlock(Number, zero, String("equals*"), Block(NumberEquals), zero);
         ObjectAddMethodBlock(Number, zero, String("compare*"), Block(NumberCompare), zero);
         ObjectAddMethodBlock(Number, zero, String("copy"), Block(NumberCopy), zero);
 
-        ObjectAddMethodBlock(Block, zero, String("allocate"), Block(BlockAllocate), zero);
-        ObjectAddMethodBlock(Block, zero, String("is-mutable"), Block(BlockIsMutable), zero);
+        ObjectAddMethodBlock(Block, zero, String("create"), Block(BlockCreate), zero);
         ObjectAddMethodBlock(Block, zero, String("as-string"), Block(BlockAsString), zero);
 
-        ObjectAddMethodBlock(Data, zero, String("allocate"), Block(DataAllocate), zero);
-        ObjectAddMethodBlock(Data, zero, String("destroy"), Block(DataDestroy), zero);
         ObjectAddMethodBlock(Data, zero, String("create"), Block(DataCreate), zero);
-        ObjectAddMethodBlock(Data, zero, String("create-with-capacity*"), Block(DataCreateWithCapacity), zero);
-        ObjectAddMethodBlock(Data, zero, String("is-mutable"), Block(DataIsMutable), zero);
+        ObjectAddMethodBlock(Data, zero, String("destroy"), Block(DataDestroy), zero);
         ObjectAddMethodBlock(Data, zero, String("as-string"), Block(DataAsString), zero);
         ObjectAddMethodBlock(Data, zero, String("hash"), Block(DataHash), zero);
         ObjectAddMethodBlock(Data, zero, String("equals*"), Block(DataEquals), zero);
@@ -1619,11 +1695,8 @@ static void bootstrap Metal() {
         ObjectAddMethodBlock(Data, zero, String("replace-at*count*with*"), Block(DataReplaceAtCountWith), zero);
         ObjectAddMethodBlock(Data, zero, String("count"), Block(DataCount), zero);
 
-        ObjectAddMethodBlock(Array, zero, String("allocate"), Block(ArrayAllocate), zero);
-        ObjectAddMethodBlock(Array, zero, String("destroy"), Block(ArrayDestroy), zero);
         ObjectAddMethodBlock(Array, zero, String("create"), Block(ArrayCreate), zero);
-        ObjectAddMethodBlock(Array, zero, String("create-with-capacity*"), Block(ArrayCreateWithCapacity), zero);
-        ObjectAddMethodBlock(Array, zero, String("is-mutable"), Block(ArrayIsMutable), zero);
+        ObjectAddMethodBlock(Array, zero, String("destroy"), Block(ArrayDestroy), zero);
         ObjectAddMethodBlock(Array, zero, String("as-string"), Block(ArrayAsString), zero);
         ObjectAddMethodBlock(Array, zero, String("hash"), Block(ArrayHash), zero);
         ObjectAddMethodBlock(Array, zero, String("equals*"), Block(ArrayEquals), zero);
@@ -1632,11 +1705,8 @@ static void bootstrap Metal() {
         ObjectAddMethodBlock(Array, zero, String("count"), Block(ArrayCount), zero);
         ObjectAddMethodBlock(Array, zero, String("replace-at*count*with*"), Block(ArrayReplaceAtCountWith), zero);
 
-        ObjectAddMethodBlock(String, zero, String("allocate"), Block(StringAllocate), zero);
-        ObjectAddMethodBlock(String, zero, String("destroy"), Block(StringDestroy), zero);
         ObjectAddMethodBlock(String, zero, String("create"), Block(StringCreate), zero);
-        ObjectAddMethodBlock(String, zero, String("create-with-capacity*"), Block(StringCreateWithCapacity), zero);
-        ObjectAddMethodBlock(String, zero, String("is-mutable"), Block(StringIsMutable), zero);
+        ObjectAddMethodBlock(String, zero, String("destroy"), Block(StringDestroy), zero);
         ObjectAddMethodBlock(String, zero, String("as-string"), Block(StringAsString), zero);
         ObjectAddMethodBlock(String, zero, String("hash"), Block(StringHash), zero);
         ObjectAddMethodBlock(String, zero, String("equals*"), Block(StringEquals), zero);
@@ -1646,11 +1716,8 @@ static void bootstrap Metal() {
         ObjectAddMethodBlock(String, zero, String("length"), Block(StringLength), zero);
         ObjectAddMethodBlock(String, zero, String("replace-at*count*with*"), Block(StringReplaceAtCountWith), zero);
 
-        ObjectAddMethodBlock(Dictionary, zero, String("allocate"), Block(DictionaryAllocate), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("destroy"), Block(DictionaryDestroy), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("create"), Block(DictionaryCreate), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("create-with-capacity*"), Block(DictionaryCreateWithCapacity), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("is-mutable"), Block(DictionaryIsMutable), zero);
+        ObjectAddMethodBlock(Dictionary, zero, String("destroy"), Block(DictionaryDestroy), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("as-string"), Block(DictionaryAsString), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("hash"), Block(DictionaryHash), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("equals*"), Block(DictionaryEquals), zero);
@@ -1660,32 +1727,30 @@ static void bootstrap Metal() {
         ObjectAddMethodBlock(Dictionary, zero, String("remove*"), Block(DictionaryRemove), zero);
         ObjectAddMethodBlock(Dictionary, zero, String("count"), Block(DictionaryCount), zero);
 
-        ObjectAddMethodBlock(null, zero, String("allocate"), Block(NullAllocate), zero);
-        ObjectAddMethodBlock(null, zero, String("destroy"), Block(NullDestroy), zero);
         ObjectAddMethodBlock(null, zero, String("create"), Block(NullCreate), zero);
+        ObjectAddMethodBlock(null, zero, String("destroy"), Block(NullDestroy), zero);
         ObjectAddMethodBlock(null, zero, String("as-string"), Block(NullAsString), zero);
-        ObjectAddMethodBlock(null, zero, String("is-mutable"), Block(NullIsMutable), zero);
         ObjectAddMethodBlock(null, zero, String("equals*"), Block(NullEquals), zero);
         ObjectAddMethodBlock(null, zero, String("copy"), Block(NullCopy), zero);
 
-        Init(&ObjectBehavior.children, 64);
-        Init(&BooleanBehavior.children, 1);
-        Init(&NumberBehavior.children, 1);
-        Init(&BlockBehavior.children, 1);
-        Init(&DataBehavior.children, 1);
-        Init(&ArrayBehavior.children, 1);
-        Init(&StringBehavior.children, 1);
-        Init(&DictionaryBehavior.children, 1);
-        Init(&NullBehavior.children, 1);
+        TableInit(&ObjectMeta.children, 64);
+        TableInit(&BooleanMeta.children, 1);
+        TableInit(&NumberMeta.children, 1);
+        TableInit(&BlockMeta.children, 1);
+        TableInit(&DataMeta.children, 1);
+        TableInit(&ArrayMeta.children, 1);
+        TableInit(&StringMeta.children, 1);
+        TableInit(&DictionaryMeta.children, 1);
+        TableInit(&NullMeta.children, 1);
 
-        Put(&ObjectBehavior.children, Boolean, yes, ZERO, ZERO);
-        Put(&ObjectBehavior.children, Number, yes, ZERO, ZERO);
-        Put(&ObjectBehavior.children, Block, yes, ZERO, ZERO);
-        Put(&ObjectBehavior.children, Data, yes, ZERO, ZERO);
-        Put(&ObjectBehavior.children, Array, yes, ZERO, ZERO);
-        Put(&ObjectBehavior.children, String, yes, ZERO, ZERO);
-        Put(&ObjectBehavior.children, Dictionary, yes, ZERO, ZERO);
-        Put(&ObjectBehavior.children, null, yes, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, Boolean, yes, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, Number, yes, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, Block, yes, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, Data, yes, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, Array, yes, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, String, yes, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, Dictionary, yes, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, null, yes, ZERO, ZERO);
 
         // TODO: implement.
 
@@ -1699,17 +1764,11 @@ static void bootstrap Metal() {
         DictionaryName = preserve(String("Dictionary"));
         NullName = preserve(String("Null"));
 
-        noAsString = preserve(String("no"));
-        yesAsString = preserve(String("yes"));
+        NoAsString = preserve(String("no"));
+        YesAsString = preserve(String("yes"));
 
-        GenericException = preserve(String("GenericException"));
-        OutOfBoundsException = preserve(String("OutOfBoundsException"));
         InvalidArgumentException = preserve(String("InvalidArgumentException"));
-        CommandNotAllowedException = preserve(String("CommandNotAllowedException"));
         InternalInconsistencyException = preserve(String("InternalInconsistencyException"));
-        ObjectNotMutableException = preserve(String("ObjectNotMutableException"));
-        ErrorOccuredException = preserve(String("ErrorOccuredException"));
-        ImportCycleException = preserve(String("ImportCycleException"));
     }
 }
 
@@ -1720,6 +1779,7 @@ static void bootstrap Metal() {
 static void DataEnsureCapacity(struct Data* data, integer requiredCapacity) {
     if (requiredCapacity <= DATA_DEFAULT_CAPACITY) requiredCapacity = DATA_DEFAULT_CAPACITY;
     if (requiredCapacity <= data->capacity) return;
+
     data->capacity = RoundUpToPowerOfTwo(requiredCapacity);
     data->bytes = realloc(data->bytes, data->capacity);
 }
@@ -1728,6 +1788,7 @@ static void DataEnsureCapacity(struct Data* data, integer requiredCapacity) {
 static void ArrayEnsureCapacity(struct Array* array, integer requiredCapacity) {
     if (requiredCapacity <= ARRAY_DEFAULT_CAPACITY) requiredCapacity = ARRAY_DEFAULT_CAPACITY;
     if (requiredCapacity <= array->capacity) return;
+
     array->capacity = RoundUpToPowerOfTwo(requiredCapacity);
     array->objects = realloc(array->objects, sizeof(var) * array->capacity);
 }
@@ -1736,6 +1797,7 @@ static void ArrayEnsureCapacity(struct Array* array, integer requiredCapacity) {
 static void StringEnsureCapacity(struct String* string, integer requiredCapacity) {
     if (requiredCapacity <= STRING_DEFAULT_CAPACITY) requiredCapacity = STRING_DEFAULT_CAPACITY;
     if (requiredCapacity <= string->capacity) return;
+
     string->capacity = RoundUpToPowerOfTwo(requiredCapacity + 1) - 1;
     string->characters = realloc(string->characters, sizeof(char) * (string->capacity + 1));
 }
@@ -1743,10 +1805,12 @@ static void StringEnsureCapacity(struct String* string, integer requiredCapacity
 
 static void DictionaryEnsureCapacity(struct Dictionary* dictionary, integer requiredCapacity) {
     if (requiredCapacity <= DICTIONARY_DEFAULT_CAPACITY) requiredCapacity = DICTIONARY_DEFAULT_CAPACITY;
+
     integer const oldCapacity = dictionary->capacity;
     integer const oneFourthOfOldCapacity = oldCapacity >> 2;
     integer const threeFourthOfOldCapacity = oldCapacity - oneFourthOfOldCapacity;
     integer const newCapacity = RoundUpToPowerOfTwo(requiredCapacity + (requiredCapacity >> 1));
+
     if (requiredCapacity < threeFourthOfOldCapacity) return;
 
     var* oldEntries = dictionary->entries;

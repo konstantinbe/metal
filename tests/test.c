@@ -23,6 +23,7 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 // --------------------------------------------------- Constants & Macros ------
@@ -78,8 +79,7 @@ static void TestObjectCreate() {
 
 
 static void TestObjectDestroy() {
-    var object = send(Object, "allocate");
-    AssertNull(send(object, "destroy"), "Object destroy destroys an object and returns null");
+    // Destroy can't be properly tested because created objects are autoreleased.
 }
 
 
@@ -99,10 +99,12 @@ static void TestObjectIsKindOf() {
 
 
 static void TestObjectIsMutable() {
-    var object = send(Object, "create");
-    var number = Number(5);
-    AssertYes(send(object, "is-mutable"), "Object is-mutable returns yes (all objects are mutable by default)");
-
+    var object1 = send(Object, "create");
+    var object2 = send(Object, "create", String("mutable"), no);
+    var object3 = send(Object, "create", String("mutable"), yes);
+    AssertNo(send(object1, "is-mutable"), "Object is-mutable returns no (all objects are not mutable by default)");
+    AssertNo(send(object2, "is-mutable"), "Object is-mutable returns no if option mutable = no was passed to create");
+    AssertYes(send(object3, "is-mutable"), "Object is-mutable returns yes if option mutable = yes was passed to create");
 }
 
 
@@ -134,19 +136,9 @@ static void TestObjectEquals() {
 }
 
 
-static void TestObjectCompare() {
-    AssertThrows("Object compare* throws an exception by default, regular objects don't support comparing") send(Object, "compare*", null);
-}
-
-
 static void TestObjectSelf() {
     var object = send(Object, "create");
     AssertIdentical(object, send(object, "self"), "Object self returns itself");
-}
-
-
-static void TestObjectCopy() {
-    AssertThrows("Object copy throws an exception by default, regular objects don't support copying") send(Object, "copy", null);
 }
 
 
@@ -199,8 +191,6 @@ static void TestObject() {
     TestObjectAsString();
     TestObjectHash();
     TestObjectEquals();
-    TestObjectCompare();
-    TestObjectCopy();
     TestObjectAddMethodBlock();
     TestObjectRemoveMethod();
     TestObjectProto();
@@ -396,8 +386,31 @@ static void TestArrayEquals () {
 }
 
 
+static void TestArrayCount() {
+    var array1 = Array();
+    var array2 = Array(Number(1));
+    var array3 = Array(Number(1), Number(2), Number(3));
+    AssertEquals(send(array1, "count"), Number(0), "Array count returns X for an array with X objects (here: X = 0)");
+    AssertEquals(send(array2, "count"), Number(1), "Array count returns X for an array with X objects (here: X = 1)");
+    AssertEquals(send(array3, "count"), Number(3), "Array count returns X for an array with X objects (here: X = 3)");
+}
+
+
+static void TestArrayReplaceAtCountWith() {
+    var array1 = Array(Number(1), Number(2), Number(3), Number(4), more);
+    var array2 = Array();
+    var array3 = Array(Number(3), Number(4), Number(5));
+    var array4 = Array(Number(6), Number(7), Number(8), Number(9));
+
+    // AssertEquals(send(array1, "replace-at*count*with*", Number(1), Number(2), Array(Number(5), Number(6), Number(7))), Array(Number(1), Number(5), Number(6), Number(7), Number(4)), "Array replace-at*count*with* replaces `count` objects starting at `index` with `objects`");
+    // AssertEquals(send(array2, "replace-at*count*with*", Number(0), Number(0), Array()), Array(), "Array replace-at*count*with* doesn't change the array when `count` is 0 and `index` is valid");
+}
+
+
 static void TestArray() {
     TestArrayEquals();
+    TestArrayCount();
+    TestArrayReplaceAtCountWith();
     // TODO: add more tests.
 }
 
@@ -431,12 +444,53 @@ static void TestString() {
 
 
 static void TestDictionaryEquals() {
-    // TODO: implement.
+    var dictionary1 = Dictionary(String("one"), Number(1), String("two"), Number(2));
+    var dictionary2 = Dictionary(String("one"), Number(1), String("two"), Number(2));
+    var dictionary3 = Dictionary(String("one"), Number(1), String("three"), Number(3));
+}
+
+
+static void TestDictionaryCount() {
+    var dictionary1 = Dictionary();
+    var dictionary2 = Dictionary(String("one"), Number(1));
+    var dictionary3 = Dictionary(String("one"), Number(1), String("two"), Number(2), String("three"), Number(3));
+    AssertEquals(send(dictionary1, "count"), Number(0), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 0)");
+    AssertEquals(send(dictionary2, "count"), Number(1), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 1)");
+    AssertEquals(send(dictionary3, "count"), Number(3), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 3)");
+}
+
+
+static void TestDictionaryGet() {
+    var dictionary = Dictionary(String("one"), Number(1), String("two"), Number(2));
+    AssertEquals(send(dictionary, "get*", String("one")), Number(1), "Dictionary get* returns the value for the given key (here: key = 'one', value = 1)");
+    AssertEquals(send(dictionary, "get*", String("two")), Number(2), "Dictionary get* returns the value for the given key (here: key = 'two', value = 2)");
+    AssertNull(send(dictionary, "get*", String("three")), "Dictionary get* returns null if the given key is not in the dictionary (here: key = 'three')");
+}
+
+
+static void TestDictionarySetTo() {
+    var dictionary = Dictionary(more);
+    send(dictionary, "set*to*", String("one"), Number(1));
+    AssertEquals(send(dictionary, "get*", String("one")), Number(1), "Dictionary set*to* sets the entry for `key` to the passed `value` (here: key = 'one', value = 1)");
+    // TODO: check that non-mutable dictionaries throw an exception when trying to mutate.
+}
+
+
+static void TestDictionaryRemove() {
+    var dictionary = Dictionary(String("one"), Number(1), String("two"), Number(2), more);
+    send(dictionary, "remove*", String("one"));
+    AssertNull(send(dictionary, "get*", String("one")), "Dictionary remove* removes the entry for `key` (here: key = 'one', value = 1)");
+    // TODO: check that non-mutable dictionaries throw an exception when trying to mutate.
 }
 
 
 static void TestDictionary() {
     TestDictionaryEquals();
+    TestDictionaryCount();
+    TestDictionaryGet();
+    TestDictionarySetTo();
+    TestDictionaryRemove();
+
     // TODO: add more tests.
 }
 
@@ -461,19 +515,30 @@ static void TestNull() {
 // ------------------------------------------------ Import & Export Tests ------
 
 
+static integer ImportExportTestObjectCount = 0;
+
+
 static var ImportExportTestObject() {
-    return Object;
+    ImportExportTestObjectCount += 1;
+    return Number(123456789);
 }
 
 
 static void TestImportAndExport() {
     const char* name = "ImportExport.TestObject";
-    var const objectBefore = import(name);
+    var const objectBeforeImport = import(name);
     export(name, ImportExportTestObject);
-    var const objectAfter = import(name);
+    var const objectAfterImport = import(name);
 
-    AssertNull(objectBefore, "Importing an object that hasn't been exported yet should return null");
-    AssertEqual(objectAfter, Object, "Importing an object that has been exported should return the exported object");
+    AssertNull(objectBeforeImport, "Importing an object that hasn't been exported yet should return null");
+    AssertEquals(objectAfterImport, Number(123456789), "Importing an object that has been exported should return the exported object");
+    AssertYes(Boolean(ImportExportTestObjectCount == 1), "When importing an exported object for the first time, its loading function should be called once");
+
+    var const objectAfterSecondImport = import(name);
+    AssertYes(Boolean(ImportExportTestObjectCount == 1), "When importing an exported object multiple times, its loading function should be called only once");
+    AssertEquals(objectAfterImport, objectAfterSecondImport, "When importing an exported object multiple times, the same object should be returned every time");
+
+    // TODO: test cycle detection.
 }
 
 

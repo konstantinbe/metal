@@ -10,7 +10,7 @@ Objective-C, Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/c
 * Install [Rake](http://rake.rubyforge.org)
 * Install [Git](http://git-scm.com)
 * Clone repo: `git clone git@github.com:konstantinbe/metal.git`
-* Build & test: `rake test`
+* Build & some: `rake some`
 
 For debugging (optional):
 
@@ -38,7 +38,7 @@ For memory analysis (optional):
 * Use CamelCase for everything else in code (types, functions, variables, ...):
   `IndexOf`, `instanceVariableName`
 * Use dashed notation for directories and files:
-  `array.c`, `test-array.c`
+  `array.c`, `some-array.c`
 * Use dashed notation for URLs:
   `http://konstantinbender.com/introducing-the-metal-runtime`
 * Use dashed notation for XML, HTML and CSS: `person-name`, `table-of-people`,
