@@ -285,6 +285,7 @@ static void* Get(struct Table* table, void* key, natural (*hash)(void*), bool (*
         void* const keyAtIndex = entries[index * 2];
         void* const valueAtIndex = entries[index * 2 + 1];
         if (keyAtIndex == ZERO) return ZERO;
+        if (keyAtIndex == MORE) continue;
         if (equals ? equals(keyAtIndex, key) : keyAtIndex == key) return valueAtIndex;
         index = (index + 1) & mask;
     }
