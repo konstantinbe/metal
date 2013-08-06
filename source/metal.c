@@ -48,6 +48,8 @@
 #define IMPORT_TABLE_DEFAULT_CAPACITY 2048
 #define EXPORT_TABLE_DEFAULT_CAPACITY 2048
 #define MAX_KEY_AND_COMMAND_LENGTH 1024
+#define MUTABLE_FLAG ((natural)1 << 0)
+#define VALUE_FLAG ((natural)1 << 1)
 
 
 #define MAX(value1, value2) ((value1) > (value2) ? (value1) : (value2))
@@ -89,18 +91,21 @@ struct Behavior {
 struct Object {
     struct Behavior* behavior;
     integer retainCount;
+    natural flags;
 };
 
 
 struct Boolean {
     struct Behavior* behavior;
     integer retainCount;
+    natural flags;
 };
 
 
 struct Number {
     struct Behavior* behavior;
     integer retainCount;
+    natural flags;
     double number;
 };
 
@@ -108,6 +113,7 @@ struct Number {
 struct Block {
     struct Behavior* behavior;
     integer retainCount;
+    natural flags;
     void* code;
 };
 
@@ -125,6 +131,7 @@ struct Data {
 struct Array {
     struct Behavior* behavior;
     integer retainCount;
+    natural flags;
     integer capacity;
     integer count;
     natural hash;
@@ -135,6 +142,7 @@ struct Array {
 struct String {
     struct Behavior* behavior;
     integer retainCount;
+    natural flags;
     integer capacity;
     integer length;
     natural hash;
@@ -145,6 +153,7 @@ struct String {
 struct Dictionary {
     struct Behavior* behavior;
     integer retainCount;
+    natural flags;
     integer capacity;
     integer count;
     natural mask;
@@ -183,17 +192,17 @@ static struct Behavior DictionaryBehavior;
 static struct Behavior NullBehavior;
 
 
-static struct Object ObjectState = {&ObjectBehavior, RETAIN_COUNT_MAX};
-static struct Boolean BooleanState = {&BooleanBehavior, RETAIN_COUNT_MAX};
-static struct Number NumberState = {&NumberBehavior, RETAIN_COUNT_MAX};
-static struct Block BlockState = {&BlockBehavior, RETAIN_COUNT_MAX};
-static struct Data DataState = {&DataBehavior, RETAIN_COUNT_MAX};
-static struct Array ArrayState = {&ArrayBehavior, RETAIN_COUNT_MAX};
-static struct String StringState = {&StringBehavior, RETAIN_COUNT_MAX};
-static struct Dictionary DictionaryState = {&DictionaryBehavior, RETAIN_COUNT_MAX};
-static struct Object NullState = {&NullBehavior, RETAIN_COUNT_MAX};
-static struct Boolean yesState = {&BooleanBehavior, RETAIN_COUNT_MAX};
-static struct Boolean noState = {&BooleanBehavior, RETAIN_COUNT_MAX};
+static struct Object ObjectState = {&ObjectBehavior, RETAIN_COUNT_MAX, 0};
+static struct Boolean BooleanState = {&BooleanBehavior, RETAIN_COUNT_MAX, 0};
+static struct Number NumberState = {&NumberBehavior, RETAIN_COUNT_MAX, 0};
+static struct Block BlockState = {&BlockBehavior, RETAIN_COUNT_MAX, 0};
+static struct Data DataState = {&DataBehavior, RETAIN_COUNT_MAX, 0};
+static struct Array ArrayState = {&ArrayBehavior, RETAIN_COUNT_MAX, 0};
+static struct String StringState = {&StringBehavior, RETAIN_COUNT_MAX, 0};
+static struct Dictionary DictionaryState = {&DictionaryBehavior, RETAIN_COUNT_MAX, 0};
+static struct Object NullState = {&NullBehavior, RETAIN_COUNT_MAX, 0};
+static struct Boolean yesState = {&BooleanBehavior, RETAIN_COUNT_MAX, 0};
+static struct Boolean noState = {&BooleanBehavior, RETAIN_COUNT_MAX, 0};
 
 
 var const Object = &ObjectState;
@@ -385,7 +394,8 @@ static var ObjectAllocate(struct Object* self, var command, var options, ...) {
 
 
 static var ObjectCreate(struct Object* self, var command, var options, ...) {
-    return send(self, "allocate");
+    self = send(self, "allocate");
+    return self;
 }
 
 
@@ -1217,7 +1227,7 @@ var StringMake(long length, const char* characters) {
     bool const couldBeCommandOrKey = length <= MAX_KEY_AND_COMMAND_LENGTH;
 
     if (couldBeCommandOrKey) {
-        struct String proxy = {&StringBehavior, RETAIN_COUNT_MAX, -1, length, hash, (char*)characters};
+        struct String proxy = {&StringBehavior, RETAIN_COUNT_MAX, 0, -1, length, hash, (char*)characters};
         struct String* string = Get(&StringTable, &proxy, ComputeHashOfString, CheckIfStringsAreEqual);
         if (string != ZERO) return retain(string);
     }
