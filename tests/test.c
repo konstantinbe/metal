@@ -139,6 +139,12 @@ static void TestObjectCompare() {
 }
 
 
+static void TestObjectSelf() {
+    var object = send(Object, "create");
+    AssertIdentical(object, send(object, "self"), "Object self returns itself");
+}
+
+
 static void TestObjectCopy() {
     AssertThrows("Object copy throws an exception by default, regular objects don't support copying") send(Object, "copy", null);
 }

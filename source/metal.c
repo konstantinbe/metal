@@ -449,6 +449,11 @@ static var ObjectCompare(struct Object* self, var command, var object, var optio
 }
 
 
+static var ObjectSelf(struct Object* self, var command, var options, ...) {
+    return self;
+}
+
+
 static var ObjectCopy(struct Object* self, var command, var options, ...) {
     throw(CommandNotAllowedException);
     return null;
@@ -1570,6 +1575,7 @@ static void bootstrap Metal() {
         ObjectAddMethodBlock(Object, zero, String("hash"), Block(ObjectHash), zero);
         ObjectAddMethodBlock(Object, zero, String("equals*"), Block(ObjectEquals), zero);
         ObjectAddMethodBlock(Object, zero, String("compare*"), Block(ObjectCompare), zero);
+        ObjectAddMethodBlock(Object, zero, String("self"), Block(ObjectSelf), zero);
         ObjectAddMethodBlock(Object, zero, String("copy"), Block(ObjectCopy), zero);
         ObjectAddMethodBlock(Object, zero, String("add-method*block*"), Block(ObjectAddMethodBlock), zero);
         ObjectAddMethodBlock(Object, zero, String("remove-method*"), Block(ObjectRemoveMethod), zero);
