@@ -50,9 +50,9 @@
 #define Number(number) autorelease(NumberMake((decimal)(number)))
 #define Block(code) autorelease(BlockMake((void*)(code)))
 #define Data(data) autorelease(DataMake(sizeof(data), (void*)(data)))
-#define Array(...) autorelease(ArrayMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__))
+#define Array(...) autorelease(ArrayMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero))
 #define String(string) autorelease(StringMake(sizeof(string), (string)))
-#define Dictionary(...) autorelease(DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__))
+#define Dictionary(...) autorelease(DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero))
 
 #define INTEGER_MAX LONG_MAX
 #define INTEGER_MIN LONG_MIN
