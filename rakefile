@@ -19,6 +19,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require 'rubygems'
+require 'redcarpet' if Gem.available? 'redcarpet'
+
 # ------------------------------------------------------------- Constants ------
 
 TERMINAL = STDOUT.tty?
@@ -261,13 +264,15 @@ desc "build website"
 task :website do
   invoke :prepare
 
+  markdown = Redcarpet::Markdown.new Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true
+
   put "Building website ... "
   run "mkdir -p build/website"
   run "rm -rf build/website/*"
   run "cp website/* build/website/"
   index_html = read_from_file "website/index.html"
   content_md = read_from_file "website/content.md"
-  index_html = index_html.gsub "<!-- content.md -->", content_md # TODO: convert markdown
+  index_html = index_html.gsub "<!-- content.md -->", markdown.render(content_md)
   write_to_file index_html, "build/website/index.html"
   puts OK
 end

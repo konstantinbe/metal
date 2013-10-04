@@ -27,6 +27,12 @@ For memory analysis (optional):
 * Install [Valgrind](http://valgrind.org)
 * Build & run memory analysis: `rake valgrind`
 
+For building website (optional):
+
+* Install [Redcarpet](https://github.com/vmg/redcarpet)
+* Build website: `rake website`
+* Open `build/website/index.html` in a browser
+
 ## Conventions
 
 * 4 spaces, no tabs
