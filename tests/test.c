@@ -490,7 +490,6 @@ static void TestDictionary() {
     TestDictionaryGet();
     TestDictionarySetTo();
     TestDictionaryRemove();
-
     // TODO: add more tests.
 }
 
