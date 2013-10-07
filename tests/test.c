@@ -29,8 +29,8 @@
 // --------------------------------------------------- Constants & Macros ------
 
 
-#define AssertThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNotNull(TryCatchBlockCatch(tryCatchBlock), message); true;}) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
-#define AssertNotThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNull(TryCatchBlockCatch(tryCatchBlock), message); true;}) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
+#define AssertThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNotNull(TryCatchBlockCatch(tryCatchBlock), message); true; }) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
+#define AssertNotThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNull(TryCatchBlockCatch(tryCatchBlock), message); true; }) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
 
 
 static const char* const WHITE = "\x1B[0;97m";
