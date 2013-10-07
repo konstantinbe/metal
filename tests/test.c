@@ -398,12 +398,12 @@ static void TestArrayCount() {
 
 static void TestArrayReplaceAtCountWith() {
     var array1 = Array(Number(1), Number(2), Number(3), Number(4), more);
-    var array2 = Array();
-    var array3 = Array(Number(3), Number(4), Number(5));
-    var array4 = Array(Number(6), Number(7), Number(8), Number(9));
+    var array2 = Array(more);
+    var array3 = Array(Number(3), Number(4), Number(5), more);
+    var array4 = Array(Number(6), Number(7), Number(8), Number(9), more);
 
-    // AssertEquals(send(array1, "replace-at*count*with*", Number(1), Number(2), Array(Number(5), Number(6), Number(7))), Array(Number(1), Number(5), Number(6), Number(7), Number(4)), "Array replace-at*count*with* replaces `count` objects starting at `index` with `objects`");
-    // AssertEquals(send(array2, "replace-at*count*with*", Number(0), Number(0), Array()), Array(), "Array replace-at*count*with* doesn't change the array when `count` is 0 and `index` is valid");
+    AssertEquals(send(array1, "replace-at*count*with*", Number(1), Number(2), Array(Number(5), Number(6), Number(7))), Array(Number(1), Number(5), Number(6), Number(7), Number(4)), "Array replace-at*count*with* replaces `count` objects starting at `index` with `objects`");
+    AssertEquals(send(array2, "replace-at*count*with*", Number(0), Number(0), Array()), Array(), "Array replace-at*count*with* doesn't change the array when `count` is 0 and `index` is valid");
 }
 
 
