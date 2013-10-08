@@ -404,6 +404,7 @@ static void TestArrayReplaceAtCountWith() {
 
     AssertEquals(send(array1, "replace-at*count*with*", Number(1), Number(2), Array(Number(5), Number(6), Number(7))), Array(Number(1), Number(5), Number(6), Number(7), Number(4)), "Array replace-at*count*with* replaces `count` objects starting at `index` with `objects`");
     AssertEquals(send(array2, "replace-at*count*with*", Number(0), Number(0), Array()), Array(), "Array replace-at*count*with* doesn't change the array when `count` is 0 and `index` is valid");
+    // TODO: check that non-mutable arrays throw an exception when trying to mutate.
 }
 
 
