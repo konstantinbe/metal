@@ -1,8 +1,9 @@
 body {
-    background: hsl(0, 0%, 96%);
+    background: hsl(0, 0%, 100%);
     color: hsl(0, 0%, 20%);
-    font-family: "Avenir Next", "Myriad Pro", "Helvetica Neue", "Arial", sans-serif;
-    font-size: 14px;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+    font-weight: 300;
+    font-size: 15px;
 }
 
 p, ul {
@@ -14,7 +15,7 @@ p, ul {
 }
 
 a:link, a:visited {
-    color: hsl(200, 100%, 40%);
+    color: hsl(200, 100%, 41%);
     text-decoration: none;
 }
 
@@ -26,17 +27,20 @@ h1 {
     font-weight: bold;
     font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
     font-size: 6em;
+    color: hsl(0, 0%, 12%);
 }
 
 h2 {
     font-weight: bold;
     font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
     font-size: 2em;
+    color: hsl(0, 0%, 12%);
 }
 
 h3 {
     font-weight: bold;
     font-size: 1.3em;
+    color: hsl(0, 0%, 12%);
 }
 
 h4 {
@@ -44,7 +48,7 @@ h4 {
     font-size: 1em;
     font-weight: normal;
     line-height: 2em;
-    background: hsl(0, 0%, 90%);
+    background: hsl(0, 0%, 94%);
     border: 1px solid hsl(0, 0%, 82%);
     border-left: none;
     border-right: none;
@@ -158,15 +162,14 @@ pre code {
 
 .content p:first-of-type {
     text-align: center;
-    color: hsl(0, 0%, 53%);
-    font-size: 1.3em;
-    margin-top: 0em;
+    color: hsl(0, 0%, 34%);
+    font-size: 1.5em;
+    margin-top: 1em;
 }
 
 .content p:first-of-type em {
     font-style: normal;
 }
-
 
 .content p:first-of-type code {
     color: hsl(0, 0%, 20%);

@@ -1,9 +1,11 @@
 # Metal
 
-Experimental prototype-based object model runtime in C99. Inspired by
-Objective-C, Lua, and \[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
+Prototype-based object model runtime.
 
 --------------------------------------------------------------------------------
+
+Written in C99 (and some GNU extensions), inspired by Objective-C, Lua, and
+\[[Piumarta-and-Warth-2007](http://piumarta.com/software/cola/objmodel2.pdf)\].
 
 Download:
 
