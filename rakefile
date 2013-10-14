@@ -20,7 +20,6 @@
 # THE SOFTWARE.
 
 require 'rubygems'
-require 'redcarpet' if Gem.available? 'redcarpet'
 
 # ------------------------------------------------------------- Constants ------
 
@@ -262,6 +261,7 @@ end
 
 desc "build website"
 task :website do
+  require 'readcarpet' if available? 'redcarpet'
   invoke :prepare
 
   markdown = Redcarpet::Markdown.new Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true
@@ -401,4 +401,12 @@ end
 
 def flags
   $config[:flags]
+end
+
+def available?(name)
+  if Gem::Specification.methods.include? 'find_all_by_name'
+      !Gem::Specification.find_all_by_name(name).empty?
+    else
+      Gem.available? name
+    end
 end
