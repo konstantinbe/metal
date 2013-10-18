@@ -1326,23 +1326,6 @@ var DictionaryMake(long count, ...) {
 }
 
 
-
-var OptionsMake(long count, ...) {
-    assert(count >= 0, "When making an options dictionary, count must be >= 0");
-    assert(count % 2 == 0, "When making an options dictionary, count must be even (key/value pairs)");
-
-    struct Dictionary* dictionary = calloc(1, sizeof(struct Dictionary));
-    dictionary->meta = &DictionaryMeta;
-    dictionary->retainCount = 1;
-    dictionary->capacity = -1;
-    dictionary->count = 0;
-
-    // TODO: implement.
-
-    return dictionary;
-}
-
-
 // ------------------------------------------------- Conversion Functions ------
 
 

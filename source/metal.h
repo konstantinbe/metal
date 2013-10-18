@@ -90,7 +90,6 @@ var DataMake(long count, const void* bytes);
 var ArrayMake(long count, ...);
 var StringMake(long length, const char* characters);
 var DictionaryMake(long count, ...);
-var OptionsMake(long count, ...);
 
 integer IntegerFrom(var number);
 natural NaturalFrom(var number);
