@@ -196,17 +196,17 @@ static struct Meta DictionaryMeta;
 static struct Meta NullMeta;
 
 
-static struct Object ObjectState = {&ObjectMeta, RETAIN_COUNT_MAX, 0};
-static struct Boolean BooleanState = {&BooleanMeta, RETAIN_COUNT_MAX, 0};
-static struct Number NumberState = {&NumberMeta, RETAIN_COUNT_MAX, 0};
-static struct Block BlockState = {&BlockMeta, RETAIN_COUNT_MAX, 0};
-static struct Data DataState = {&DataMeta, RETAIN_COUNT_MAX, 0};
-static struct Array ArrayState = {&ArrayMeta, RETAIN_COUNT_MAX, 0};
-static struct String StringState = {&StringMeta, RETAIN_COUNT_MAX, 0};
-static struct Dictionary DictionaryState = {&DictionaryMeta, RETAIN_COUNT_MAX, 0};
-static struct Object NullState = {&NullMeta, RETAIN_COUNT_MAX, 0};
-static struct Boolean YesState = {&BooleanMeta, RETAIN_COUNT_MAX, 0};
-static struct Boolean NoState = {&BooleanMeta, RETAIN_COUNT_MAX, 0};
+static struct Object ObjectState = {.meta = &ObjectMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Boolean BooleanState = {.meta = &BooleanMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Number NumberState = {.meta = &NumberMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Block BlockState = {.meta = &BlockMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Data DataState = {.meta = &DataMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Array ArrayState = {.meta = &ArrayMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct String StringState = {.meta = &StringMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Dictionary DictionaryState = {.meta = &DictionaryMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Object NullState = {.meta = &NullMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Boolean YesState = {.meta = &BooleanMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Boolean NoState = {.meta = &BooleanMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
 
 
 var const Object = &ObjectState;
@@ -226,9 +226,9 @@ static struct CollectBlock* CollectBlockTop = ZERO;
 static struct TryCatchBlock* TryCatchBlockTop = ZERO;
 
 
-static struct Table StringTable = {0, 0, ZERO};
-static struct Table ExportTable = {0, 0, ZERO};
-static struct Table ImportTable = {0, 0, ZERO};
+static struct Table StringTable = {.mask = 0, .count = 0, .entries = ZERO};
+static struct Table ExportTable = {.mask = 0, .count = 0, .entries = ZERO};
+static struct Table ImportTable = {.mask = 0, .count = 0, .entries = ZERO};
 
 
 static struct String* ObjectName = ZERO;
@@ -1272,7 +1272,7 @@ var StringMake(long length, const char* characters) {
     bool const couldBeCommandOrKey = length <= MAX_KEY_AND_COMMAND_LENGTH;
 
     if (couldBeCommandOrKey) {
-        struct String proxy = {&StringMeta, RETAIN_COUNT_MAX, 0, -1, length, hash, (char*)characters};
+        struct String proxy = {.meta = &StringMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0, .capacity = -1, .length = length, .hash = hash, .characters = (char*)characters};
         struct String* string = TableGet(&StringTable, &proxy, ComputeHashOfString, CheckIfStringsAreEqual);
         if (string != ZERO) return retain(string);
     }
