@@ -23,6 +23,30 @@ require 'rubygems'
 
 # ------------------------------------------------------------- Constants ------
 
+NAME = ENV['name'] || "metal"
+TARGET = ENV['target'] || "test"
+VERSION = ENV['version'] || 'x.x.x'
+DIRECTORY = ENV['directory'] || "build"
+
+COMPILER = ENV['compiler'] || "clang"
+DEBUGGER = ENV['debugger'] || "lldb"
+
+FLAGS = "-g -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -Wno-missing-braces"
+FLAGS_TEST = "-DTEST=1 -O0"
+FLAGS_DEBUG = "-DDEBUG=1 -O0"
+FLAGS_RELEASE ="-DRELEASE=1 -Os"
+FLAGS_PROFILE = "#{FLAGS_DEBUG} -fprofile-arcs -ftest-coverage"
+FLAGS_ANALYZE = "#{FLAGS_DEBUG} --analyze"
+
+FLAGS_TARGET = FLAGS_TEST if TARGET == "test"
+FLAGS_TARGET = FLAGS_DEBUG if TARGET == "debug"
+FLAGS_TARGET = FLAGS_RELEASE if TARGET == "release"
+FLAGS_TARGET = FLAGS_PROFILE if TARGET == "profile"
+FLAGS_TARGET = FLAGS_ANALYZE if TARGET == "analyze"
+FLAGS_TARGET = "" unless defined? FLAGS_TARGET
+
+# ---------------------------------------------------------------- Colors ------
+
 TERMINAL = STDOUT.tty?
 
 BOLD = TERMINAL ? "\x1B[0;1m" : ""
@@ -49,297 +73,160 @@ RESET = TERMINAL ? "\x1B[0m" : ""
 OK = GREEN + "OK" + RESET
 FAILED = RED + "FAILED" + RESET
 
-# ------------------------------------------------------------ Parameters ------
+# ----------------------------------------------------------------- Tasks ------
 
-$configs = {}
-
-$configs['clang'] = {:title => "Clang", :compiler => "clang", :flags => "-Os -Wall -std=gnu99 -Wno-unused-function -Wno-unused-variable -Wno-pointer-sign"}
-$configs['gcc'] = {:title => "GCC", :compiler => "gcc", :flags => "-Os -Wall -std=gnu99 -Wno-unused-function -Wno-unused-variable"}
-$configs['icc'] = {:title => "ICC", :compiler => "icc", :flags => "-Os -Wall -std=gnu99 -Wno-unused-function -Wno-unused-variable"}
-
-$configs['clang:debug'] = {:title => "Clang", :compiler => "clang", :flags => "-Wall -g -DDEBUG=1 -std=gnu99 -Wno-unused-function -Wno-unused-variable -O0"}
-$configs['gcc:debug'] = {:title => "GCC", :compiler => "gcc", :flags => "-Wall -g -DDEBUG=1 -std=gnu99 -Wno-unused-function -Wno-unused-variable -O0"}
-$configs['icc:debug'] = {:title => "ICC", :compiler => "icc", :flags => "-Wall -g -DDEBUG=1 -std=gnu99 -Wno-unused-function -Wno-unused-variable -O0"}
-
-$configs['clang:profile'] = {:title => "Clang", :compiler => "clang", :flags => "-Os -Wall -fprofile-arcs -ftest-coverage -std=gnu99 -Wno-unused-function -Wno-unused-variable"}
-
-# ------------------------------------------------------ Default Compiler ------
-
-CLANG_INSTALLED = `which clang 2> /dev/null`.size > 0
-GCC_INSTALLED = `which gcc 2> /dev/null`.size > 0
-ICC_INSTALLED = `which icc 2> /dev/null`.size > 0
-
-$config = $configs["icc"] if ICC_INSTALLED
-$config = $configs['gcc'] if GCC_INSTALLED
-$config = $configs['clang'] if CLANG_INSTALLED
-
-$config = $configs["icc"] if ENV['CC'] == "icc"
-$config = $configs['gcc'] if ENV['CC'] == "gcc"
-$config = $configs['clang'] if ENV['CC'] == "clang"
-
-GDB_INSTALLED = `which gdb 2> /dev/null`.size > 0
-LLDB_INSTALLED = `which lldb 2> /dev/null`.size > 0
-
-$debugger = "gdb" if GDB_INSTALLED
-$debugger = "lldb" if LLDB_INSTALLED
-
-# ---------------------------------------------------------- Custom Tasks ------
-
-desc "build everything"
-task :build => ['build:library', 'build:tests', 'build:benchmarks'] do
+desc "show help"
+task :help do
+  run "rake -T", :silent => true
 end
 
-desc "analyze code with the Clang Analyzer"
-task :analyze => [:prepare] do
-  put "Analyzing Metal ... "
-  run "cd build; #{compiler} --analyze #{flags} ../source/*.c"
+desc "build library, tests, and benchmarks"
+task :build => ['build:source', 'build:library', 'build:tests', 'build:benchmarks'] do
+  # Nothing to do yet.
+end
+
+desc "build source"
+task 'build:source' do
+  header_files = FileList["source/*.h"]
+  source_files = FileList["source/*.c"]
+
+  run "mkdir -p #{DIRECTORY}/source"
+  run "rm -rf #{DIRECTORY}/source/*.a"
+
+  put "Compiling source ... "
+  source_files.each do |source_file|
+    source = source_file
+    sources = [source_file] + header_files
+    destination = "#{DIRECTORY}/" + source_file.gsub('.c', '')
+    run "clang #{FLAGS} #{FLAGS_TARGET} -c -o #{destination}.o #{source}" unless uptodate? "#{destination}", sources
+  end
   puts OK
 end
 
-desc "profile code & report results"
-task :profile => ['profile:collect', 'profile:details', 'profile:summary']
-
-task 'profile:collect' => [:prepare] do
-  configure 'clang:profile'
-
-  put "Preparing ... "
-  delete_file_if_exists "build/coverage"
-  run "mkdir build/coverage"
-  run "mkdir build/coverage/metal"
+desc "bundle library"
+task 'build:library' => 'build:source' do
+  put "Bundling library ... "
+  run "rm -rf #{DIRECTORY}/#{NAME}"
+  run "mkdir -p #{DIRECTORY}/#{NAME}"
+  run "ar rcs #{DIRECTORY}/#{NAME}/lib#{NAME}.a #{DIRECTORY}/source/*.o"
+  run "cp source/*.h #{DIRECTORY}/#{NAME}/"
   puts OK
-
-  put "Copying source files ... "
-  run "cp source/*.h build/coverage/metal"
-  run "cp source/*.c build/coverage"
-  run "cp tests/*.c build/coverage"
-  puts OK
-
-  put "Building (#{$config[:title]}) ... "
-  run "cd build/coverage; #{compiler} #{flags} -I../coverage -iquote../../source -iquote../../tests *.c -o coverage"
-  puts OK
-
-  puts "Profiling by running #{WHITE_BRIGHT}Metal#{RESET} tests (#{$config[:title]}) ..."
-  run "cd build/coverage; ./coverage"
 end
 
-task 'profile:summary' => [:prepare, 'profile:collect'] do
-  puts ""
-  puts "--------------------------------------------------- Code Coverage Results ------"
+desc "build tests"
+task 'build:tests' => 'build:library' do
+  header_files = FileList["tests/*.h"]
+  source_files = FileList["tests/*.c"]
 
-  source_files = `cd source; find *.c`.split("\n").join(" ")
-  raw = `cd build/coverage; gcov #{source_files} 2> gcov-error.log`
+  run "mkdir -p #{DIRECTORY}/tests"
+  run "rm -rf #{DIRECTORY}/tests/*.a"
 
-  results = raw.scan /File '(.*)'\nLines executed:(\d+\.\d+)% of (\d+)/
-  results = results.reject do |result|
-    result[0].start_with? "test" or result[0].start_with? "__" or result[0].include? "/" or result[2].include? "no functions found"
+  put "Compiling tests ... "
+  source_files.each do |source_file|
+    source = source_file
+    sources = [source_file] + header_files
+    destination = "#{DIRECTORY}/" + source_file.gsub('.c', '')
+    run "#{COMPILER} #{FLAGS} #{FLAGS_TARGET} -I#{DIRECTORY} -c -o #{destination}.o #{source}" unless uptodate? "#{destination}", sources
   end
+  puts OK
 
-  total_number_of_lines = 0
-  total_number_of_lines_covered = 0
-
-  details = results.collect do |result|
-    detail = {}
-    detail[:title] = result[0]
-    detail[:fraction] = result[1].to_f / 100.0
-    detail[:number_of_lines] = result[2].to_i
-    detail[:number_of_lines_covered] = detail[:fraction] * detail[:number_of_lines]
-
-    total_number_of_lines += detail[:number_of_lines]
-    total_number_of_lines_covered += detail[:number_of_lines_covered]
-
-    detail
-  end
-
-  details.reverse.each do |detail|
-    color = RED
-    color = YELLOW if detail[:fraction] >= 0.7
-    color = GREEN if detail[:fraction] >= 0.9
-
-    title = detail[:title]
-    fraction = (detail[:fraction] * 100).to_i.to_s + " %"
-    number_of_lines = detail[:number_of_lines_covered].round.to_s +  " of " + detail[:number_of_lines].to_s
-
-    printf "#{CYAN_BRIGHT}%-40s #{BLACK_BRIGHT}%20s #{color}%18s#{RESET}\n", title, number_of_lines, fraction
-  end
-
-  total_title = "Total"
-  total_fraction = if total_number_of_lines != 0 then (total_number_of_lines_covered / total_number_of_lines) * 100 else 0 end
-  total_number_of_lines = total_number_of_lines.to_s
-
-  color = RED
-  color = YELLOW if total_fraction >= 70
-  color = GREEN if total_fraction >= 90
-
-  printf "\nUnit tests cover #{color}%s#{RESET} of %s executable lines of code.\n\n", total_fraction.to_i.to_s + " %", total_number_of_lines
+  put "Bundling tests ... "
+  run "#{COMPILER} #{FLAGS} #{FLAGS_TARGET} -o #{DIRECTORY}/test #{DIRECTORY}/tests/*.o #{DIRECTORY}/#{NAME}/lib#{NAME}.a"
+  puts OK
 end
 
-desc ""
-task 'profile:details' => ['profile:collect'] do
-  source_files = `cd source; find *.c`.split("\n").each do |source_file|
-    raw = `cd build/coverage; gcov -f #{source_file} 2> gcov-error.log`
+desc "build benchmarks"
+task 'build:benchmarks' => 'build:library' do
+  header_files = FileList["benchmarks/*.h"]
+  source_files = FileList["benchmarks/*.c"]
 
-    results = raw.scan /Function '(.*)'\nLines executed:(\d+\.\d+)% of (\d+)/
-    results = results.reject do |result|
-      result[0].start_with? "_-" or result[0].start_with? "__" or result[0].include? "/" or result[2].include? "no functions found"
-    end
+  run "mkdir -p #{DIRECTORY}/benchmarks"
+  run "rm -rf #{DIRECTORY}/benchmarks/*.a"
 
-    dashes = "-" * (80 - 6 - 6 - 1 - 1 - source_file.size)
-    puts "\n------#{dashes} #{source_file} ------"
-
-    details = results.collect do |result|
-      detail = {}
-      detail[:title] = result[0]
-      detail[:fraction] = result[1].to_f / 100.0
-      detail[:number_of_lines] = result[2].to_i
-      detail[:number_of_lines_covered] = detail[:fraction] * detail[:number_of_lines]
-      detail
-    end
-
-    details.reverse.each do |detail|
-      color = RED
-      color = YELLOW if detail[:fraction] >= 0.7
-      color = GREEN if detail[:fraction] >= 0.9
-
-      title = detail[:title]
-      fraction = (detail[:fraction] * 100).to_i.to_s + " %"
-      number_of_lines = detail[:number_of_lines_covered].round.to_s + " of " +  detail[:number_of_lines].to_s
-
-      printf "#{CYAN_BRIGHT}%-40s #{BLACK_BRIGHT}%20s #{color}%18s#{RESET}\n", title, number_of_lines, fraction
-    end
+  put "Compiling benchmarks ... "
+  source_files.each do |source_file|
+    source = source_file
+    sources = [source_file] + header_files
+    destination = "#{DIRECTORY}/" + source_file.gsub('.c', '')
+    run "#{COMPILER} #{FLAGS} #{FLAGS_TARGET} -I#{DIRECTORY} -c -o #{destination}.o #{source}" unless uptodate? "#{destination}", sources
   end
+  puts OK
+
+  put "Bundling benchmarks ... "
+  run "#{COMPILER} #{FLAGS} #{FLAGS_TARGET} -o #{DIRECTORY}/benchmark #{DIRECTORY}/#{NAME}/lib#{NAME}.a #{DIRECTORY}/benchmarks/*.o"
+  puts OK
 end
 
 desc "build & run tests"
-task :test => [:prepare, 'build:tests'] do
-  puts "Running #{WHITE_BRIGHT}Metal#{RESET} Tests ... "
-  code = run "cd build; ./test", :silent => true
+task :test do
+  run "rake build:tests target=test directory=#{DIRECTORY}/test"
+
+  puts "Running #{WHITE_BRIGHT + NAME + RESET} tests ... "
+  code = run "cd #{DIRECTORY}/test; ./test", :silent => true
   exit code
 end
 
-desc "build & run in debugger (gdb or lldb)"
-task :debug => [:prepare] do
-  configure 'icc:debug' if ICC_INSTALLED
-  configure 'gcc:debug' if GCC_INSTALLED
-  configure 'clang:debug' if CLANG_INSTALLED
+desc "build & debug tests"
+task :debug do
+  run "rake build:tests target=debug directory=#{DIRECTORY}/debug"
 
-  invoke 'build:library'
-  invoke 'build:tests'
-
-  put "Running Metal Tests in #{$debugger.upcase} (#{$config[:title]}) ... "
-  run "#{$debugger} build/test"
-  puts OK
-end
-
-desc "run preprocessor for metal only"
-task :preprocess => [:prepare] do
-  put "Preprocessing Metal Library (#{$config[:title]}) ... "
-
-  run "#{compiler} -c #{flags} -E source/*.c > build/preprocessor.c"
-  puts OK
-end
-
-desc "check for memory leaks with Valgrind"
-task :valgrind => [:prepare] do
-  configure 'icc:debug' if ICC_INSTALLED
-  configure 'gcc:debug' if GCC_INSTALLED
-  configure 'clang:debug' if CLANG_INSTALLED
-
-  invoke 'build:library'
-  invoke 'build:tests'
-
-  put "Running Metal with Valgrind ... "
-  run "valgrind --leak-check=full --track-origins=yes build/test"
-  puts OK
+  puts "Debugging #{WHITE_BRIGHT + NAME + RESET} tests ... "
+  code = run "cd #{DIRECTORY}/test; #{DEBUGGER} test", :silent => true
+  exit code
 end
 
 desc "build & run benchmarks"
-task :benchmark => [:prepare, 'build:benchmarks'] do
-  put "Running Metal Benchmarks (#{$config[:title]}) ... "
-  run "build/benchmark"
+task :benchmark do
+  run "rake build target=benchmark directory=#{DIRECTORY}/benchmark"
+
+  puts "Running #{WHITE_BRIGHT + NAME + RESET} benchmarks ... "
+  code = run "cd #{DIRECTORY}/benchmark; ./benchmark", :silent => true
+  exit code
+end
+
+desc "build & analyze code"
+task :analyze do
+  run "rake build:source target=analyze directory=#{DIRECTORY}/analyze"
+end
+
+desc "build & analyze memory"
+task :valgrind do
+  run "rake build:tests target=debug directory=#{DIRECTORY}/valgrind"
+
+  put "Running #{WHITE_BRIGHT + NAME + RESET} with Valgrind ... "
+  assert installed?("valgrind"), "#{FAILED}\n\nCan't analyze memory, Valgrind not installed"
+  run "valgrind --leak-check=full --track-origins=yes #{DIRECTORY}/test"
   puts OK
+end
+
+desc "build & profile"
+task :profile do
+  # TODO: implement.
 end
 
 desc "build website"
 task :website do
-  invoke :prepare
+  put "Building website ... "
+  assert available?("redcarpet"), "#{FAILED}\nCan't build website, Redcarpet (ruby gem) not found"
 
-  require 'redcarpet' if available? 'redcarpet'
+  require 'redcarpet'
   markdown = Redcarpet::Markdown.new Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true
 
-  put "Building website ... "
-  run "mkdir -p build/website"
-  run "rm -rf build/website/*"
-  run "cp website/* build/website/"
-  index_html = read_from_file "website/index.html"
-  content_md = read_from_file "website/content.md"
+  run "mkdir -p #{DIRECTORY}/website"
+  run "rm -rf #{DIRECTORY}/website/*"
+  run "cp website/* #{DIRECTORY}/website/"
+  index_html = load "website/index.html"
+  content_md = load "website/content.md"
   index_html = index_html.gsub "<!-- content.md -->", markdown.render(content_md)
-  write_to_file index_html, "build/website/index.html"
+  save "#{DIRECTORY}/website/index.html", index_html
   puts OK
-end
-
-desc "create the build directory"
-task :prepare do
-  run "mkdir build" unless File.exists? "build"
 end
 
 desc "delete the build directory"
 task :clean do
   put "Cleaning ... "
-  delete_file_if_exists "build"
+  run "rm -rf #{DIRECTORY}"
   puts OK
-end
-
-desc "build the Metal library"
-task 'build:library' => [:prepare] do
-  put "Building Metal Library (#{$config[:title]}) ... "
-
-  delete_file_if_exists "build/library"
-  delete_file_if_exists "build/metal"
-
-  run "mkdir build/library"
-  run "mkdir build/metal"
-
-  run "cd build/library; #{compiler} -c #{flags} ../../source/*.c"
-  run "cd build/library; ar rcs metal.library *.o"
-  run "cp build/library/metal.library build/metal"
-  run "cp source/*.h build/metal"
-  puts OK
-end
-
-desc "build all tests"
-task 'build:tests' => ['build:library'] do
-  put "Building Metal Tests (#{$config[:title]}) ... "
-  run "cd build; #{compiler} #{flags} -I./ ../tests/*.c metal/metal.library -o test"
-  run "chmod +x build/test"
-  puts OK
-end
-
-desc "build all benchmarks"
-task 'build:benchmarks' => ['build:library'] do
-  put "Building Metal Benchmarks (#{$config[:title]}) ... "
-  delete_file_if_exists "build/benchmarks"
-  run "mkdir build/benchmarks"
-  run "cd build/benchmarks; #{compiler} #{flags} -I../ ../../benchmarks/*.c ../metal/metal.library -o ../benchmark"
-  run "chmod +x build/benchmark"
-  puts OK
-end
-
-desc "test with Clang"
-task 'test:clang' do
-  configure 'clang'
-  invoke 'test'
-end
-
-desc "test with GCC"
-task 'test:gcc' do
-  configure 'gcc'
-  invoke 'test'
-end
-
-desc "test with ICC"
-task 'test:icc' do
-  configure 'icc'
-  invoke 'test'
 end
 
 # ------------------------------------------------------------- Functions ------
@@ -369,40 +256,158 @@ def put(string)
   STDOUT.flush
 end
 
+def ask(message)
+  put message + " [y/n] "
+  answer = STDIN.getc
+  puts "\n"
+  if answer == 'y' || answer == 'n' then answer else ask message end
+end
+
 def invoke(task)
   Rake::Task[task].invoke
 end
 
-def read_from_file(file_path)
+def load(file_path)
   File.open(file_path, "r") { |file| file.read }
 end
 
-def write_to_file(string, file_path)
+def save(file_path, string)
   File.open(file_path, "w") { |file| file.write string }
 end
 
-def delete_file_if_exists(path)
-  run "rm -rf #{path}" if File.exists? path
+def push(source, destination)
+  run "rsync --archive --delete --quiet #{source} #{destination}"
 end
 
-def replace_in_file(file_path, pattern, replacement)
-  string = read_from_file file_path
+def replace(file_path, pattern, replacement)
+  string = load file_path
   string.gsub! pattern, replacement
-  write_to_file file_path, string
-end
-
-def configure(name)
-  $config = $configs[name]
-end
-
-def compiler
-  $config[:compiler]
-end
-
-def flags
-  $config[:flags]
+  save file_path, string
 end
 
 def available?(name)
   `gem list #{name}`.strip.length > 0
 end
+
+def installed?(command)
+  `which #{command}`.strip.length > 0
+end
+
+def dirty?
+  `git status --porcelain`.length > 0
+end
+
+# ---------------------------------------------------------- Custom Tasks ------
+
+# desc "profile code & report results"
+# task :profile => ['profile:collect', 'profile:details', 'profile:summary']
+#
+# task 'profile:collect' => [:prepare] do
+#   configure 'clang:profile'
+#
+#   put "Preparing ... "
+#   run "rm -rf build/coverage"
+#   run "mkdir build/coverage"
+#   run "mkdir build/coverage/metal"
+#   puts OK
+#
+#   put "Copying source files ... "
+#   run "cp source/*.h build/coverage/metal"
+#   run "cp source/*.c build/coverage"
+#   run "cp tests/*.c build/coverage"
+#   puts OK
+#
+#   put "Building (#{$config[:title]}) ... "
+#   run "cd build/coverage; #{compiler} #{flags} -I../coverage -iquote../../source -iquote../../tests *.c -o coverage"
+#   puts OK
+#
+#   puts "Profiling by running #{WHITE_BRIGHT}Metal#{RESET} tests (#{$config[:title]}) ..."
+#   run "cd build/coverage; ./coverage"
+# end
+#
+# task 'profile:summary' => [:prepare, 'profile:collect'] do
+#   puts ""
+#   puts "--------------------------------------------------- Code Coverage Results ------"
+#
+#   source_files = `cd source; find *.c`.split("\n").join(" ")
+#   raw = `cd build/coverage; gcov #{source_files} 2> gcov-error.log`
+#
+#   results = raw.scan /File '(.*)'\nLines executed:(\d+\.\d+)% of (\d+)/
+#   results = results.reject do |result|
+#     result[0].start_with? "test" or result[0].start_with? "__" or result[0].include? "/" or result[2].include? "no functions found"
+#   end
+#
+#   total_number_of_lines = 0
+#   total_number_of_lines_covered = 0
+#
+#   details = results.collect do |result|
+#     detail = {}
+#     detail[:title] = result[0]
+#     detail[:fraction] = result[1].to_f / 100.0
+#     detail[:number_of_lines] = result[2].to_i
+#     detail[:number_of_lines_covered] = detail[:fraction] * detail[:number_of_lines]
+#
+#     total_number_of_lines += detail[:number_of_lines]
+#     total_number_of_lines_covered += detail[:number_of_lines_covered]
+#
+#     detail
+#   end
+#
+#   details.reverse.each do |detail|
+#     color = RED
+#     color = YELLOW if detail[:fraction] >= 0.7
+#     color = GREEN if detail[:fraction] >= 0.9
+#
+#     title = detail[:title]
+#     fraction = (detail[:fraction] * 100).to_i.to_s + " %"
+#     number_of_lines = detail[:number_of_lines_covered].round.to_s +  " of " + detail[:number_of_lines].to_s
+#
+#     printf "#{WHITE_BRIGHT}%-40s #{BLACK_BRIGHT}%20s #{color}%18s#{RESET}\n", title, number_of_lines, fraction
+#   end
+#
+#   total_title = "Total"
+#   total_fraction = if total_number_of_lines != 0 then (total_number_of_lines_covered / total_number_of_lines) * 100 else 0 end
+#   total_number_of_lines = total_number_of_lines.to_s
+#
+#   color = RED
+#   color = YELLOW if total_fraction >= 70
+#   color = GREEN if total_fraction >= 90
+#
+#   printf "\nUnit tests cover #{color}%s#{RESET} of %s executable lines of code.\n\n", total_fraction.to_i.to_s + "%", total_number_of_lines
+# end
+#
+# desc ""
+# task 'profile:details' => ['profile:collect'] do
+#   source_files = `cd source; find *.c`.split("\n").each do |source_file|
+#     raw = `cd build/coverage; gcov -f #{source_file} 2> gcov-error.log`
+#
+#     results = raw.scan /Function '(.*)'\nLines executed:(\d+\.\d+)% of (\d+)/
+#     results = results.reject do |result|
+#       result[0].start_with? "_-" or result[0].start_with? "__" or result[0].include? "/" or result[2].include? "no functions found"
+#     end
+#
+#     dashes = "-" * (80 - 6 - 6 - 1 - 1 - source_file.size)
+#     puts "\n------#{dashes} #{WHITE_BRIGHT + source_file + RESET} ------"
+#
+#     details = results.collect do |result|
+#       detail = {}
+#       detail[:title] = result[0]
+#       detail[:fraction] = result[1].to_f / 100.0
+#       detail[:number_of_lines] = result[2].to_i
+#       detail[:number_of_lines_covered] = detail[:fraction] * detail[:number_of_lines]
+#       detail
+#     end
+#
+#     details.reverse.each do |detail|
+#       color = RED
+#       color = YELLOW if detail[:fraction] >= 0.7
+#       color = GREEN if detail[:fraction] >= 0.9
+#
+#       title = detail[:title]
+#       fraction = (detail[:fraction] * 100).to_i.to_s + " %"
+#       number_of_lines = detail[:number_of_lines_covered].round.to_s + " of " +  detail[:number_of_lines].to_s
+#
+#       printf "#{WHITE_BRIGHT}%-40s #{BLACK_BRIGHT}%20s #{color}%18s#{RESET}\n", title, number_of_lines, fraction
+#     end
+#   end
+# end
