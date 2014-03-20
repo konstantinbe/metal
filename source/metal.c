@@ -1574,6 +1574,14 @@ void throw(var exception) {
 }
 
 
+void inspect(var object) {
+    collect {
+        var description = send(object, "as-string");
+        fprintf(stderr, "%s\n", string(description).characters);
+    }
+}
+
+
 // -------------------------------------------------------- Bootstrapping ------
 
 

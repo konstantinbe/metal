@@ -112,5 +112,6 @@ var import(const char* name);
 var export(const char* name, void* code);
 void* lookup(var self, var command, natural level);
 void throw(var exception);
+void inspect(var object);
 
 #endif
