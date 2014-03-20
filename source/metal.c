@@ -72,10 +72,19 @@
 // ----------------------------------------------------------- Structures ------
 
 
+struct Entry {
+    natural probe;
+    natural key;
+    natural value;
+    natural extra;
+};
+
+
 struct Table {
     natural mask;
-    integer count;
-    void** entries;
+    natural count;
+    natural probeMax;
+    struct Entry* entries;
 };
 
 
@@ -179,6 +188,10 @@ struct TryCatchBlock {
     bool thrown;
 };
 
+// ---------------------------------------------------------------- Types ------
+
+typedef natural (*HashFunction)(natural);
+typedef bool (*EqualsFunction)(natural, natural);
 
 // ------------------------------------------------------------ Variables ------
 
@@ -224,7 +237,7 @@ static struct CollectBlock* CollectBlockTop = ZERO;
 static struct TryCatchBlock* TryCatchBlockTop = ZERO;
 
 
-static struct Table StringTable = {.mask = 0, .count = 0, .entries = ZERO};
+static struct Table StringTable = {.mask = 0, .count = 0, .probeMax = 0, .entries = ZERO};
 
 
 static struct String* ObjectName = ZERO;
@@ -253,140 +266,179 @@ static void StringEnsureCapacity(struct String* string, integer requiredCapacity
 static void DictionaryEnsureCapacity(struct Dictionary* dictionary, integer requiredCapacity);
 static inline natural RoundUpToPowerOfTwo(natural number);
 static inline natural RoundDownToPowerOfTwo(natural number);
+static inline natural StringHashFunction(natural key);
+static inline bool StringEqualsFunction(natural key1, natural key2);
 static natural Digest(integer count, const void* bytes);
-static natural ComputeHashOfString(void* string);
-static bool CheckIfStringsAreEqual(void* string1, void* string2);
 
 
-// ----------------------------------------------------- Table Functions -------
+// ------------------------------------------------- Hash Table Functions ------
 
 
-static void TableInit(struct Table* table, integer capacity) {
-    assert(table->entries == ZERO, "When initializing a table view, its entries should be ZERO");
+static inline struct Table* TableCreate(struct Table* table, natural capacity) {
     capacity = RoundUpToPowerOfTwo(capacity);
-    if (capacity < 1) capacity = 1;
     table->mask = capacity - 1;
     table->count = 0;
-    table->entries = calloc(capacity * 2, sizeof(void*));
+    table->probeMax = 0;
+    table->entries = calloc(capacity, sizeof(struct Entry));
+    return table;
 }
 
 
-static void TableClear(struct Table* table) {
-    integer const capacity = table->mask + 1;
-    memset(table->entries, 0, sizeof(void*) * 2 * capacity);
-    table->count = 0;
+static inline struct Table* TableDestroy(struct Table* table) {
+    free(table->entries);
+    memset(table, 0, sizeof(struct Table));
+    return table;
 }
 
 
-static void* TableGet(struct Table* table, void* key, natural (*hash)(void*), bool (*equals)(void*, void*)) {
-    assert(key > ZERO, "When getting a value for key from a table, key must be > ZERO");
-    assert(key < MORE, "When getting a value for key from a table, key must be < MORE");
-
+static inline natural TableGet(struct Table* table, struct Entry* entry, HashFunction hashFunction, EqualsFunction equalsFunction) {
+    natural const key = entry->key;
     natural const mask = table->mask;
-    void** const entries = table->entries;
+    natural const count = table->count;
+    natural const probeMax = table->probeMax;
+    struct Entry* const entries = table->entries;
+    natural const hash = hashFunction ? hashFunction(key) : key;
 
-    integer index = hash ? hash(key) & mask : (natural)key & mask;
-    for (int i = 0; i <= mask; i += 1) {
-        void* const keyAtIndex = entries[index * 2];
-        void* const valueAtIndex = entries[index * 2 + 1];
-        if (keyAtIndex == ZERO) return ZERO;
-        if (keyAtIndex == MORE) continue;
-        if (equals ? equals(keyAtIndex, key) : keyAtIndex == key) return valueAtIndex;
-        index = (index + 1) & mask;
-    }
+    for (natural probe = 1, index = hash & mask; probe <= probeMax; ({ probe += 1; index = (index + 1) & mask; })) {
+        struct Entry const current = entries[index];
+        bool const isEmpty = current.probe == 0;
+        bool const isFound = !isEmpty && (equalsFunction ? equalsFunction(key, current.key) : key == current.key);
 
-    return ZERO;
-}
-
-
-static integer TablePut(struct Table* table, void* key, void* value, natural (*hash)(void*), bool (*equals)(void*, void*)) {
-    assert(key > ZERO, "When putting a value for key into a table, key must be > ZERO");
-    assert(key < MORE, "When putting a value for key into a table, key must be < MORE");
-    assert(value < MORE, "When putting a value for key into a table, value must be < MORE");
-
-    natural const mask = table->mask;
-    integer const count = table->count;
-
-    if (value > 0) {
-        integer const oldCapacity = mask + 1;
-        integer const requiredCapacity = count + 1;
-        integer const oneFourthOfOldCapacity = oldCapacity >> 2;
-        integer const threeFourthOfOldCapacity = oldCapacity - oneFourthOfOldCapacity;
-        integer const newCapacity = RoundUpToPowerOfTwo(requiredCapacity + (requiredCapacity >> 1));
-
-        if (requiredCapacity >= threeFourthOfOldCapacity) {
-            void** const oldEntries = table->entries;
-            void** const newEntries = calloc(sizeof(void*), 2 * newCapacity);
-
-            table->count = 0;
-            table->mask = newCapacity - 1;
-            table->entries = newEntries;
-
-            for (int index = 0; index < oldCapacity; index += 1) {
-                void* const key = oldEntries[index * 2];
-                void* const value = oldEntries[index * 2 + 1];
-                if (key > ZERO && key < MORE) TablePut(table, key, value, hash, equals);
-            }
-
-            free(oldEntries);
+        if (isFound) {
+            *entry = current;
+            return index;
         }
     }
 
-    integer index = hash ? hash(key) & mask : (natural)key & mask;
-    integer indexToInsertAt = -1;
-    integer indexToRemoveAt = -1;
-    integer indexToReplaceAt = -1;
+    return NATURAL_MAX;
+}
 
-    for (int i = 0; i <= mask; i += 1) {
-        void* const keyAtIndex = table->entries[index * 2];
 
-        if (keyAtIndex == ZERO || keyAtIndex == MORE) {
-            if (indexToInsertAt < 0) indexToInsertAt = index;
+static inline natural TablePut(struct Table* table, struct Entry* entry, HashFunction hashFunction, EqualsFunction equalsFunction) {
+    natural const key = entry->key;
+    natural const value = entry->value;
+
+    bool const shouldInsert = value != 0;
+    bool const shouldRemove = value == 0;
+
+    natural const quarterOfCapacity = (table->mask + 1) >> 2;
+    bool const isNearlyFull = table->count > quarterOfCapacity + (quarterOfCapacity << 1);
+    bool const isNearlyEmpty = table->count < quarterOfCapacity;
+    bool const shouldExpand = shouldInsert & isNearlyFull;
+    bool const shouldContract = shouldRemove & isNearlyEmpty;
+
+    if (shouldExpand) {
+        natural const capacityOld = table->mask + 1;
+        natural const capacityNew = capacityOld << 1;
+
+        struct Entry* const entriesOld = table->entries;
+        struct Entry* const entriesNew = calloc(capacityNew, sizeof(struct Entry));
+
+        table->mask = capacityNew - 1;
+        table->count = 0;
+        table->probeMax = 0;
+        table->entries = entriesNew;
+
+        for (natural index = 0; index < capacityOld; index += 1) {
+            struct Entry current = entriesOld[index];
+            if (current.probe == 0) continue;
+            TablePut(table, &current, hashFunction, equalsFunction);
+        }
+
+        free(entriesOld);
+    }
+
+    if (shouldContract) {
+        natural const capacityOld = table->mask + 1;
+        natural const capacityNew = capacityOld >> 1;
+
+        struct Entry* const entriesOld = table->entries;
+        struct Entry* const entriesNew = calloc(capacityNew, sizeof(struct Entry));
+
+        table->mask = capacityNew - 1;
+        table->count = 0;
+        table->probeMax = 0;
+        table->entries = entriesNew;
+
+        for (natural index = 0; index < capacityOld; index += 1) {
+            struct Entry current = entriesOld[index];
+            if (current.probe == 0) continue;
+            TablePut(table, &current, hashFunction, equalsFunction);
+        }
+
+        free(entriesOld);
+    }
+
+    natural const mask = table->mask;
+    natural const count = table->count;
+    natural const probeMax = table->probeMax;
+    struct Entry* const entries = table->entries;
+    natural const hash = hashFunction ? hashFunction(key) : key;
+
+    for (natural probe = 1, index = hash & mask; true; ({ probe += 1; index = (index + 1) & mask; })) {
+        struct Entry const current = entries[index];
+        bool const isEmpty = current.probe == 0;
+        bool const isFound = !isEmpty && (equalsFunction ? equalsFunction(key, current.key) : entry->key == current.key);
+        bool const needsSwap = current.probe < probe;
+
+        if (shouldInsert && isEmpty) {
+            table->count += 1;
+            table->probeMax = MAX(table->probeMax, probe);
+            entries[index] = *entry;
+            entries[index].probe = probe;
+            entry->key = 0;
+            entry->value = 0;
+            entry->extra = 0;
+            return index;
+        }
+
+        if (shouldInsert && isFound) {
+            table->probeMax = MAX(table->probeMax, probe);
+            entries[index] = *entry;
+            entries[index].probe = probe;
+            *entry = current;
+            return index;
+        }
+
+        if (shouldInsert && needsSwap) {
+            entries[index] = *entry;
+            entries[index].probe = probe;
+            *entry = current;
+            probe = current.probe;
             continue;
         }
 
-        if (equals ? equals(keyAtIndex, key) : keyAtIndex == key) {
-            indexToInsertAt = -1;
-            indexToRemoveAt = value == 0 ? index : -1;
-            indexToReplaceAt = value != 0 ? index : -1;
-            break;
+        if (shouldRemove && isFound) {
+            table->count -= 1;
+            entries[index].probe = 0;
+            entries[index].key = 0;
+            entries[index].value = 0;
+            entries[index].extra = 0;
+            *entry = current;
+            return index;
         }
 
-        index = (index + 1) & mask;
+        if (shouldRemove && probe >= probeMax) {
+            entry->key = 0;
+            entry->value = 0;
+            entry->extra = 0;
+            break;
+        }
     }
 
-    if (indexToInsertAt >= 0) {
-        table->entries[indexToInsertAt * 2] = key;
-        table->entries[indexToInsertAt * 2 + 1] = value;
-        table->count += 1;
-        return indexToInsertAt;
-    }
-
-    if (indexToRemoveAt >= 0) {
-        table->entries[indexToRemoveAt * 2] = MORE;
-        table->entries[indexToRemoveAt * 2 + 1] = ZERO;
-        table->count -= 1;
-        return indexToRemoveAt;
-    }
-
-    if (indexToReplaceAt >= 0) {
-        table->entries[indexToReplaceAt * 2 + 1] = value;
-        return indexToReplaceAt;
-    }
-
-    return -1;
+    return NATURAL_MAX;
 }
 
 
 // ------------------------------------------------------- Object Methods ------
 
 
-static var ObjectAllocate(struct Object* self, var command, var options, ...) {
+static var ObjectAllocate(struct Object* self, var super, var command, var options, ...) {
     return calloc(1, self->meta->size);
 }
 
 
-static var ObjectCreate(struct Object* self, var command, var options, ...) {
+static var ObjectCreate(struct Object* self, var super, var command, var options, ...) {
     var mutable = option("mutable", no);
     var copy = option("copy", null);
 
@@ -410,13 +462,13 @@ static var ObjectCreate(struct Object* self, var command, var options, ...) {
 }
 
 
-static var ObjectDestroy(struct Object* self, var command, var options, ...) {
+static var ObjectDestroy(struct Object* self, var super, var command, var options, ...) {
     free(self);
     return null;
 }
 
 
-static var ObjectIsKindOf(struct Object* self, var command, var object, var options, ...) {
+static var ObjectIsKindOf(struct Object* self, var super, var command, var object, var options, ...) {
     var proto = self;
     do {
         if (proto == object) return yes;
@@ -426,41 +478,42 @@ static var ObjectIsKindOf(struct Object* self, var command, var object, var opti
 }
 
 
-static var ObjectIsMutable(struct Object* self, var command, var options, ...) {
+static var ObjectIsMutable(struct Object* self, var super, var command, var options, ...) {
     return self->flags & MUTABLE_FLAG ? yes : no;
 }
 
 
-static var ObjectRespondsTo(struct Object* self, var command, var commandToCheck, var options, ...) {
+static var ObjectRespondsTo(struct Object* self, var super, var command, var commandToCheck, var options, ...) {
     // TODO: optimize.
-    void* code = lookup(self, commandToCheck, 0);
+    var lookedUpSuper = zero;
+    void* code = lookup(self, commandToCheck, &lookedUpSuper);
     return Boolean(code != ZERO);
 }
 
 
-static var ObjectAsString(struct Object* self, var command, var options, ...) {
+static var ObjectAsString(struct Object* self, var super, var command, var options, ...) {
     if (self == Object) return ObjectName;
     // TODO: put in the address of the object.
     return String("<Object XXX>");
 }
 
 
-static var ObjectSelf(struct Object* self, var command, var options, ...) {
+static var ObjectSelf(struct Object* self, var super, var command, var options, ...) {
     return self;
 }
 
 
-static var ObjectHash(struct Object* self, var command, var options, ...) {
+static var ObjectHash(struct Object* self, var super, var command, var options, ...) {
     return Number((natural)self);
 }
 
 
-static var ObjectEquals(struct Object* self, var command, var object, var options, ...) {
+static var ObjectEquals(struct Object* self, var super, var command, var object, var options, ...) {
     return BooleanMake(self == object);
 }
 
 
-static var ObjectAddMethodBlock(struct Object* self, var command, var method, var block, var options, ...) {
+static var ObjectAddMethodBlock(struct Object* self, var super, var command, var method, var block, var options, ...) {
     if (self->meta->owner != self) {
         struct Object* parent = self->meta->owner;
 
@@ -468,13 +521,16 @@ static var ObjectAddMethodBlock(struct Object* self, var command, var method, va
         self->meta->owner = self;
         self->meta->parent = parent;
 
-        TableInit(&self->meta->cache, parent->meta->cache.count);
-        TableInit(&self->meta->methods, METHODS_DEFAULT_CAPACITY);
-        TableInit(&self->meta->children, CHILDREN_DEFAULT_CAPACITY);
-        TablePut(&parent->meta->children, self, yes, ZERO, ZERO);
+        TableCreate(&self->meta->cache, parent->meta->cache.count);
+        TableCreate(&self->meta->methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&self->meta->children, CHILDREN_DEFAULT_CAPACITY);
+
+        struct Entry entry = {.key = (natural)self, .value = (natural)yes, .extra = 0};
+        TablePut(&parent->meta->children, &entry, ZERO, ZERO);
     }
 
-    TablePut(&self->meta->methods, method, block(block).code, ZERO, ZERO);
+    struct Entry entry = {.key = (natural)method, .value = (natural)block(block).code, .extra = 0};
+    TablePut(&self->meta->methods, &entry, ZERO, ZERO);
     preserve(method);
 
     // TODO: clear cache of all children.
@@ -483,46 +539,46 @@ static var ObjectAddMethodBlock(struct Object* self, var command, var method, va
 }
 
 
-static var ObjectRemoveMethod(struct Object* self, var command, var method, var options, ...) {
+static var ObjectRemoveMethod(struct Object* self, var super, var command, var method, var options, ...) {
     // TODO: implement.
     return null;
 }
 
 
-static var ObjectProto(struct Object* self, var command, var options, ...) {
+static var ObjectProto(struct Object* self, var super, var command, var options, ...) {
     struct Object* parent = self->meta->parent;
     struct Object* owner = self->meta->owner;
     return owner == self ? parent : owner;
 }
 
 
-static var ObjectSetProto(struct Object* self, var command, var proto, var options, ...) {
+static var ObjectSetProto(struct Object* self, var super, var command, var proto, var options, ...) {
     // TODO: implement.
     return null;
 }
 
 
-static var ObjectInfo(struct Object* self, var command, var message, var options, ...) {
+static var ObjectInfo(struct Object* self, var super, var command, var message, var options, ...) {
     var description = send(message, "as-string");
     fprintf(stderr, "[INFO] %s\n", string(description).characters);
     return self;
 }
 
 
-static var ObjectWarning(struct Object* self, var command, var message, var options, ...) {
+static var ObjectWarning(struct Object* self, var super, var command, var message, var options, ...) {
     var description = send(message, "as-string");
     fprintf(stderr, "[WARNING] %s\n", string(description).characters);
     return self;
 }
 
 
-static var ObjectError(struct Object* self, var command, var message, var options, ...) {
+static var ObjectError(struct Object* self, var super, var command, var message, var options, ...) {
     throw(message);
     return self;
 }
 
 
-static var ObjectDebug(struct Object* self, var command, var message, var options, ...) {
+static var ObjectDebug(struct Object* self, var super, var command, var message, var options, ...) {
     var description = send(message, "as-string");
     fprintf(stderr, "[DEBUG] %s\n", string(description).characters);
     return self;
@@ -532,19 +588,19 @@ static var ObjectDebug(struct Object* self, var command, var message, var option
 // ------------------------------------------------------ Boolean Methods ------
 
 
-static var BooleanCreate(struct Boolean* self, var command, var options, ...) {
+static var BooleanCreate(struct Boolean* self, var super, var command, var options, ...) {
     send(self, "error*", String("InvalidCommandException | Can't create a Boolean"));
     return null;
 }
 
 
-static var BooleanDestroy(struct Boolean* self, var command, var options, ...) {
+static var BooleanDestroy(struct Boolean* self, var super, var command, var options, ...) {
     send(self, "error*", String("InvalidCommandException | Can't destroy a Boolean"));
     return null;
 }
 
 
-static var BooleanAsString(struct Boolean* self, var command, var options, ...) {
+static var BooleanAsString(struct Boolean* self, var super, var command, var options, ...) {
     if (self == Boolean) return BooleanName;
     if (self == yes) return YesAsString;
     if (self == no) return NoAsString;
@@ -554,7 +610,7 @@ static var BooleanAsString(struct Boolean* self, var command, var options, ...) 
 }
 
 
-static var BooleanCompare(struct Boolean* self, var command, var object, var options, ...) {
+static var BooleanCompare(struct Boolean* self, var super, var command, var object, var options, ...) {
     if (self == Boolean) return null;
     if (object != yes && object != no) return null;
 
@@ -565,7 +621,7 @@ static var BooleanCompare(struct Boolean* self, var command, var object, var opt
 }
 
 
-static var BooleanCopy(struct Boolean* self, var command, var options, ...) {
+static var BooleanCopy(struct Boolean* self, var super, var command, var options, ...) {
     return self;
 }
 
@@ -573,13 +629,13 @@ static var BooleanCopy(struct Boolean* self, var command, var options, ...) {
 // ------------------------------------------------------- Number Methods ------
 
 
-static var NumberCreate(struct Number* self, var command, var options, ...) {
+static var NumberCreate(struct Number* self, var super, var command, var options, ...) {
     send(self, "error*", String("InvalidCommandException | Can't create a Number"));
     return null;
 }
 
 
-static var NumberAsString(struct Number* self, var command, var options, ...) {
+static var NumberAsString(struct Number* self, var super, var command, var options, ...) {
     if (self == Number) return NumberName;
 
     // TODO: tweak to not print trailing zeros.
@@ -600,17 +656,17 @@ static var NumberAsString(struct Number* self, var command, var options, ...) {
 }
 
 
-static var NumberHash(struct Number* self, var command, var options, ...) {
+static var NumberHash(struct Number* self, var super, var command, var options, ...) {
     return self;
 }
 
 
-static var NumberEquals(struct Number* self, var command, var object, var options, ...) {
+static var NumberEquals(struct Number* self, var super, var command, var object, var options, ...) {
     return DecimalFrom(self) == DecimalFrom(object) ? yes : no;
 }
 
 
-static var NumberCompare(struct Number* self, var command, var object, var options, ...) {
+static var NumberCompare(struct Number* self, var super, var command, var object, var options, ...) {
     decimal const number1 = DecimalFrom(self);
     decimal const number2 = DecimalFrom(object);
 
@@ -621,7 +677,7 @@ static var NumberCompare(struct Number* self, var command, var object, var optio
 }
 
 
-static var NumberCopy(struct Number* self, var command, var options, ...) {
+static var NumberCopy(struct Number* self, var super, var command, var options, ...) {
     return retain(self);
 }
 
@@ -629,13 +685,13 @@ static var NumberCopy(struct Number* self, var command, var options, ...) {
 // -------------------------------------------------------- Block Methods ------
 
 
-static var BlockCreate(struct Block* self, var command, var options, ...) {
+static var BlockCreate(struct Block* self, var super, var command, var options, ...) {
     send(self, "error*", String("InvalidCommandException | Can't create a Block"));
     return null;
 }
 
 
-static var BlockAsString(struct Block* self, var command, var options, ...) {
+static var BlockAsString(struct Block* self, var super, var command, var options, ...) {
     if (self == Block) return BlockName;
 
     static struct String* string = ZERO;
@@ -650,7 +706,7 @@ static var BlockAsString(struct Block* self, var command, var options, ...) {
 // --------------------------------------------------------- Data Methods ------
 
 
-static var DataCreate(struct Data* self, var command, var options, ...) {
+static var DataCreate(struct Data* self, var super, var command, var options, ...) {
     var mutable = option("mutable", no);
     var capacity = option("capacity", Number(1));
     var copy = option("copy", null);
@@ -668,13 +724,13 @@ static var DataCreate(struct Data* self, var command, var options, ...) {
 }
 
 
-static var DataDestroy(struct Data* self, var command, var options, ...) {
+static var DataDestroy(struct Data* self, var super, var command, var options, ...) {
     free(self->bytes);
     return super(self, "destroy");
 }
 
 
-static var DataAsString(struct Data* self, var command, var options, ...) {
+static var DataAsString(struct Data* self, var super, var command, var options, ...) {
     if (self == Data) return DataName;
 
     // TODO: implement Base64 encoding.
@@ -683,13 +739,13 @@ static var DataAsString(struct Data* self, var command, var options, ...) {
 }
 
 
-static var DataHash(struct Data* self, var command, var options, ...) {
+static var DataHash(struct Data* self, var super, var command, var options, ...) {
     natural const digest = Digest(self->count, self->bytes);
     return Number((decimal)digest);
 }
 
 
-static var DataEquals(struct Data* self, var command, var object, var options, ...) {
+static var DataEquals(struct Data* self, var super, var command, var object, var options, ...) {
     if (self == object) return yes;
     if (send(object, "is-kind-of*", Data) == no) return no;
 
@@ -703,26 +759,26 @@ static var DataEquals(struct Data* self, var command, var object, var options, .
 }
 
 
-static var DataCopy(struct Data* self, var command, var options, ...) {
+static var DataCopy(struct Data* self, var super, var command, var options, ...) {
     if (self->capacity < 0) return retain(self);
     // TODO: make an immutable copy.
     return null;
 }
 
 
-static var DataAtCount(struct Data* self, var command, var index, var count, var options, ...) {
+static var DataAtCount(struct Data* self, var super, var command, var index, var count, var options, ...) {
     // TODO: implement.
     return null;
 }
 
 
-static var DataReplaceAtCountWith(struct Data* self, var command, var index, var count, var data, var options, ...) {
+static var DataReplaceAtCountWith(struct Data* self, var super, var command, var index, var count, var data, var options, ...) {
     // TODO: implement.
     return self;
 }
 
 
-static var DataCount(struct Data* self, var command, var options, ...) {
+static var DataCount(struct Data* self, var super, var command, var options, ...) {
     return Number(self->count);
 }
 
@@ -730,7 +786,7 @@ static var DataCount(struct Data* self, var command, var options, ...) {
 // -------------------------------------------------------- Array Methods ------
 
 
-static var ArrayCreate(struct Array* self, var command, var options, ...) {
+static var ArrayCreate(struct Array* self, var super, var command, var options, ...) {
     var mutable = option("mutable", no);
     var capacity = option("capacity", Number(1));
     var copy = option("copy", null);
@@ -748,7 +804,7 @@ static var ArrayCreate(struct Array* self, var command, var options, ...) {
 }
 
 
-static var ArrayDestroy(struct Array* self, var command, var options, ...) {
+static var ArrayDestroy(struct Array* self, var super, var command, var options, ...) {
     for (int i = 0; i < self->count; i += 1) {
         release(self->objects[i]);
     }
@@ -757,19 +813,19 @@ static var ArrayDestroy(struct Array* self, var command, var options, ...) {
 }
 
 
-static var ArrayAsString(struct Array* self, var command, var options, ...) {
+static var ArrayAsString(struct Array* self, var super, var command, var options, ...) {
     if (self == Array) return ArrayName;
     return String("<Array XXX>");
 }
 
 
-static var ArrayHash(struct Array* self, var command, var options, ...) {
+static var ArrayHash(struct Array* self, var super, var command, var options, ...) {
     // TODO: implement.
     return null;
 }
 
 
-static var ArrayEquals(struct Array* self, var command, var object, var options, ...) {
+static var ArrayEquals(struct Array* self, var super, var command, var object, var options, ...) {
     if (self == object) return yes;
     if (send(object, "is-kind-of*", Array) == no) return no;
 
@@ -788,14 +844,14 @@ static var ArrayEquals(struct Array* self, var command, var object, var options,
 }
 
 
-static var ArrayCopy(struct Array* self, var command, var options, ...) {
+static var ArrayCopy(struct Array* self, var super, var command, var options, ...) {
     var mutable = option(String("mutable"), no);
     // TODO: don't copy if mutable = no and object is immutable
     return send(self, "create", options(String("mutable"), mutable, String("copy"), yes));
 }
 
 
-static var ArrayAt(struct Array* self, var command, var index, var options, ...) {
+static var ArrayAt(struct Array* self, var super, var command, var index, var options, ...) {
     integer const integerIndex = IntegerFrom(index);
     integer const integerCount = self->count;
 
@@ -807,12 +863,12 @@ static var ArrayAt(struct Array* self, var command, var index, var options, ...)
 }
 
 
-static var ArrayCount(struct Array* self, var command, var options, ...) {
+static var ArrayCount(struct Array* self, var super, var command, var options, ...) {
     return Number(self->count);
 }
 
 
-static var ArrayReplaceAtCountWith(struct Array* self, var command, var index, var count, var objects, var options, ...) {
+static var ArrayReplaceAtCountWith(struct Array* self, var super, var command, var index, var count, var objects, var options, ...) {
     integer const integerIndex = IntegerFrom(index);
     integer const integerCount = IntegerFrom(count);
 
@@ -869,7 +925,7 @@ static var ArrayReplaceAtCountWith(struct Array* self, var command, var index, v
 // ------------------------------------------------------- String Methods ------
 
 
-static var StringCreate(struct String* self, var command, var options, ...) {
+static var StringCreate(struct String* self, var super, var command, var options, ...) {
     var mutable = option("mutable", no);
     var capacity = option("capacity", Number(1));
     var copy = option("copy", null);
@@ -887,9 +943,10 @@ static var StringCreate(struct String* self, var command, var options, ...) {
 }
 
 
-static var StringDestroy(struct String* self, var command, var options, ...) {
+static var StringDestroy(struct String* self, var super, var command, var options, ...) {
     if (self->capacity < 0) {
-        TablePut(&StringTable, self, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
+        struct Entry entry = {.key = (natural)self, .value = 0, .extra = 0};
+        TablePut(&StringTable, &entry, StringHashFunction, StringEqualsFunction);
     }
 
     free(self->characters);
@@ -897,19 +954,19 @@ static var StringDestroy(struct String* self, var command, var options, ...) {
 }
 
 
-static var StringAsString(struct String* self, var command, var options, ...) {
+static var StringAsString(struct String* self, var super, var command, var options, ...) {
     if (self == String) return StringName;
     return autorelease(send(self, "copy"));
 }
 
 
-static var StringHash(struct String* self, var command, var options, ...) {
-    natural const hash = Digest(self->length, self->characters);
-    return Number((decimal)hash);
+static var StringHash(struct String* self, var super, var command, var options, ...) {
+    natural const hashFunction = Digest(self->length, self->characters);
+    return Number((decimal)hashFunction);
 }
 
 
-static var StringEquals(struct String* self, var command, var object, var options, ...) {
+static var StringEquals(struct String* self, var super, var command, var object, var options, ...) {
     if (self == object) return yes;
     if (send(object, "is-kind-of*", String) == no) return no;
 
@@ -923,7 +980,7 @@ static var StringEquals(struct String* self, var command, var object, var option
 }
 
 
-static var StringCompare(struct String* self, var command, var object, var options, ...) {
+static var StringCompare(struct String* self, var super, var command, var object, var options, ...) {
     if (self == object) return yes;
     if (send(object, "is-kind-of*", String) == no) return null;
 
@@ -935,25 +992,25 @@ static var StringCompare(struct String* self, var command, var object, var optio
 }
 
 
-static var StringCopy(struct String* self, var command, var options, ...) {
+static var StringCopy(struct String* self, var super, var command, var options, ...) {
     if (self->capacity < 0) return retain(self);
     // TODO: make an immutable copy.
     return null;
 }
 
 
-static var StringAtCount(struct String* self, var command, var index, var count, var options, ...) {
+static var StringAtCount(struct String* self, var super, var command, var index, var count, var options, ...) {
     // TODO: implement.
     return null;
 }
 
 
-static var StringLength(struct String* self, var command, var options, ...) {
+static var StringLength(struct String* self, var super, var command, var options, ...) {
     return Number(self->length);
 }
 
 
-static var StringReplaceAtCountWith(struct String* self, var command, var index, var count, var string, var options, ...) {
+static var StringReplaceAtCountWith(struct String* self, var super, var command, var index, var count, var string, var options, ...) {
     // TODO: implement.
     return self;
 }
@@ -962,7 +1019,7 @@ static var StringReplaceAtCountWith(struct String* self, var command, var index,
 // --------------------------------------------------- Dictionary Methods ------
 
 
-static var DictionaryCreate(struct Dictionary* self, var command, var options, ...) {
+static var DictionaryCreate(struct Dictionary* self, var super, var command, var options, ...) {
     var mutable = option("mutable", no);
     var capacity = option("capacity", Number(1));
     var copy = option("copy", null);
@@ -980,7 +1037,7 @@ static var DictionaryCreate(struct Dictionary* self, var command, var options, .
 }
 
 
-static var DictionaryDestroy(struct Dictionary* self, var command, var options, ...) {
+static var DictionaryDestroy(struct Dictionary* self, var super, var command, var options, ...) {
     for (int i = 0; i < self->count; i += 2) {
         var key = self->entries[i];
         var value = self->entries[i + 1];
@@ -998,20 +1055,20 @@ static var DictionaryDestroy(struct Dictionary* self, var command, var options, 
 }
 
 
-static var DictionaryAsString(struct Dictionary* self, var command, var options, ...) {
+static var DictionaryAsString(struct Dictionary* self, var super, var command, var options, ...) {
     if (self == Dictionary) return DictionaryName;
     // TODO: implement.
     return String("<Dictionary XXX>");
 }
 
 
-static var DictionaryHash(struct Dictionary* self, var command, var options, ...) {
+static var DictionaryHash(struct Dictionary* self, var super, var command, var options, ...) {
     // TODO: implement.
     return null;
 }
 
 
-static var DictionaryEquals(struct Dictionary* self, var command, var object, var options, ...) {
+static var DictionaryEquals(struct Dictionary* self, var super, var command, var object, var options, ...) {
     if (self == object) return yes;
     if (send(object, "is-kind-of*", Dictionary) == no) return no;
 
@@ -1033,14 +1090,14 @@ static var DictionaryEquals(struct Dictionary* self, var command, var object, va
 }
 
 
-static var DictionaryCopy(struct Dictionary* self, var command, var options, ...) {
+static var DictionaryCopy(struct Dictionary* self, var super, var command, var options, ...) {
     if (self->capacity < 0) return retain(self);
     // TODO: make an immutable copy.
     return null;
 }
 
 
-static var DictionaryGet(struct Dictionary* self, var command, var key, var options, ...) {
+static var DictionaryGet(struct Dictionary* self, var super, var command, var key, var options, ...) {
     natural const mask = self->mask;
     natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
@@ -1070,7 +1127,7 @@ static var DictionaryGet(struct Dictionary* self, var command, var key, var opti
 }
 
 
-static var DictionarySetTo(struct Dictionary* self, var command, var key, var value, var options, ...) {
+static var DictionarySetTo(struct Dictionary* self, var super, var command, var key, var value, var options, ...) {
     DictionaryEnsureCapacity(self, self->count + 1);
 
     natural const mask = self->mask;
@@ -1108,7 +1165,7 @@ static var DictionarySetTo(struct Dictionary* self, var command, var key, var va
 }
 
 
-static var DictionaryRemove(struct Dictionary* self, var command, var key, var options, ...) {
+static var DictionaryRemove(struct Dictionary* self, var super, var command, var key, var options, ...) {
     natural const mask = self->mask;
     natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
@@ -1144,7 +1201,7 @@ static var DictionaryRemove(struct Dictionary* self, var command, var key, var o
 }
 
 
-static var DictionaryCount(struct Dictionary* self, var command, var options, ...) {
+static var DictionaryCount(struct Dictionary* self, var super, var command, var options, ...) {
     return Number(self->count);
 }
 
@@ -1152,29 +1209,29 @@ static var DictionaryCount(struct Dictionary* self, var command, var options, ..
 // --------------------------------------------------------- Null Methods ------
 
 
-static var NullCreate(struct Object* self, var command, var options, ...) {
+static var NullCreate(struct Object* self, var super, var command, var options, ...) {
     send(self, "error*", String("InvalidCommandException | Can't create a Null"));
     return null;
 }
 
 
-static var NullDestroy(struct Object* self, var command, var options, ...) {
+static var NullDestroy(struct Object* self, var super, var command, var options, ...) {
     send(self, "error*", String("InvalidCommandException | Can't destroy a Null"));
     return null;
 }
 
 
-static var NullAsString(struct Object* self, var command, var options, ...) {
+static var NullAsString(struct Object* self, var super, var command, var options, ...) {
     return NullName;
 }
 
 
-static var NullEquals(struct Object* self, var command, var object, var options, ...) {
+static var NullEquals(struct Object* self, var super, var command, var object, var options, ...) {
     return object == null ? yes : no;
 }
 
 
-static var NullCopy(struct Object* self, var command, var options, ...) {
+static var NullCopy(struct Object* self, var super, var command, var options, ...) {
     return retain(self);
 }
 
@@ -1269,7 +1326,11 @@ var StringMake(long length, const char* characters) {
 
     if (couldBeCommandOrKey) {
         struct String proxy = {.meta = &StringMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0, .capacity = -1, .length = length, .hash = hash, .characters = (char*)characters};
-        struct String* string = TableGet(&StringTable, &proxy, ComputeHashOfString, CheckIfStringsAreEqual);
+        struct Entry entry = {.key = (natural)&proxy, .value = 0, .extra = 0};
+
+        TableGet(&StringTable, &entry, StringHashFunction, StringEqualsFunction);
+        struct String* string = (struct String*)entry.value;
+
         if (string != ZERO) return retain(string);
     }
 
@@ -1283,7 +1344,8 @@ var StringMake(long length, const char* characters) {
     strncpy(string->characters, characters, length);
 
     if (couldBeCommandOrKey) {
-        TablePut(&StringTable, string, string, ComputeHashOfString, CheckIfStringsAreEqual);
+        struct Entry entry = {.key = (natural)string, .value = (natural)string, .extra = 0};
+        TablePut(&StringTable, &entry, StringHashFunction, StringEqualsFunction);
     }
 
     return string;
@@ -1309,7 +1371,7 @@ var DictionaryMake(long count, ...) {
     for (int i = 0; i < count - 1; i += 2) {
         var key = va_arg(arguments, var);
         var value = va_arg(arguments, var);
-        DictionarySetTo(dictionary, null, key, value, zero);
+        DictionarySetTo(dictionary, NULL, null, key, value, zero);
     }
 
     // Make mutable if needed:
@@ -1479,34 +1541,40 @@ var export(const char* name, void* code) {
 }
 
 
-void* lookup(var self, var command, natural level) {
-    struct Meta* const meta = object(self).meta;
-    struct Table* const methods = &meta->methods;
+void* lookup(var object, var command, var* super) {
+    struct Meta* const meta = object(object).meta;
     struct Table* const cache = &meta->cache;
-    void* const key = (void*)((natural)command | level);
+    struct Table* const methods = &meta->methods;
+    struct Object* const parent = meta->parent;
+    void* code = ZERO;
 
-    // Look up in cache.
-    void* code = TableGet(cache, key, ZERO, ZERO);
-    if (code != ZERO) return code;
+    // TODO: look up in cache, old implementation:
+    // void* code = HashMapGet(cache, key, ZERO, ZERO);
+    // if (code != ZERO) return code;
 
-    // Look up in own methods.
+    // Look up in own methods:
     assert(string(command).length <= MAX_KEY_AND_COMMAND_LENGTH, "When looking up a method for a given command, the length of the command must be <= MAX_KEY_AND_COMMAND_LENGTH");
-    code = TableGet(methods, command, ZERO, ZERO);
+    struct Entry entry = {.key = (natural)command, .value = 0, .extra = 0};
+    TableGet(methods, &entry, ZERO, ZERO);
 
-    // Continue searching in parent's methods if needed.
-    if (meta->parent != null) {
-        if (code && level > 0) code = lookup(meta->parent, command, level - 1);
-        if (!code) code = lookup(meta->parent, command, level);
+    code = (void *)entry.value;
+    if (code) *super = parent;
+
+    // Continue searching in parent's methods if needed:
+    if (!code && parent != null) {
+        code = lookup(parent, command, super);
     }
 
     // TOOD: add fallback.
 
-    // Cache found method.
-    assert(code != ZERO, "At this point, code must be either the found method or a fallback method but should enver be ZERO");
-    TablePut(cache, key, code, ZERO, ZERO);
-    preserve(command);
+    // Make sure method was found:
+    assert(code != ZERO, "At this point, code must be either the found method or a fallback method but should never be ZERO");
 
-    // Return found & now cached method.
+    // TODO: Cache found method, old implementation:
+    // HashMapPut(cache, key, code, ZERO, ZERO);
+    // preserve(command);
+
+    // Return found & now cached method:
     return code;
 }
 
@@ -1545,9 +1613,7 @@ void inspect(var object) {
 
 static void bootstrap Metal() {
     collect {
-        TableInit(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
-        TableInit(&ImportTable, IMPORT_TABLE_DEFAULT_CAPACITY);
-        TableInit(&ExportTable, EXPORT_TABLE_DEFAULT_CAPACITY);
+        TableCreate(&StringTable, STRING_TABLE_DEFAULT_CAPACITY);
 
         ObjectMeta.owner = &ObjectState;
         BooleanMeta.owner = &BooleanState;
@@ -1579,127 +1645,136 @@ static void bootstrap Metal() {
         DictionaryMeta.size = sizeof(struct Dictionary);
         NullMeta.size = sizeof(struct Object);
 
-        TableInit(&ObjectMeta.cache, CACHE_DEFAULT_CAPACITY);
-        TableInit(&BooleanMeta.cache, CACHE_DEFAULT_CAPACITY);
-        TableInit(&NumberMeta.cache, CACHE_DEFAULT_CAPACITY);
-        TableInit(&BlockMeta.cache, CACHE_DEFAULT_CAPACITY);
-        TableInit(&DataMeta.cache, CACHE_DEFAULT_CAPACITY);
-        TableInit(&ArrayMeta.cache, CACHE_DEFAULT_CAPACITY);
-        TableInit(&StringMeta.cache, CACHE_DEFAULT_CAPACITY);
-        TableInit(&DictionaryMeta.cache, CACHE_DEFAULT_CAPACITY);
-        TableInit(&NullMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&ObjectMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&BooleanMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&NumberMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&BlockMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&DataMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&ArrayMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&StringMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&DictionaryMeta.cache, CACHE_DEFAULT_CAPACITY);
+        TableCreate(&NullMeta.cache, CACHE_DEFAULT_CAPACITY);
 
-        TableInit(&ObjectMeta.methods, 32);
-        TableInit(&BooleanMeta.methods, 32);
-        TableInit(&NumberMeta.methods, 32);
-        TableInit(&BlockMeta.methods, 32);
-        TableInit(&DataMeta.methods, 32);
-        TableInit(&ArrayMeta.methods, 32);
-        TableInit(&StringMeta.methods, 32);
-        TableInit(&DictionaryMeta.methods, 32);
-        TableInit(&NullMeta.methods, 32);
+        TableCreate(&ObjectMeta.methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&BooleanMeta.methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&NumberMeta.methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&BlockMeta.methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&DataMeta.methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&ArrayMeta.methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&StringMeta.methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&DictionaryMeta.methods, METHODS_DEFAULT_CAPACITY);
+        TableCreate(&NullMeta.methods, METHODS_DEFAULT_CAPACITY);
 
-        ObjectAddMethodBlock(Object, zero, String("allocate"), Block(ObjectAllocate), zero);
-        ObjectAddMethodBlock(Object, zero, String("create"), Block(ObjectCreate), zero);
-        ObjectAddMethodBlock(Object, zero, String("destroy"), Block(ObjectDestroy), zero);
-        ObjectAddMethodBlock(Object, zero, String("is-kind-of*"), Block(ObjectIsKindOf), zero);
-        ObjectAddMethodBlock(Object, zero, String("is-mutable"), Block(ObjectIsMutable), zero);
-        ObjectAddMethodBlock(Object, zero, String("responds-to*"), Block(ObjectRespondsTo), zero);
-        ObjectAddMethodBlock(Object, zero, String("as-string"), Block(ObjectAsString), zero);
-        ObjectAddMethodBlock(Object, zero, String("self"), Block(ObjectSelf), zero);
-        ObjectAddMethodBlock(Object, zero, String("hash"), Block(ObjectHash), zero);
-        ObjectAddMethodBlock(Object, zero, String("equals*"), Block(ObjectEquals), zero);
-        ObjectAddMethodBlock(Object, zero, String("add-method*block*"), Block(ObjectAddMethodBlock), zero);
-        ObjectAddMethodBlock(Object, zero, String("remove-method*"), Block(ObjectRemoveMethod), zero);
-        ObjectAddMethodBlock(Object, zero, String("proto"), Block(ObjectProto), zero);
-        ObjectAddMethodBlock(Object, zero, String("set-proto*"), Block(ObjectSetProto), zero);
-        ObjectAddMethodBlock(Object, zero, String("info*"), Block(ObjectInfo), zero);
-        ObjectAddMethodBlock(Object, zero, String("warning*"), Block(ObjectWarning), zero);
-        ObjectAddMethodBlock(Object, zero, String("error*"), Block(ObjectError), zero);
-        ObjectAddMethodBlock(Object, zero, String("debug*"), Block(ObjectDebug), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("allocate"), Block(ObjectAllocate), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("create"), Block(ObjectCreate), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("destroy"), Block(ObjectDestroy), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("is-kind-of*"), Block(ObjectIsKindOf), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("is-mutable"), Block(ObjectIsMutable), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("responds-to*"), Block(ObjectRespondsTo), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("as-string"), Block(ObjectAsString), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("self"), Block(ObjectSelf), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("hash"), Block(ObjectHash), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("equals*"), Block(ObjectEquals), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("add-method*block*"), Block(ObjectAddMethodBlock), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("remove-method*"), Block(ObjectRemoveMethod), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("proto"), Block(ObjectProto), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("set-proto*"), Block(ObjectSetProto), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("info*"), Block(ObjectInfo), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("warning*"), Block(ObjectWarning), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("error*"), Block(ObjectError), zero);
+        ObjectAddMethodBlock(Object, zero, zero, String("debug*"), Block(ObjectDebug), zero);
 
-        ObjectAddMethodBlock(Boolean, zero, String("create"), Block(BooleanCreate), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("destroy"), Block(BooleanDestroy), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("as-string"), Block(BooleanAsString), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("compare*"), Block(BooleanCompare), zero);
-        ObjectAddMethodBlock(Boolean, zero, String("copy"), Block(BooleanCopy), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, String("create"), Block(BooleanCreate), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, String("destroy"), Block(BooleanDestroy), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, String("as-string"), Block(BooleanAsString), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, String("compare*"), Block(BooleanCompare), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, String("copy"), Block(BooleanCopy), zero);
 
-        ObjectAddMethodBlock(Number, zero, String("create"), Block(NumberCreate), zero);
-        ObjectAddMethodBlock(Number, zero, String("as-string"), Block(NumberAsString), zero);
-        ObjectAddMethodBlock(Number, zero, String("hash"), Block(NumberHash), zero);
-        ObjectAddMethodBlock(Number, zero, String("equals*"), Block(NumberEquals), zero);
-        ObjectAddMethodBlock(Number, zero, String("compare*"), Block(NumberCompare), zero);
-        ObjectAddMethodBlock(Number, zero, String("copy"), Block(NumberCopy), zero);
+        ObjectAddMethodBlock(Number, Object, zero, String("create"), Block(NumberCreate), zero);
+        ObjectAddMethodBlock(Number, Object, zero, String("as-string"), Block(NumberAsString), zero);
+        ObjectAddMethodBlock(Number, Object, zero, String("hash"), Block(NumberHash), zero);
+        ObjectAddMethodBlock(Number, Object, zero, String("equals*"), Block(NumberEquals), zero);
+        ObjectAddMethodBlock(Number, Object, zero, String("compare*"), Block(NumberCompare), zero);
+        ObjectAddMethodBlock(Number, Object, zero, String("copy"), Block(NumberCopy), zero);
 
-        ObjectAddMethodBlock(Block, zero, String("create"), Block(BlockCreate), zero);
-        ObjectAddMethodBlock(Block, zero, String("as-string"), Block(BlockAsString), zero);
+        ObjectAddMethodBlock(Block, Object, zero, String("create"), Block(BlockCreate), zero);
+        ObjectAddMethodBlock(Block, Object, zero, String("as-string"), Block(BlockAsString), zero);
 
-        ObjectAddMethodBlock(Data, zero, String("create"), Block(DataCreate), zero);
-        ObjectAddMethodBlock(Data, zero, String("destroy"), Block(DataDestroy), zero);
-        ObjectAddMethodBlock(Data, zero, String("as-string"), Block(DataAsString), zero);
-        ObjectAddMethodBlock(Data, zero, String("hash"), Block(DataHash), zero);
-        ObjectAddMethodBlock(Data, zero, String("equals*"), Block(DataEquals), zero);
-        ObjectAddMethodBlock(Data, zero, String("copy"), Block(DataCopy), zero);
-        ObjectAddMethodBlock(Data, zero, String("at*count*"), Block(DataAtCount), zero);
-        ObjectAddMethodBlock(Data, zero, String("replace-at*count*with*"), Block(DataReplaceAtCountWith), zero);
-        ObjectAddMethodBlock(Data, zero, String("count"), Block(DataCount), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("create"), Block(DataCreate), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("destroy"), Block(DataDestroy), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("as-string"), Block(DataAsString), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("hash"), Block(DataHash), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("equals*"), Block(DataEquals), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("copy"), Block(DataCopy), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("at*count*"), Block(DataAtCount), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("replace-at*count*with*"), Block(DataReplaceAtCountWith), zero);
+        ObjectAddMethodBlock(Data, Object, zero, String("count"), Block(DataCount), zero);
 
-        ObjectAddMethodBlock(Array, zero, String("create"), Block(ArrayCreate), zero);
-        ObjectAddMethodBlock(Array, zero, String("destroy"), Block(ArrayDestroy), zero);
-        ObjectAddMethodBlock(Array, zero, String("as-string"), Block(ArrayAsString), zero);
-        ObjectAddMethodBlock(Array, zero, String("hash"), Block(ArrayHash), zero);
-        ObjectAddMethodBlock(Array, zero, String("equals*"), Block(ArrayEquals), zero);
-        ObjectAddMethodBlock(Array, zero, String("copy"), Block(ArrayCopy), zero);
-        ObjectAddMethodBlock(Array, zero, String("at*"), Block(ArrayAt), zero);
-        ObjectAddMethodBlock(Array, zero, String("count"), Block(ArrayCount), zero);
-        ObjectAddMethodBlock(Array, zero, String("replace-at*count*with*"), Block(ArrayReplaceAtCountWith), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("create"), Block(ArrayCreate), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("destroy"), Block(ArrayDestroy), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("as-string"), Block(ArrayAsString), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("hash"), Block(ArrayHash), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("equals*"), Block(ArrayEquals), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("copy"), Block(ArrayCopy), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("at*"), Block(ArrayAt), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("count"), Block(ArrayCount), zero);
+        ObjectAddMethodBlock(Array, Object, zero, String("replace-at*count*with*"), Block(ArrayReplaceAtCountWith), zero);
 
-        ObjectAddMethodBlock(String, zero, String("create"), Block(StringCreate), zero);
-        ObjectAddMethodBlock(String, zero, String("destroy"), Block(StringDestroy), zero);
-        ObjectAddMethodBlock(String, zero, String("as-string"), Block(StringAsString), zero);
-        ObjectAddMethodBlock(String, zero, String("hash"), Block(StringHash), zero);
-        ObjectAddMethodBlock(String, zero, String("equals*"), Block(StringEquals), zero);
-        ObjectAddMethodBlock(String, zero, String("compare*"), Block(StringCompare), zero);
-        ObjectAddMethodBlock(String, zero, String("copy"), Block(StringCopy), zero);
-        ObjectAddMethodBlock(String, zero, String("at*count*"), Block(StringAtCount), zero);
-        ObjectAddMethodBlock(String, zero, String("length"), Block(StringLength), zero);
-        ObjectAddMethodBlock(String, zero, String("replace-at*count*with*"), Block(StringReplaceAtCountWith), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("create"), Block(StringCreate), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("destroy"), Block(StringDestroy), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("as-string"), Block(StringAsString), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("hash"), Block(StringHash), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("equals*"), Block(StringEquals), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("compare*"), Block(StringCompare), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("copy"), Block(StringCopy), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("at*count*"), Block(StringAtCount), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("length"), Block(StringLength), zero);
+        ObjectAddMethodBlock(String, Object, zero, String("replace-at*count*with*"), Block(StringReplaceAtCountWith), zero);
 
-        ObjectAddMethodBlock(Dictionary, zero, String("create"), Block(DictionaryCreate), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("destroy"), Block(DictionaryDestroy), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("as-string"), Block(DictionaryAsString), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("hash"), Block(DictionaryHash), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("equals*"), Block(DictionaryEquals), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("copy"), Block(DictionaryCopy), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("get*"), Block(DictionaryGet), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("set*to*"), Block(DictionarySetTo), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("remove*"), Block(DictionaryRemove), zero);
-        ObjectAddMethodBlock(Dictionary, zero, String("count"), Block(DictionaryCount), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("create"), Block(DictionaryCreate), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("destroy"), Block(DictionaryDestroy), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("as-string"), Block(DictionaryAsString), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("hash"), Block(DictionaryHash), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("equals*"), Block(DictionaryEquals), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("copy"), Block(DictionaryCopy), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("get*"), Block(DictionaryGet), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("set*to*"), Block(DictionarySetTo), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("remove*"), Block(DictionaryRemove), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, String("count"), Block(DictionaryCount), zero);
 
-        ObjectAddMethodBlock(null, zero, String("create"), Block(NullCreate), zero);
-        ObjectAddMethodBlock(null, zero, String("destroy"), Block(NullDestroy), zero);
-        ObjectAddMethodBlock(null, zero, String("as-string"), Block(NullAsString), zero);
-        ObjectAddMethodBlock(null, zero, String("equals*"), Block(NullEquals), zero);
-        ObjectAddMethodBlock(null, zero, String("copy"), Block(NullCopy), zero);
+        ObjectAddMethodBlock(null, Object, zero, String("create"), Block(NullCreate), zero);
+        ObjectAddMethodBlock(null, Object, zero, String("destroy"), Block(NullDestroy), zero);
+        ObjectAddMethodBlock(null, Object, zero, String("as-string"), Block(NullAsString), zero);
+        ObjectAddMethodBlock(null, Object, zero, String("equals*"), Block(NullEquals), zero);
+        ObjectAddMethodBlock(null, Object, zero, String("copy"), Block(NullCopy), zero);
 
-        TableInit(&ObjectMeta.children, 64);
-        TableInit(&BooleanMeta.children, 1);
-        TableInit(&NumberMeta.children, 1);
-        TableInit(&BlockMeta.children, 1);
-        TableInit(&DataMeta.children, 1);
-        TableInit(&ArrayMeta.children, 1);
-        TableInit(&StringMeta.children, 1);
-        TableInit(&DictionaryMeta.children, 1);
-        TableInit(&NullMeta.children, 1);
+        TableCreate(&ObjectMeta.children, 64);
+        TableCreate(&BooleanMeta.children, 1);
+        TableCreate(&NumberMeta.children, 1);
+        TableCreate(&BlockMeta.children, 1);
+        TableCreate(&DataMeta.children, 1);
+        TableCreate(&ArrayMeta.children, 1);
+        TableCreate(&StringMeta.children, 1);
+        TableCreate(&DictionaryMeta.children, 1);
+        TableCreate(&NullMeta.children, 1);
 
-        TablePut(&ObjectMeta.children, Boolean, yes, ZERO, ZERO);
-        TablePut(&ObjectMeta.children, Number, yes, ZERO, ZERO);
-        TablePut(&ObjectMeta.children, Block, yes, ZERO, ZERO);
-        TablePut(&ObjectMeta.children, Data, yes, ZERO, ZERO);
-        TablePut(&ObjectMeta.children, Array, yes, ZERO, ZERO);
-        TablePut(&ObjectMeta.children, String, yes, ZERO, ZERO);
-        TablePut(&ObjectMeta.children, Dictionary, yes, ZERO, ZERO);
-        TablePut(&ObjectMeta.children, null, yes, ZERO, ZERO);
+        struct Entry BooleanEntry = {.key = (natural)Boolean, .value = (natural)yes, .extra = 0};
+        struct Entry NumberEntry = {.key = (natural)Number, .value = (natural)yes, .extra = 0};
+        struct Entry BlockEntry = {.key = (natural)Block, .value = (natural)yes, .extra = 0};
+        struct Entry DataEntry = {.key = (natural)Data, .value = (natural)yes, .extra = 0};
+        struct Entry ArrayEntry = {.key = (natural)Array, .value = (natural)yes, .extra = 0};
+        struct Entry StringEntry = {.key = (natural)String, .value = (natural)yes, .extra = 0};
+        struct Entry DictionaryEntry = {.key = (natural)Dictionary, .value = (natural)yes, .extra = 0};
+        struct Entry NullEntry = {.key = (natural)null, .value = (natural)yes, .extra = 0};
+
+        TablePut(&ObjectMeta.children, &BooleanEntry, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, &NumberEntry, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, &BlockEntry, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, &DataEntry, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, &ArrayEntry, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, &StringEntry, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, &DictionaryEntry, ZERO, ZERO);
+        TablePut(&ObjectMeta.children, &NullEntry, ZERO, ZERO);
 
         // TODO: implement.
 
@@ -1773,7 +1848,7 @@ static void DictionaryEnsureCapacity(struct Dictionary* dictionary, integer requ
     for (integer index = 0; index < oldCapacity; index += 1) {
         var key = oldEntries[index * 2];
         var value = oldEntries[index * 2 + 1];
-        if (key) DictionarySetTo(dictionary, zero, key, value, zero);
+        if (key) DictionarySetTo(dictionary, ZERO, zero, key, value, zero);
     }
 
     free(oldEntries);
@@ -1852,16 +1927,26 @@ static natural Digest(integer count, const void* bytes) {
 }
 
 
-static natural ComputeHashOfString(void* string) {
-    if (string(string).hash == 0) {
-        string(string).hash = Digest(string(string).length, string(string).characters);
-    }
+static inline natural StringHashFunction(natural key) {
+    struct String* string = (struct String*)key;
+
+    // TODO: is testing for ZERO or MORE really needed here?
+    if (string == ZERO) return 0;
+    if (string == MORE) return NATURAL_MAX;
+
     return string(string).hash;
 }
 
 
-static bool CheckIfStringsAreEqual(void* string1, void* string2) {
+static inline bool StringEqualsFunction(natural key1, natural key2) {
+    struct String* string1 = (struct String*)key1;
+    struct String* string2 = (struct String*)key2;
     if (string1 == string2) return true;
+
+    // TODO: is testing for ZERO or MORE really needed here?
+    if (string1 == ZERO || string2 == ZERO) return false;
+    if (string1 == MORE || string2 == MORE) return false;
+
     if (string(string1).length != string(string2).length) return false;
     return strncmp(string(string1).characters, string(string2).characters, string(string1).length) == 0;
 }

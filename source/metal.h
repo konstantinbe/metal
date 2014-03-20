@@ -43,8 +43,8 @@
 #define try for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; tryCatchBlock = TryCatchBlockPop(tryCatchBlock)) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
 #define catch else for (var exception = TryCatchBlockCatch(tryCatchBlock); exception != null; exception = null)
 
-#define send(self, command, ...) ((var (*)(var, var, ...))lookup((self), metalHelperStringify(command), 0))((self), metalHelperStringify(command), ## __VA_ARGS__, zero)
-#define super(self, command, ...) ((var (*)(var, var, ...))lookup((self), metalHelperStringify(command), 1))((self), metalHelperStringify(command), ## __VA_ARGS__, zero)
+#define send(self, command, ...) ({var const selfToSend = (self); var const commandToSend = metalHelperStringify(command); var superToSend = zero; Code const codeToCall = lookup(self, commandToSend, &superToSend); codeToCall(selfToSend, superToSend, commandToSend, ## __VA_ARGS__, zero);})
+#define super(self, command, ...) ({var const selfToSend = (self); var const commandToSend = metalHelperStringify(command); var superToSend = zero; Code const codeToCall = lookup(super, commandToSend, &superToSend); codeToCall(selfToSend, superToSend, commandToSend, ## __VA_ARGS__, zero);})
 
 #define option(name, initial) ({ var nameAsString = metalHelperStringify(name); va_list list; va_start(list, options); var key = options; var value = zero; while (key != zero && key != (nameAsString)) { value = va_arg(list, var); key = va_arg(list, var); } va_end(list); key ? va_arg(list, var) : (initial); });
 #define options(...) __VA_ARGS__
@@ -71,6 +71,8 @@ typedef long integer;
 typedef unsigned long natural;
 typedef double decimal;
 
+typedef var (*Code)(var, var, ...);
+
 extern var const Object;
 extern var const Boolean;
 extern var const Number;
@@ -79,6 +81,7 @@ extern var const Data;
 extern var const Array;
 extern var const String;
 extern var const Dictionary;
+
 extern var const null;
 extern var const yes;
 extern var const no;
@@ -110,7 +113,7 @@ var preserve(var object);
 
 var import(const char* name);
 var export(const char* name, void* code);
-void* lookup(var self, var command, natural level);
+void* lookup(var object, var command, var* super);
 void throw(var exception);
 void inspect(var object);
 
