@@ -44,8 +44,6 @@
 #define COLLECT_BLOCK_DEFAULT_CAPACITY 2048
 #define SYMBOL_TABLE_DEFAULT_CAPACITY 2048
 #define STRING_TABLE_DEFAULT_CAPACITY 2048
-#define IMPORT_TABLE_DEFAULT_CAPACITY 2048
-#define EXPORT_TABLE_DEFAULT_CAPACITY 2048
 #define MAX_KEY_AND_COMMAND_LENGTH 2048
 #define MUTABLE_FLAG ((natural)1 << 0)
 
@@ -227,8 +225,6 @@ static struct TryCatchBlock* TryCatchBlockTop = ZERO;
 
 
 static struct Table StringTable = {.mask = 0, .count = 0, .entries = ZERO};
-static struct Table ExportTable = {.mask = 0, .count = 0, .entries = ZERO};
-static struct Table ImportTable = {.mask = 0, .count = 0, .entries = ZERO};
 
 
 static struct String* ObjectName = ZERO;
@@ -1472,51 +1468,13 @@ var preserve(var object) {
 
 
 var import(const char* name) {
-    integer const nameLength = strlen(name);
-    var const key = autorelease(StringMake(nameLength, name));
-
-    void* const imported = TableGet(&ImportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
-    void* const exported = TableGet(&ExportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
-
-    if (imported == null) {
-        throw(String("ImportCycleException | Can't import object named X, import stack: Y"));
-    }
-
-    var object = null;
-
-    if (imported != ZERO && exported != ZERO) throw(String("InternalInconsistencyException | Can't import object named X, entry in import and export table are both ≠ ZERO"));
-    if (imported != ZERO && exported == ZERO) object = imported;
-
-    if (imported == ZERO && exported == ZERO) object = null;
-    if (imported == ZERO && exported != ZERO) {
-        TablePut(&ImportTable, key, null, ComputeHashOfString, CheckIfStringsAreEqual);
-        TablePut(&ExportTable, key, ZERO, ComputeHashOfString, CheckIfStringsAreEqual);
-        var (*code)() = exported;
-        object = code();
-        retain(object);
-        retain(key);
-        TablePut(&ImportTable, key, object, ComputeHashOfString, CheckIfStringsAreEqual);
-    }
-
-    return object;
+    // TODO: implement.
+    return null;
 }
 
 
 var export(const char* name, void* code) {
-    integer const nameLength = strlen(name);
-    var const key = preserve(StringMake(nameLength, name));
-
-    void* const imported = TableGet(&ImportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
-    void* const exported = TableGet(&ExportTable, key, ComputeHashOfString, CheckIfStringsAreEqual);
-
-    if (imported != ZERO && exported != ZERO) throw(String("InternalInconsistencyException | Can't export object named X, entry in import and export table are both ≠ ZERO"));
-    if (imported != ZERO && exported == ZERO) throw(String("InvalidArgumentException | Can't export object named X, entry already exists in import table (i.e. is already initialized)"));
-
-    if (imported == ZERO && exported != ZERO) throw(String("InvalidArgumentException | Can't export object named X, entry already exists in export table (i.e. is not yet initialized)"));
-    if (imported == ZERO && exported == ZERO) {
-        TablePut(&ExportTable, key, code, ComputeHashOfString, CheckIfStringsAreEqual);
-    }
-
+    // TODO: implement.
     return null;
 }
 

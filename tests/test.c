@@ -512,36 +512,6 @@ static void TestNull() {
 }
 
 
-// ------------------------------------------------ Import & Export Tests ------
-
-
-static integer ImportExportTestObjectCount = 0;
-
-
-static var ImportExportTestObject() {
-    ImportExportTestObjectCount += 1;
-    return Number(123456789);
-}
-
-
-static void TestImportAndExport() {
-    const char* name = "ImportExport.TestObject";
-    var const objectBeforeImport = import(name);
-    export(name, ImportExportTestObject);
-    var const objectAfterImport = import(name);
-
-    AssertNull(objectBeforeImport, "Importing an object that hasn't been exported yet should return null");
-    AssertEquals(objectAfterImport, Number(123456789), "Importing an object that has been exported should return the exported object");
-    AssertYes(Boolean(ImportExportTestObjectCount == 1), "When importing an exported object for the first time, its loading function should be called once");
-
-    var const objectAfterSecondImport = import(name);
-    AssertYes(Boolean(ImportExportTestObjectCount == 1), "When importing an exported object multiple times, its loading function should be called only once");
-    AssertEquals(objectAfterImport, objectAfterSecondImport, "When importing an exported object multiple times, the same object should be returned every time");
-
-    // TODO: test cycle detection.
-}
-
-
 // ---------------------------------------------------------------- Main -------
 
 
@@ -557,7 +527,6 @@ int main(int argumentsCount, char const* arguments[]) {
         TestString();
         TestDictionary();
         TestNull();
-        TestImportAndExport();
         TestEnd();
     }
     return NumberOfFailedExamples > 0 ? 1 : 0;
