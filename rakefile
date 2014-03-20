@@ -98,7 +98,7 @@ task 'build:source' do
     source = source_file
     sources = [source_file] + header_files
     destination = "#{DIRECTORY}/" + source_file.gsub('.c', '')
-    run "clang #{FLAGS} #{FLAGS_TARGET} -c -o #{destination}.o #{source}" unless uptodate? "#{destination}", sources
+    run "#{COMPILER} #{FLAGS} #{FLAGS_TARGET} -c -o #{destination}.o #{source}" unless uptodate? "#{destination}", sources
   end
   puts OK
 end
