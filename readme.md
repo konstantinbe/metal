@@ -36,7 +36,7 @@ For building website (optional):
 ## Conventions
 
 * 4 spaces, no tabs
-* Use [compact control readability style](http://en.wikipedia.org/wiki/Indent_style#Compact_control_readability_style)
+* Brace style: opening brace on same line, closing brace on separate line
 * Use dashed notation for methods:
   `replace-at*with-many*`, `is-mutable?`
 * Use UPPERCASE notation for global constants:
