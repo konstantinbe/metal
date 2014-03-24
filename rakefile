@@ -28,8 +28,13 @@ TARGET = ENV['target'] || "test"
 VERSION = ENV['version'] || 'x.x.x'
 DIRECTORY = ENV['directory'] || "build"
 
-COMPILER = ENV['compiler'] || "clang"
-DEBUGGER = ENV['debugger'] || "lldb"
+CLANG = `which clang`.match /.+/
+LLDB = `which lldb`.match /.+/
+GCC = `which gcc`.match /.+/
+GDB = `which gdb`.match /.+/
+
+COMPILER = ENV['compiler'] || CLANG || GCC
+DEBUGGER = ENV['debugger'] || LLDB || GDB
 
 FLAGS = "-g -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -Wno-missing-braces"
 FLAGS_TEST = "-DTEST=1 -O0"
@@ -194,7 +199,7 @@ task :valgrind do
   run "rake build:tests target=debug directory=#{DIRECTORY}/valgrind"
 
   put "Running #{WHITE_BRIGHT + NAME + RESET} with Valgrind ... "
-  assert installed?("valgrind"), "#{FAILED}\n\nCan't analyze memory, Valgrind not installed"
+  assert command?("valgrind"), "#{FAILED}\n\nCan't analyze memory, Valgrind not command"
   run "valgrind --leak-check=full --track-origins=yes #{DIRECTORY}/test"
   puts OK
 end
@@ -207,7 +212,7 @@ end
 desc "build website"
 task :website do
   put "Building website ... "
-  assert available?("redcarpet"), "#{FAILED}\nCan't build website, Redcarpet (ruby gem) not found"
+  assert gem?("redcarpet"), "#{FAILED}\nCan't build website, Redcarpet (ruby gem) not found"
 
   require 'redcarpet'
   markdown = Redcarpet::Markdown.new Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true
@@ -285,12 +290,12 @@ def replace(file_path, pattern, replacement)
   save file_path, string
 end
 
-def available?(name)
-  `gem list #{name}`.strip.length > 0
+def gem?(name)
+  if `gem list #{name}`.strip.length > 0 then name else nil end
 end
 
-def installed?(command)
-  `which #{command}`.strip.length > 0
+def command?(name)
+  `which #{name}`.match /.+/
 end
 
 def dirty?
