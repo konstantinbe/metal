@@ -188,10 +188,13 @@ struct TryCatchBlock {
     bool thrown;
 };
 
+
 // ---------------------------------------------------------------- Types ------
+
 
 typedef natural (*HashFunction)(natural);
 typedef bool (*EqualsFunction)(natural, natural);
+
 
 // ------------------------------------------------------------ Variables ------
 
