@@ -37,7 +37,7 @@
 #define metalHelperJoin(x, y) metalHelperJoinJoin(x, y)
 #define metalHelperStringify(x) (((char*)(#x))[0] == '"' ? String(x) : (x))
 
-#define load __attribute__((constructor(255))) static void metalHelperJoin(__MetalLoadBlockUniquePerFileDefinedAtLine, __LINE__)()
+#define load __attribute__((constructor(255))) static void metalHelperJoin(__MetalLoadBlock, __COUNTER__)()
 
 #define collect for (void* collectBlock = CollectBlockPush(); collectBlock != ZERO; collectBlock = CollectBlockPop(collectBlock))
 #define try for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; tryCatchBlock = TryCatchBlockPop(tryCatchBlock)) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
