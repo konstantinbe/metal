@@ -1105,7 +1105,7 @@ static var DictionaryGet(struct Dictionary* self, var super, var command, var ke
     natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
 
-    for (int i = 0; i <= mask; i += 1) {
+    for (natural i = 0; i <= mask; i += 1) {
         integer const indexOfKey = index * 2;
         integer const indexOfValue = indexOfKey + 1;
         var const keyAtIndex = self->entries[indexOfKey];
@@ -1137,7 +1137,7 @@ static var DictionarySetTo(struct Dictionary* self, var super, var command, var 
     natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
 
-    for (int i = 0; i <= mask; i += 1) {
+    for (natural i = 0; i <= mask; i += 1) {
         integer const indexOfKey = index * 2;
         integer const indexOfValue = indexOfKey + 1;
         var const keyAtIndex = self->entries[indexOfKey];
@@ -1173,7 +1173,7 @@ static var DictionaryRemove(struct Dictionary* self, var super, var command, var
     natural const hash = NaturalFrom(send(key, "hash"));
     natural index = hash & mask;
 
-    for (int i = 0; i <= mask; i += 1) {
+    for (natural i = 0; i <= mask; i += 1) {
         integer const indexOfKey = index * 2;
         integer const indexOfValue = indexOfKey + 1;
         var const keyAtIndex = self->entries[indexOfKey];
@@ -1479,7 +1479,7 @@ var retain(var object) {
 
 
 var release(var object) {
-    integer const retainCount = object(object).retainCount;
+    natural const retainCount = object(object).retainCount;
 
     if (retainCount >= RETAIN_COUNT_MAX) {
         return object;

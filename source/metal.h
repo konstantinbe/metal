@@ -57,14 +57,14 @@
 #define String(string) autorelease(StringMake(sizeof(string), (string)))
 #define Dictionary(...) autorelease(DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero))
 
-#define INTEGER_MAX LONG_MAX
-#define INTEGER_MIN LONG_MIN
+#define INTEGER_MAX ((integer)LONG_MAX)
+#define INTEGER_MIN ((integer)LONG_MIN)
 
-#define NATURAL_MAX ULONG_MAX
-#define NATURAL_MIN 0ul
+#define NATURAL_MAX ((natural)ULONG_MAX)
+#define NATURAL_MIN ((natural)0ul)
 
-#define DECIMAL_MAX DBL_MAX
-#define DECIMAL_MIN DBL_MIN
+#define DECIMAL_MAX ((decimal)DBL_MAX)
+#define DECIMAL_MIN ((decimal)DBL_MIN)
 
 typedef void* var;
 typedef long integer;

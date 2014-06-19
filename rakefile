@@ -36,7 +36,7 @@ GDB = `which gdb`.match /.+/
 COMPILER = ENV['compiler'] || CLANG || GCC
 DEBUGGER = ENV['debugger'] || LLDB || GDB
 
-FLAGS = "-g -std=gnu99 -Wall -Wno-unused-function -Wno-unused-variable -Wno-missing-braces"
+FLAGS = "-g -std=gnu99 -Wall -Wextra -Wno-unused-parameter -Wno-unused-function -Wno-unused-variable -Wno-missing-braces"
 FLAGS_TEST = "-DTEST=1 -O0"
 FLAGS_DEBUG = "-DDEBUG=1 -O0"
 FLAGS_RELEASE ="-DRELEASE=1 -Os"
