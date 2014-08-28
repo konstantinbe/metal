@@ -183,8 +183,8 @@ desc "build & analyze memory"
 task :valgrind do
   run "rake build:tests target=debug directory=#{DIRECTORY}/valgrind"
 
-  put "Running #{WHITE_BRIGHT + NAME + RESET} with Valgrind ... "
-  assert command?("valgrind"), "#{FAILED}\n\nCan't analyze memory, Valgrind not command"
+  put "Running #{WHITE_BRIGHT + NAME + RESET} with valgrind ... "
+  assert command?("valgrind"), "#{FAILED}\n\nCan't analyze memory, valgrind not installed (or not found)"
   run "valgrind --leak-check=full --track-origins=yes #{DIRECTORY}/test"
   puts OK
 end
