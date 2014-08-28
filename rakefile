@@ -55,25 +55,10 @@ FLAGS_TARGET = "" unless defined? FLAGS_TARGET
 TERMINAL = STDOUT.tty?
 
 BOLD = TERMINAL ? "\x1B[0;1m" : ""
-BLACK = TERMINAL ? "\x1B[0;30m" : ""
-RED = TERMINAL ? "\x1B[0;31m" : ""
-GREEN = TERMINAL ? "\x1B[0;32m" : ""
-YELLOW = TERMINAL ? "\x1B[0;33m" : ""
-BLUE = TERMINAL ? "\x1B[0;34m" : ""
-MAGENTA = TERMINAL ? "\x1B[0;35m" : ""
-CYAN = TERMINAL ? "\x1B[0;36m" : ""
-WHITE = TERMINAL ? "\x1B[0;37m" : ""
-
-BLACK_BRIGHT = TERMINAL ? "\x1B[1;30m" : ""
-RED_BRIGHT = TERMINAL ? "\x1B[1;31m" : ""
-GREEN_BRIGHT = TERMINAL ? "\x1B[1;32m" : ""
-YELLOW_BRIGHT = TERMINAL ? "\x1B[1;33m" : ""
-BLUE_BRIGHT = TERMINAL ? "\x1B[1;34m" : ""
-MAGENTA_BRIGHT = TERMINAL ? "\x1B[1;35m" : ""
-CYAN_BRIGHT = TERMINAL ? "\x1B[1;36m" : ""
-WHITE_BRIGHT = TERMINAL ? "\x1B[1;37m" : ""
-
 RESET = TERMINAL ? "\x1B[0m" : ""
+
+BLACK = TERMINAL ? "\x1B[0;30m" : ""; RED = TERMINAL ? "\x1B[0;31m" : ""; GREEN = TERMINAL ? "\x1B[0;32m" : ""; YELLOW = TERMINAL ? "\x1B[0;33m" : ""; BLUE = TERMINAL ? "\x1B[0;34m" : ""; MAGENTA = TERMINAL ? "\x1B[0;35m" : ""; CYAN = TERMINAL ? "\x1B[0;36m" : ""; WHITE = TERMINAL ? "\x1B[0;37m" : ""
+BLACK_BRIGHT = TERMINAL ? "\x1B[1;30m" : ""; RED_BRIGHT = TERMINAL ? "\x1B[1;31m" : ""; GREEN_BRIGHT = TERMINAL ? "\x1B[1;32m" : ""; YELLOW_BRIGHT = TERMINAL ? "\x1B[1;33m" : ""; BLUE_BRIGHT = TERMINAL ? "\x1B[1;34m" : ""; MAGENTA_BRIGHT = TERMINAL ? "\x1B[1;35m" : ""; CYAN_BRIGHT = TERMINAL ? "\x1B[1;36m" : ""; WHITE_BRIGHT = TERMINAL ? "\x1B[1;37m" : ""
 
 OK = GREEN + "OK" + RESET
 FAILED = RED + "FAILED" + RESET
