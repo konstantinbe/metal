@@ -17,7 +17,7 @@ Contribute:
 * [Issues](https://github.com/konstantinbe/metal/issues)
 * [Wiki](https://github.com/konstantinbe/metal/wiki)
 
-Released under the [MIT license](license.txt). Copyright &copy; 2013
+Released under the [MIT license](license.txt). Copyright &copy; 2014
 [Konstantin Bender](http://github.com/konstantinbe).
 
 --------------------------------------------------------------------------------
