@@ -50,12 +50,19 @@
 #define options(...) __VA_ARGS__
 
 #define Boolean(boolean) ((boolean) ? yes : no)
-#define Number(number) autorelease(NumberMake((decimal)(number)))
-#define Block(code) autorelease(BlockMake((void*)(code)))
-#define Data(data) autorelease(DataMake(sizeof(data), (void*)(data)))
-#define Array(...) autorelease(ArrayMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero))
-#define String(string) autorelease(StringMake(sizeof(string), (string)))
-#define Dictionary(...) autorelease(DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero))
+#define Number(number) CollectBlockAdd(NUMBER(number))
+#define Block(code) CollectBlockAdd(BLOCK(code))
+#define Data(data) CollectBlockAdd(DATA(data))
+#define Array(...) CollectBlockAdd(ARRAY(__VA_ARGS__))
+#define String(string) CollectBlockAdd(STRING(string))
+#define Dictionary(...) CollectBlockAdd(DICTIONARY(__VA_ARGS__))
+
+#define NUMBER(number) NumberMake((decimal)(number))
+#define BLOCK(code) BlockMake((void*)(code))
+#define DATA(data) DataMake(sizeof(data), (void*)(data))
+#define ARRAY(...) ArrayMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero)
+#define STRING(string) StringMake(sizeof(string), (string))
+#define DICTIONARY(...) DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero)
 
 #define INTEGER_MAX ((integer)LONG_MAX)
 #define INTEGER_MIN ((integer)LONG_MIN)
@@ -100,16 +107,12 @@ decimal DecimalFrom(var number);
 
 void* CollectBlockPush();
 void* CollectBlockPop(void* collectBlock);
+var CollectBlockAdd(var object);
 
 void* TryCatchBlockPush();
 void* TryCatchBlockPop(void* tryCatchBlock);
 void* TryCatchBlockTry(void* tryCatchBlock);
 var TryCatchBlockCatch(void* tryCatchBlock);
-
-var retain(var object);
-var release(var object);
-var autorelease(var object);
-var preserve(var object);
 
 var import(const char* name);
 var export(const char* name, void* code);

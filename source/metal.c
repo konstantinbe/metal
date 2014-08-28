@@ -461,13 +461,52 @@ static var ObjectCreate(struct Object* self, var super, var command, var options
     object->retainCount = 1;
     object->flags = mutable == yes ? MUTABLE_FLAG : 0;
 
-    return autorelease(object);
+    return send(object, "collect");
 }
 
 
 static var ObjectDestroy(struct Object* self, var super, var command, var options, ...) {
     free(self);
     return null;
+}
+
+
+static var ObjectRetain(struct Object* self, var super, var command, var options, ...) {
+    if (self->retainCount < RETAIN_COUNT_MAX) self->retainCount += 1;
+    return self;
+}
+
+
+static var ObjectRelease(struct Object* self, var super, var command, var options, ...) {
+    natural const retainCount = self->retainCount;
+
+    if (retainCount >= RETAIN_COUNT_MAX) {
+        return self;
+    }
+
+    if (retainCount >= 2) {
+        self->retainCount -= 1;
+        return self;
+    }
+
+    if (retainCount == 1) {
+        self->retainCount = 0;
+        return send(self, "destroy");
+    }
+
+    fprintf(stderr, "[WARNING] Released an object with retain count 0, retain/release calls seem to be unbalanced, aborting ...\n");
+    return null;
+}
+
+
+static var ObjectCollect(struct Object* self, var super, var command, var options, ...) {
+    return CollectBlockAdd(self);
+}
+
+
+static var ObjectEternize(struct Object* self, var super, var command, var options, ...) {
+    self->retainCount = RETAIN_COUNT_MAX;
+    return self;
 }
 
 
@@ -534,7 +573,7 @@ static var ObjectAddMethodBlock(struct Object* self, var super, var command, var
 
     struct Entry entry = {.key = (natural)method, .value = (natural)block(block).code, .extra = 0};
     TablePut(&self->meta->methods, &entry, ZERO, ZERO);
-    preserve(method);
+    ObjectEternize(method, Object, NULL, NULL);
 
     // TODO: clear cache of all children.
 
@@ -655,7 +694,8 @@ static var NumberAsString(struct Number* self, var super, var command, var optio
         length = snprintf(buffer, bufferSize + 1, "%f", self->number);
     }
 
-    return autorelease(StringMake(length, buffer));
+    var const string = StringMake(length, buffer);
+    return send(string, "collect");
 }
 
 
@@ -681,7 +721,7 @@ static var NumberCompare(struct Number* self, var super, var command, var object
 
 
 static var NumberCopy(struct Number* self, var super, var command, var options, ...) {
-    return retain(self);
+    return send(self, "retain");
 }
 
 
@@ -700,7 +740,8 @@ static var BlockAsString(struct Block* self, var super, var command, var options
     static struct String* string = ZERO;
     if (string == ZERO) {
         // TODO: put in the address of the block.
-        string = preserve(String("<Block XXX>"));
+        string = STRING("<Block XXX>");
+        send(string, "eternize");
     }
     return string;
 }
@@ -763,7 +804,7 @@ static var DataEquals(struct Data* self, var super, var command, var object, var
 
 
 static var DataCopy(struct Data* self, var super, var command, var options, ...) {
-    if (self->capacity < 0) return retain(self);
+    if (self->capacity < 0) return send(self, "retain");
     // TODO: make an immutable copy.
     return null;
 }
@@ -809,7 +850,7 @@ static var ArrayCreate(struct Array* self, var super, var command, var options, 
 
 static var ArrayDestroy(struct Array* self, var super, var command, var options, ...) {
     for (int i = 0; i < self->count; i += 1) {
-        release(self->objects[i]);
+        send(self->objects[i], "release");
     }
     free(self->objects);
     return super(self, "destroy");
@@ -901,7 +942,7 @@ static var ArrayReplaceAtCountWith(struct Array* self, var super, var command, v
 
     // Remove & release objects to be replaced:
     for (integer i = integerIndex; i < integerIndex + revisedCount; i += 1) {
-        release(self->objects[i]);
+        send(self->objects[i], "release");
         self->objects[i] = ZERO;
     }
 
@@ -914,7 +955,7 @@ static var ArrayReplaceAtCountWith(struct Array* self, var super, var command, v
     // Insert & retain new objects:
     for (integer k = 0; k < countOfObjects; k += 1) {
         var const object = send(objects, "at*", Number(k));
-        self->objects[k + integerIndex] = retain(object);
+        self->objects[k + integerIndex] = send(object, "retain");
     }
 
     // Update own properties:
@@ -959,7 +1000,8 @@ static var StringDestroy(struct String* self, var super, var command, var option
 
 static var StringAsString(struct String* self, var super, var command, var options, ...) {
     if (self == String) return StringName;
-    return autorelease(send(self, "copy"));
+    var const copy = send(self, "copy");
+    return send(copy, "autorelease");
 }
 
 
@@ -996,7 +1038,7 @@ static var StringCompare(struct String* self, var super, var command, var object
 
 
 static var StringCopy(struct String* self, var super, var command, var options, ...) {
-    if (self->capacity < 0) return retain(self);
+    if (self->capacity < 0) return send(self, "retain");
     // TODO: make an immutable copy.
     return null;
 }
@@ -1046,8 +1088,8 @@ static var DictionaryDestroy(struct Dictionary* self, var super, var command, va
         var value = self->entries[i + 1];
 
         if (key != zero && key != more) {
-            release(key);
-            release(value);
+            send(key, "release");
+            send(value, "release");
         }
 
         self->entries[i] = zero;
@@ -1094,7 +1136,7 @@ static var DictionaryEquals(struct Dictionary* self, var super, var command, var
 
 
 static var DictionaryCopy(struct Dictionary* self, var super, var command, var options, ...) {
-    if (self->capacity < 0) return retain(self);
+    if (self->capacity < 0) return send(self, "retain");
     // TODO: make an immutable copy.
     return null;
 }
@@ -1143,8 +1185,8 @@ static var DictionarySetTo(struct Dictionary* self, var super, var command, var 
         var const keyAtIndex = self->entries[indexOfKey];
 
         if (keyAtIndex == zero || keyAtIndex == more) {
-            retain(key);
-            retain(value);
+            send(key, "retain");
+            send(value, "retain");
             self->entries[indexOfKey] = key;
             self->entries[indexOfValue] = value;
             self->count += 1;
@@ -1152,10 +1194,10 @@ static var DictionarySetTo(struct Dictionary* self, var super, var command, var 
         }
 
         if (send(keyAtIndex, "equals*", key) == yes) {
-            retain(key);
-            retain(value);
-            release(self->entries[indexOfKey]);
-            release(self->entries[indexOfValue]);
+            send(key, "retain");
+            send(value, "retain");
+            send(self->entries[indexOfKey], "release");
+            send(self->entries[indexOfValue], "release");
             self->entries[indexOfKey] = key;
             self->entries[indexOfValue] = value;
             break;
@@ -1188,8 +1230,8 @@ static var DictionaryRemove(struct Dictionary* self, var super, var command, var
         }
 
         if (send(keyAtIndex, "equals*", key) == yes) {
-            release(keyAtIndex);
-            release(valueAtIndex);
+            send(keyAtIndex, "release");
+            send(valueAtIndex, "release");
 
             self->entries[indexOfKey] = more;
             self->entries[indexOfValue] = zero;
@@ -1235,7 +1277,7 @@ static var NullEquals(struct Object* self, var super, var command, var object, v
 
 
 static var NullCopy(struct Object* self, var super, var command, var options, ...) {
-    return retain(self);
+    return self;
 }
 
 
@@ -1312,7 +1354,7 @@ var ArrayMake(long count, ...) {
 
     // Retain objects:
     for (int i = 0; i < array->count; i += 1) {
-        retain(array->objects[i]);
+        send(array->objects[i], "retain");
     }
 
     // Done:
@@ -1334,7 +1376,10 @@ var StringMake(long length, const char* characters) {
         TableGet(&StringTable, &entry, StringHashFunction, StringEqualsFunction);
         struct String* string = (struct String*)entry.value;
 
-        if (string != ZERO) return retain(string);
+        // Can't use retain() here or send 'retain' message becuase StringMake() is used
+        // by the message sending mechanism. Calling the method implementation directly
+        // is safe here, because we know for sure that we are dealing with a string object.
+        if (string != ZERO) return ObjectRetain((struct Object *)string, Object, NULL, NULL);
     }
 
     struct String* string = calloc(1, sizeof(struct String));
@@ -1426,7 +1471,7 @@ void* CollectBlockPop(void* collectBlock) {
     struct CollectBlock* collectBlockToPop = collectBlock;
     CollectBlockTop = collectBlockToPop->previousCollectBlock;
     for (int index = 0; index < collectBlockToPop->count; index += 1) {
-        release(collectBlockToPop->objects[index]);
+        send(collectBlockToPop->objects[index], "release");
     }
     free(collectBlockToPop->objects);
     free(collectBlockToPop);
@@ -1434,73 +1479,7 @@ void* CollectBlockPop(void* collectBlock) {
 }
 
 
-// -------------------------------------------- Try-Catch-Block Functions ------
-
-
-void* TryCatchBlockPush() {
-    struct TryCatchBlock* tryCatchBlock = calloc(1, sizeof(struct TryCatchBlock));
-    tryCatchBlock->previousTryCatchBlock = TryCatchBlockTop;
-    tryCatchBlock->exception = null;
-    tryCatchBlock->thrown = false;
-    TryCatchBlockTop = tryCatchBlock;
-    return tryCatchBlock;
-}
-
-
-void* TryCatchBlockPop(void* tryCatchBlock) {
-    assert(tryCatchBlock == TryCatchBlockTop, "When popping a try-catch block, the top-most one must be the same as the one passed in");
-    struct TryCatchBlock* tryCatchBlockToPop = tryCatchBlock;
-    TryCatchBlockTop = tryCatchBlockToPop->previousTryCatchBlock;
-    release(tryCatchBlockToPop->exception);
-    free(tryCatchBlockToPop);
-    return ZERO;
-}
-
-
-void* TryCatchBlockTry(void* tryCatchBlock) {
-    assert(tryCatchBlock == TryCatchBlockTop, "When beginning a try block, the top-most try-catch block must be the same as the one passed in");
-    return TryCatchBlockTop->destination;
-}
-
-
-var TryCatchBlockCatch(void* tryCatchBlock) {
-    assert(tryCatchBlock == TryCatchBlockTop, "When beginning a catch block, the top-most try-catch block must be the same as the one passed in");
-    return TryCatchBlockTop->exception;
-}
-
-
-// ---------------------------------------------------- Keyword Functions ------
-
-
-var retain(var object) {
-    if (object(object).retainCount < RETAIN_COUNT_MAX) object(object).retainCount += 1;
-    return object;
-}
-
-
-var release(var object) {
-    natural const retainCount = object(object).retainCount;
-
-    if (retainCount >= RETAIN_COUNT_MAX) {
-        return object;
-    }
-
-    if (retainCount >= 2) {
-        object(object).retainCount -= 1;
-        return object;
-    }
-
-    if (retainCount == 1) {
-        object(object).retainCount = 0;
-        return send(object, "destroy");
-    }
-
-    fprintf(stderr, "[WARNING] Released an object with retain count 0, retain/release calls seem to be unbalanced, aborting ...\n");
-    return null;
-}
-
-
-var autorelease(var object) {
+var CollectBlockAdd(var object) {
     if (object(object).retainCount >= RETAIN_COUNT_MAX) return object;
     if (CollectBlockTop == ZERO) {
         fprintf(stderr, "[WARNING] No collect block found, leaking ...\n");
@@ -1526,10 +1505,42 @@ var autorelease(var object) {
 }
 
 
-var preserve(var object) {
-    object(object).retainCount = RETAIN_COUNT_MAX;
-    return object;
+// -------------------------------------------- Try-Catch-Block Functions ------
+
+
+void* TryCatchBlockPush() {
+    struct TryCatchBlock* tryCatchBlock = calloc(1, sizeof(struct TryCatchBlock));
+    tryCatchBlock->previousTryCatchBlock = TryCatchBlockTop;
+    tryCatchBlock->exception = null;
+    tryCatchBlock->thrown = false;
+    TryCatchBlockTop = tryCatchBlock;
+    return tryCatchBlock;
 }
+
+
+void* TryCatchBlockPop(void* tryCatchBlock) {
+    assert(tryCatchBlock == TryCatchBlockTop, "When popping a try-catch block, the top-most one must be the same as the one passed in");
+    struct TryCatchBlock* tryCatchBlockToPop = tryCatchBlock;
+    TryCatchBlockTop = tryCatchBlockToPop->previousTryCatchBlock;
+    send(tryCatchBlockToPop->exception, "release");
+    free(tryCatchBlockToPop);
+    return ZERO;
+}
+
+
+void* TryCatchBlockTry(void* tryCatchBlock) {
+    assert(tryCatchBlock == TryCatchBlockTop, "When beginning a try block, the top-most try-catch block must be the same as the one passed in");
+    return TryCatchBlockTop->destination;
+}
+
+
+var TryCatchBlockCatch(void* tryCatchBlock) {
+    assert(tryCatchBlock == TryCatchBlockTop, "When beginning a catch block, the top-most try-catch block must be the same as the one passed in");
+    return TryCatchBlockTop->exception;
+}
+
+
+// ---------------------------------------------------- Keyword Functions ------
 
 
 var import(const char* name) {
@@ -1583,7 +1594,7 @@ void* lookup(var object, var command, var* super) {
 
 
 void throw(var exception) {
-    retain(exception);
+    send(exception, "retain");
 
     struct TryCatchBlock* tryCatchBlock = TryCatchBlockTop;
     if (tryCatchBlock != ZERO && tryCatchBlock->thrown) {
@@ -1668,88 +1679,92 @@ static void bootstrap Metal() {
         TableCreate(&DictionaryMeta.methods, METHODS_DEFAULT_CAPACITY);
         TableCreate(&NullMeta.methods, METHODS_DEFAULT_CAPACITY);
 
-        ObjectAddMethodBlock(Object, zero, zero, String("allocate"), Block(ObjectAllocate), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("create"), Block(ObjectCreate), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("destroy"), Block(ObjectDestroy), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("is-kind-of*"), Block(ObjectIsKindOf), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("is-mutable"), Block(ObjectIsMutable), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("responds-to*"), Block(ObjectRespondsTo), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("as-string"), Block(ObjectAsString), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("self"), Block(ObjectSelf), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("hash"), Block(ObjectHash), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("equals*"), Block(ObjectEquals), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("add-method*block*"), Block(ObjectAddMethodBlock), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("remove-method*"), Block(ObjectRemoveMethod), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("proto"), Block(ObjectProto), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("set-proto*"), Block(ObjectSetProto), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("info*"), Block(ObjectInfo), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("warning*"), Block(ObjectWarning), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("error*"), Block(ObjectError), zero);
-        ObjectAddMethodBlock(Object, zero, zero, String("debug*"), Block(ObjectDebug), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("allocate"), BLOCK(ObjectAllocate), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("create"), BLOCK(ObjectCreate), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("destroy"), BLOCK(ObjectDestroy), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("retain"), BLOCK(ObjectRetain), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("release"), BLOCK(ObjectRelease), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("collect"), BLOCK(ObjectCollect), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("eternize"), BLOCK(ObjectEternize), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("is-kind-of*"), BLOCK(ObjectIsKindOf), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("is-mutable"), BLOCK(ObjectIsMutable), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("responds-to*"), BLOCK(ObjectRespondsTo), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("as-string"), BLOCK(ObjectAsString), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("self"), BLOCK(ObjectSelf), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("hash"), BLOCK(ObjectHash), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("equals*"), BLOCK(ObjectEquals), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("add-method*block*"), BLOCK(ObjectAddMethodBlock), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("remove-method*"), BLOCK(ObjectRemoveMethod), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("proto"), BLOCK(ObjectProto), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("set-proto*"), BLOCK(ObjectSetProto), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("info*"), BLOCK(ObjectInfo), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("warning*"), BLOCK(ObjectWarning), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("error*"), BLOCK(ObjectError), zero);
+        ObjectAddMethodBlock(Object, zero, zero, STRING("debug*"), BLOCK(ObjectDebug), zero);
 
-        ObjectAddMethodBlock(Boolean, Object, zero, String("create"), Block(BooleanCreate), zero);
-        ObjectAddMethodBlock(Boolean, Object, zero, String("destroy"), Block(BooleanDestroy), zero);
-        ObjectAddMethodBlock(Boolean, Object, zero, String("as-string"), Block(BooleanAsString), zero);
-        ObjectAddMethodBlock(Boolean, Object, zero, String("compare*"), Block(BooleanCompare), zero);
-        ObjectAddMethodBlock(Boolean, Object, zero, String("copy"), Block(BooleanCopy), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, STRING("create"), BLOCK(BooleanCreate), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, STRING("destroy"), BLOCK(BooleanDestroy), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, STRING("as-string"), BLOCK(BooleanAsString), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, STRING("compare*"), BLOCK(BooleanCompare), zero);
+        ObjectAddMethodBlock(Boolean, Object, zero, STRING("copy"), BLOCK(BooleanCopy), zero);
 
-        ObjectAddMethodBlock(Number, Object, zero, String("create"), Block(NumberCreate), zero);
-        ObjectAddMethodBlock(Number, Object, zero, String("as-string"), Block(NumberAsString), zero);
-        ObjectAddMethodBlock(Number, Object, zero, String("hash"), Block(NumberHash), zero);
-        ObjectAddMethodBlock(Number, Object, zero, String("equals*"), Block(NumberEquals), zero);
-        ObjectAddMethodBlock(Number, Object, zero, String("compare*"), Block(NumberCompare), zero);
-        ObjectAddMethodBlock(Number, Object, zero, String("copy"), Block(NumberCopy), zero);
+        ObjectAddMethodBlock(Number, Object, zero, STRING("create"), BLOCK(NumberCreate), zero);
+        ObjectAddMethodBlock(Number, Object, zero, STRING("as-string"), BLOCK(NumberAsString), zero);
+        ObjectAddMethodBlock(Number, Object, zero, STRING("hash"), BLOCK(NumberHash), zero);
+        ObjectAddMethodBlock(Number, Object, zero, STRING("equals*"), BLOCK(NumberEquals), zero);
+        ObjectAddMethodBlock(Number, Object, zero, STRING("compare*"), BLOCK(NumberCompare), zero);
+        ObjectAddMethodBlock(Number, Object, zero, STRING("copy"), BLOCK(NumberCopy), zero);
 
-        ObjectAddMethodBlock(Block, Object, zero, String("create"), Block(BlockCreate), zero);
-        ObjectAddMethodBlock(Block, Object, zero, String("as-string"), Block(BlockAsString), zero);
+        ObjectAddMethodBlock(Block, Object, zero, STRING("create"), BLOCK(BlockCreate), zero);
+        ObjectAddMethodBlock(Block, Object, zero, STRING("as-string"), BLOCK(BlockAsString), zero);
 
-        ObjectAddMethodBlock(Data, Object, zero, String("create"), Block(DataCreate), zero);
-        ObjectAddMethodBlock(Data, Object, zero, String("destroy"), Block(DataDestroy), zero);
-        ObjectAddMethodBlock(Data, Object, zero, String("as-string"), Block(DataAsString), zero);
-        ObjectAddMethodBlock(Data, Object, zero, String("hash"), Block(DataHash), zero);
-        ObjectAddMethodBlock(Data, Object, zero, String("equals*"), Block(DataEquals), zero);
-        ObjectAddMethodBlock(Data, Object, zero, String("copy"), Block(DataCopy), zero);
-        ObjectAddMethodBlock(Data, Object, zero, String("at*count*"), Block(DataAtCount), zero);
-        ObjectAddMethodBlock(Data, Object, zero, String("replace-at*count*with*"), Block(DataReplaceAtCountWith), zero);
-        ObjectAddMethodBlock(Data, Object, zero, String("count"), Block(DataCount), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("create"), BLOCK(DataCreate), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("destroy"), BLOCK(DataDestroy), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("as-string"), BLOCK(DataAsString), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("hash"), BLOCK(DataHash), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("equals*"), BLOCK(DataEquals), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("copy"), BLOCK(DataCopy), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("at*count*"), BLOCK(DataAtCount), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("replace-at*count*with*"), BLOCK(DataReplaceAtCountWith), zero);
+        ObjectAddMethodBlock(Data, Object, zero, STRING("count"), BLOCK(DataCount), zero);
 
-        ObjectAddMethodBlock(Array, Object, zero, String("create"), Block(ArrayCreate), zero);
-        ObjectAddMethodBlock(Array, Object, zero, String("destroy"), Block(ArrayDestroy), zero);
-        ObjectAddMethodBlock(Array, Object, zero, String("as-string"), Block(ArrayAsString), zero);
-        ObjectAddMethodBlock(Array, Object, zero, String("hash"), Block(ArrayHash), zero);
-        ObjectAddMethodBlock(Array, Object, zero, String("equals*"), Block(ArrayEquals), zero);
-        ObjectAddMethodBlock(Array, Object, zero, String("copy"), Block(ArrayCopy), zero);
-        ObjectAddMethodBlock(Array, Object, zero, String("at*"), Block(ArrayAt), zero);
-        ObjectAddMethodBlock(Array, Object, zero, String("count"), Block(ArrayCount), zero);
-        ObjectAddMethodBlock(Array, Object, zero, String("replace-at*count*with*"), Block(ArrayReplaceAtCountWith), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("create"), BLOCK(ArrayCreate), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("destroy"), BLOCK(ArrayDestroy), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("as-string"), BLOCK(ArrayAsString), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("hash"), BLOCK(ArrayHash), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("equals*"), BLOCK(ArrayEquals), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("copy"), BLOCK(ArrayCopy), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("at*"), BLOCK(ArrayAt), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("count"), BLOCK(ArrayCount), zero);
+        ObjectAddMethodBlock(Array, Object, zero, STRING("replace-at*count*with*"), BLOCK(ArrayReplaceAtCountWith), zero);
 
-        ObjectAddMethodBlock(String, Object, zero, String("create"), Block(StringCreate), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("destroy"), Block(StringDestroy), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("as-string"), Block(StringAsString), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("hash"), Block(StringHash), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("equals*"), Block(StringEquals), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("compare*"), Block(StringCompare), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("copy"), Block(StringCopy), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("at*count*"), Block(StringAtCount), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("length"), Block(StringLength), zero);
-        ObjectAddMethodBlock(String, Object, zero, String("replace-at*count*with*"), Block(StringReplaceAtCountWith), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("create"), BLOCK(StringCreate), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("destroy"), BLOCK(StringDestroy), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("as-string"), BLOCK(StringAsString), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("hash"), BLOCK(StringHash), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("equals*"), BLOCK(StringEquals), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("compare*"), BLOCK(StringCompare), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("copy"), BLOCK(StringCopy), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("at*count*"), BLOCK(StringAtCount), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("length"), BLOCK(StringLength), zero);
+        ObjectAddMethodBlock(String, Object, zero, STRING("replace-at*count*with*"), BLOCK(StringReplaceAtCountWith), zero);
 
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("create"), Block(DictionaryCreate), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("destroy"), Block(DictionaryDestroy), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("as-string"), Block(DictionaryAsString), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("hash"), Block(DictionaryHash), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("equals*"), Block(DictionaryEquals), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("copy"), Block(DictionaryCopy), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("get*"), Block(DictionaryGet), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("set*to*"), Block(DictionarySetTo), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("remove*"), Block(DictionaryRemove), zero);
-        ObjectAddMethodBlock(Dictionary, Object, zero, String("count"), Block(DictionaryCount), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("create"), BLOCK(DictionaryCreate), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("destroy"), BLOCK(DictionaryDestroy), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("as-string"), BLOCK(DictionaryAsString), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("hash"), BLOCK(DictionaryHash), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("equals*"), BLOCK(DictionaryEquals), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("copy"), BLOCK(DictionaryCopy), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("get*"), BLOCK(DictionaryGet), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("set*to*"), BLOCK(DictionarySetTo), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("remove*"), BLOCK(DictionaryRemove), zero);
+        ObjectAddMethodBlock(Dictionary, Object, zero, STRING("count"), BLOCK(DictionaryCount), zero);
 
-        ObjectAddMethodBlock(null, Object, zero, String("create"), Block(NullCreate), zero);
-        ObjectAddMethodBlock(null, Object, zero, String("destroy"), Block(NullDestroy), zero);
-        ObjectAddMethodBlock(null, Object, zero, String("as-string"), Block(NullAsString), zero);
-        ObjectAddMethodBlock(null, Object, zero, String("equals*"), Block(NullEquals), zero);
-        ObjectAddMethodBlock(null, Object, zero, String("copy"), Block(NullCopy), zero);
+        ObjectAddMethodBlock(null, Object, zero, STRING("create"), BLOCK(NullCreate), zero);
+        ObjectAddMethodBlock(null, Object, zero, STRING("destroy"), BLOCK(NullDestroy), zero);
+        ObjectAddMethodBlock(null, Object, zero, STRING("as-string"), BLOCK(NullAsString), zero);
+        ObjectAddMethodBlock(null, Object, zero, STRING("equals*"), BLOCK(NullEquals), zero);
+        ObjectAddMethodBlock(null, Object, zero, STRING("copy"), BLOCK(NullCopy), zero);
 
         TableCreate(&ObjectMeta.children, 64);
         TableCreate(&BooleanMeta.children, 1);
@@ -1781,21 +1796,19 @@ static void bootstrap Metal() {
 
         // TODO: implement.
 
-        ObjectName = preserve(String("Object"));
-        BooleanName = preserve(String("Boolean"));
-        NumberName = preserve(String("Number"));
-        BlockName = preserve(String("Block"));
-        DataName = preserve(String("Data"));
-        ArrayName = preserve(String("Array"));
-        StringName = preserve(String("String"));
-        DictionaryName = preserve(String("Dictionary"));
-        NullName = preserve(String("Null"));
-
-        NoAsString = preserve(String("no"));
-        YesAsString = preserve(String("yes"));
-
-        InvalidArgumentException = preserve(String("InvalidArgumentException"));
-        InternalInconsistencyException = preserve(String("InternalInconsistencyException"));
+        ObjectName = send(STRING("Object"), "eternize");
+        BooleanName = send(STRING("Boolean"), "eternize");
+        NumberName = send(STRING("Number"), "eternize");
+        BlockName = send(STRING("Block"), "eternize");
+        DataName = send(STRING("Data"), "eternize");
+        ArrayName = send(STRING("Array"), "eternize");
+        StringName = send(STRING("String"), "eternize");
+        DictionaryName = send(STRING("Dictionary"), "eternize");
+        NullName = send(STRING("Null"), "eternize");
+        NoAsString = send(STRING("no"), "eternize");
+        YesAsString = send(STRING("yes"), "eternize");
+        InvalidArgumentException = send(STRING("InvalidArgumentException"), "eternize");
+        InternalInconsistencyException = send(STRING("InternalInconsistencyException"), "eternize");
     }
 }
 
