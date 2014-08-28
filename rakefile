@@ -185,7 +185,7 @@ task :valgrind do
 
   put "Running #{WHITE_BRIGHT + NAME + RESET} with valgrind ... "
   assert command?("valgrind"), "#{FAILED}\n\nCan't analyze memory, valgrind not installed (or not found)"
-  run "valgrind --leak-check=full --track-origins=yes #{DIRECTORY}/test"
+  run "valgrind --leak-check=full --track-origins=yes #{DIRECTORY}/valgrind/test"
   puts OK
 end
 
