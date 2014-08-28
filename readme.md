@@ -58,7 +58,7 @@ For building website (optional):
 
 Released under the MIT license.
 
-Copyright (c) 2012 [Konstantin Bender](http://konstantinbender.com).
+Copyright (c) 2014 [Konstantin Bender](http://konstantinbender.com).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
