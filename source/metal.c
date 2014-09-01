@@ -33,7 +33,6 @@
 // --------------------------------------------------- Constants & Macros ------
 
 
-#define RETAIN_COUNT_MAX NATURAL_MAX
 #define DATA_DEFAULT_CAPACITY 16
 #define ARRAY_DEFAULT_CAPACITY 16
 #define STRING_DEFAULT_CAPACITY 15 // +1 for '\0'
@@ -45,8 +44,12 @@
 #define SYMBOL_TABLE_DEFAULT_CAPACITY 2048
 #define STRING_TABLE_DEFAULT_CAPACITY 2048
 #define MAX_KEY_AND_COMMAND_LENGTH 2048
-#define MUTABLE_FLAG ((natural)1 << 0)
 
+#define FLAG_BITS ((natural)0x3)
+#define FLAG_BITS_COUNT ((natural)2)
+#define RETAIN_COUNT_ONE ((natural)4)
+#define RETAIN_COUNT_MAX (NATURAL_MAX & ~FLAG_BITS)
+#define MUTABLE_FLAG ((natural)1 << 0)
 
 #define MAX(value1, value2) ((value1) > (value2) ? (value1) : (value2))
 #define MIN(value1, value2) ((value1) < (value2) ? (value1) : (value2))
@@ -100,38 +103,33 @@ struct Meta {
 
 struct Object {
     struct Meta* meta;
-    natural retainCount;
-    natural flags;
+    natural retainCountAndFlags;
 };
 
 
 struct Boolean {
     struct Meta* meta;
-    natural retainCount;
-    natural flags;
+    natural retainCountAndFlags;
 };
 
 
 struct Number {
     struct Meta* meta;
-    natural retainCount;
-    natural flags;
+    natural retainCountAndFlags;
     double number;
 };
 
 
 struct Block {
     struct Meta* meta;
-    natural retainCount;
-    natural flags;
+    natural retainCountAndFlags;
     void* code;
 };
 
 
 struct Data {
     struct Meta* meta;
-    natural retainCount;
-    natural flags;
+    natural retainCountAndFlags;
     integer capacity;
     integer count;
     natural hash;
@@ -141,8 +139,7 @@ struct Data {
 
 struct Array {
     struct Meta* meta;
-    natural retainCount;
-    natural flags;
+    natural retainCountAndFlags;
     integer capacity;
     integer count;
     natural hash;
@@ -152,8 +149,7 @@ struct Array {
 
 struct String {
     struct Meta* meta;
-    natural retainCount;
-    natural flags;
+    natural retainCountAndFlags;
     integer capacity;
     integer length;
     natural hash;
@@ -163,8 +159,7 @@ struct String {
 
 struct Dictionary {
     struct Meta* meta;
-    natural retainCount;
-    natural flags;
+    natural retainCountAndFlags;
     integer capacity;
     integer count;
     natural mask;
@@ -210,17 +205,17 @@ static struct Meta DictionaryMeta;
 static struct Meta NullMeta;
 
 
-static struct Object ObjectState = {.meta = &ObjectMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Boolean BooleanState = {.meta = &BooleanMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Number NumberState = {.meta = &NumberMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Block BlockState = {.meta = &BlockMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Data DataState = {.meta = &DataMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Array ArrayState = {.meta = &ArrayMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct String StringState = {.meta = &StringMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Dictionary DictionaryState = {.meta = &DictionaryMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Object NullState = {.meta = &NullMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Boolean YesState = {.meta = &BooleanMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
-static struct Boolean NoState = {.meta = &BooleanMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0};
+static struct Object ObjectState = {.meta = &ObjectMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Boolean BooleanState = {.meta = &BooleanMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Number NumberState = {.meta = &NumberMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Block BlockState = {.meta = &BlockMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Data DataState = {.meta = &DataMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Array ArrayState = {.meta = &ArrayMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct String StringState = {.meta = &StringMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Dictionary DictionaryState = {.meta = &DictionaryMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Object NullState = {.meta = &NullMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Boolean YesState = {.meta = &BooleanMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
+static struct Boolean NoState = {.meta = &BooleanMeta, .retainCountAndFlags = RETAIN_COUNT_MAX};
 
 
 var const Object = &ObjectState;
@@ -453,13 +448,13 @@ static var ObjectCreate(struct Object* self, var super, var command, var options
     struct Meta* meta = self->meta;
     struct Object* object = self;
 
-    if (object->retainCount > 0) {
+    if (object->retainCountAndFlags >= RETAIN_COUNT_ONE) {
         object = send(self, "allocate", options(String("mutable"), mutable));
         object->meta = meta;
     }
 
-    object->retainCount = 1;
-    object->flags = mutable == yes ? MUTABLE_FLAG : 0;
+    object->retainCountAndFlags = RETAIN_COUNT_ONE;
+    if (mutable == yes) object->retainCountAndFlags |= MUTABLE_FLAG;
 
     return send(object, "collect");
 }
@@ -472,30 +467,32 @@ static var ObjectDestroy(struct Object* self, var super, var command, var option
 
 
 static var ObjectRetain(struct Object* self, var super, var command, var options, ...) {
-    if (self->retainCount < RETAIN_COUNT_MAX) self->retainCount += 1;
+    if (self->retainCountAndFlags < RETAIN_COUNT_MAX) self->retainCountAndFlags += RETAIN_COUNT_ONE;
     return self;
 }
 
 
 static var ObjectRelease(struct Object* self, var super, var command, var options, ...) {
-    natural const retainCount = self->retainCount;
+    natural const retainCountAndFlags = self->retainCountAndFlags;
 
-    if (retainCount >= RETAIN_COUNT_MAX) {
+    if (retainCountAndFlags >= RETAIN_COUNT_MAX) {
         return self;
     }
 
-    if (retainCount >= 2) {
-        self->retainCount -= 1;
+    else if (retainCountAndFlags >= 2 * RETAIN_COUNT_ONE) {
+        self->retainCountAndFlags -= RETAIN_COUNT_ONE;
         return self;
     }
 
-    if (retainCount == 1) {
-        self->retainCount = 0;
+    else if (retainCountAndFlags >= RETAIN_COUNT_ONE) {
+        self->retainCountAndFlags -= RETAIN_COUNT_ONE;
         return send(self, "destroy");
     }
 
-    fprintf(stderr, "[WARNING] Released an object with retain count 0, retain/release calls seem to be unbalanced, aborting ...\n");
-    return null;
+    else {
+        fprintf(stderr, "[WARNING] Released an object with retain count 0, retain/release calls seem to be unbalanced, aborting ...\n");
+        return null;
+    }
 }
 
 
@@ -505,7 +502,7 @@ static var ObjectCollect(struct Object* self, var super, var command, var option
 
 
 static var ObjectEternize(struct Object* self, var super, var command, var options, ...) {
-    self->retainCount = RETAIN_COUNT_MAX;
+    self->retainCountAndFlags = RETAIN_COUNT_MAX;
     return self;
 }
 
@@ -521,7 +518,8 @@ static var ObjectIsKindOf(struct Object* self, var super, var command, var objec
 
 
 static var ObjectIsMutable(struct Object* self, var super, var command, var options, ...) {
-    return self->flags & MUTABLE_FLAG ? yes : no;
+    bool const isMutable = self->retainCountAndFlags & MUTABLE_FLAG;
+    return Boolean(isMutable);
 }
 
 
@@ -1292,7 +1290,7 @@ var BooleanMake(long boolean) {
 var NumberMake(double value) {
     struct Number* number = calloc(1, sizeof(struct Number));
     number->meta = &NumberMeta;
-    number->retainCount = 1;
+    number->retainCountAndFlags = RETAIN_COUNT_ONE;
     number->number = value;
     return number;
 }
@@ -1302,7 +1300,7 @@ var BlockMake(void* code) {
     assert(code != ZERO, "When making a block, code must be != ZERO");
     struct Block* block = calloc(1, sizeof(struct Block));
     block->meta = &BlockMeta;
-    block->retainCount = 1;
+    block->retainCountAndFlags = RETAIN_COUNT_ONE;
     block->code = code;
     return block;
 }
@@ -1312,7 +1310,7 @@ var DataMake(long count, const void* bytes) {
     assert(count >= 0, "When making a data object, count must be >= 0");
     struct Data* data = calloc(1, sizeof(struct Data));
     data->meta = &DataMeta;
-    data->retainCount = 1;
+    data->retainCountAndFlags = RETAIN_COUNT_ONE;
     data->capacity = -1;
     data->count = count;
     data->bytes = calloc(count, 1);
@@ -1327,7 +1325,7 @@ var ArrayMake(long count, ...) {
     // Create array:
     struct Array* array = calloc(1, sizeof(struct Array));
     array->meta = &ArrayMeta;
-    array->retainCount = 1;
+    array->retainCountAndFlags = RETAIN_COUNT_ONE;
     array->capacity = -1;
     array->count = count;
     array->objects = calloc(count, sizeof(var));
@@ -1345,7 +1343,7 @@ var ArrayMake(long count, ...) {
 
     // Make mutable if needed:
     if (count > 0 && array->objects[count - 1] == more) {
-        array->flags |= MUTABLE_FLAG;
+        array->retainCountAndFlags |= MUTABLE_FLAG;
         array->objects[count - 1] = ZERO;
         array->count = count - 1;
         array->capacity = count;
@@ -1370,7 +1368,7 @@ var StringMake(long length, const char* characters) {
     bool const couldBeCommandOrKey = length <= MAX_KEY_AND_COMMAND_LENGTH;
 
     if (couldBeCommandOrKey) {
-        struct String proxy = {.meta = &StringMeta, .retainCount = RETAIN_COUNT_MAX, .flags = 0, .capacity = -1, .length = length, .hash = hash, .characters = (char*)characters};
+        struct String proxy = {.meta = &StringMeta, .retainCountAndFlags = RETAIN_COUNT_MAX, .capacity = -1, .length = length, .hash = hash, .characters = (char*)characters};
         struct Entry entry = {.key = (natural)&proxy, .value = 0, .extra = 0};
 
         TableGet(&StringTable, &entry, StringHashFunction, StringEqualsFunction);
@@ -1384,7 +1382,7 @@ var StringMake(long length, const char* characters) {
 
     struct String* string = calloc(1, sizeof(struct String));
     string->meta = &StringMeta;
-    string->retainCount = 1;
+    string->retainCountAndFlags = RETAIN_COUNT_ONE;
     string->capacity = -1;
     string->length = length;
     string->hash = hash;
@@ -1405,8 +1403,7 @@ var DictionaryMake(long count, ...) {
 
     struct Dictionary* dictionary = calloc(1, sizeof(struct Dictionary));
     dictionary->meta = &DictionaryMeta;
-    dictionary->flags = 0;
-    dictionary->retainCount = 1;
+    dictionary->retainCountAndFlags = RETAIN_COUNT_ONE;
     dictionary->capacity = 0;
     dictionary->count = 0;
     dictionary->mask = 0;
@@ -1424,7 +1421,7 @@ var DictionaryMake(long count, ...) {
 
     // Make mutable if needed:
     if (va_arg(arguments, var) == more) {
-        dictionary->flags = MUTABLE_FLAG;
+        dictionary->retainCountAndFlags |= MUTABLE_FLAG;
     }
 
     // Done:
@@ -1480,7 +1477,7 @@ void* CollectBlockPop(void* collectBlock) {
 
 
 var CollectBlockAdd(var object) {
-    if (object(object).retainCount >= RETAIN_COUNT_MAX) return object;
+    if (object(object).retainCountAndFlags >= RETAIN_COUNT_MAX) return object;
     if (CollectBlockTop == ZERO) {
         fprintf(stderr, "[WARNING] No collect block found, leaking ...\n");
         return object;
