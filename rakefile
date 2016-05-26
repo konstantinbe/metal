@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Konstantin Bender.
+# Copyright (c) 2014 Konstantin Bender. Released under the MIT license.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,12 @@ require 'rubygems'
 # ------------------------------------------------------------- Constants ------
 
 NAME = ENV['name'] || "metal"
+TITLE = ENV['title'] || "Metal"
 TARGET = ENV['target'] || "test"
-VERSION = ENV['version'] || 'x.x.x'
+VERSION = ENV['version'] || '0.0.0'
 DIRECTORY = ENV['directory'] || "build"
+RELEASE_NOTES = ENV['release-notes'] || nil
+RELEASE_NOTES_TEXT = ENV['release-notes-text'] || "Improvements and bug fixes."
 
 CLANG = `which clang`.match /.+/
 LLDB = `which lldb`.match /.+/
@@ -196,26 +199,75 @@ end
 
 desc "build website"
 task :website do
+  assert available?('kramdown'), "#{RED}Error#{RESET}: can't build website, gem #{BOLD + 'cramdown' + RESET} is not available"
+  require 'kramdown'
+
   put "Building website ... "
-  assert gem?("redcarpet"), "#{FAILED}\nCan't build website, Redcarpet (ruby gem) not found"
-
-  require 'redcarpet'
-  markdown = Redcarpet::Markdown.new Redcarpet::Render::HTML, :autolink => true, :space_after_headers => true
-
   run "mkdir -p #{DIRECTORY}/website"
-  run "rm -rf #{DIRECTORY}/website/*"
+  run "rm -Rf #{DIRECTORY}/website/*"
   run "cp website/* #{DIRECTORY}/website/"
   index_html = load "website/index.html"
   content_md = load "website/content.md"
-  index_html = index_html.gsub "<!-- content.md -->", markdown.render(content_md)
+  index_html = index_html.gsub "<!-- content.md -->", Kramdown::Document.new(content_md).to_html
   save "#{DIRECTORY}/website/index.html", index_html
+  puts OK
+end
+
+desc "release a version"
+task 'release' do
+  assert (not dirty?) || dry?, "#{RED}Error#{RESET}: repo is #{BOLD}dirty#{RESET} (only a dry-run possible)"
+  assert available?('kramdown'), "#{RED}Error#{RESET}: gem #{BOLD + 'cramdown' + RESET} is not available (required for rendering release notes)"
+  # assert connected? || dry?, "#{RED}Error#{RESET}: no internet #{BOLD}connection#{RESET} (only a dry run possible)"
+
+  require 'kramdown'
+
+  put "Preparing release #{BLUE}#{NAME}#{RESET} #{BOLD + VERSION + RESET} ... "
+  run "rm -rf #{DIRECTORY}/release"
+  run "mkdir -p #{DIRECTORY}/release"
+  puts OK
+
+  put "Preparing package ... "
+  run "rm -Rf #{DIRECTORY}/release/package"
+  run "mkdir #{DIRECTORY}/release/package"
+  puts OK
+
+  put "Copying source ... "
+  run "cp -r source/* #{DIRECTORY}/release/package/"
+  puts OK
+
+  put "Updating version ... "
+  run "perl -p -i -e 's/x\.x\.x/#{VERSION}/g' #{DIRECTORY}/release/package/#{NAME}.h"
+  puts OK
+
+  put "Generating readme.md ... "
+  read_me = "# Release Package | #{TITLE}\n\nThis is a release package containing #{TITLE}, version `#{VERSION}`."
+  save "#{DIRECTORY}/release/package/readme.md", read_me
+  puts OK
+
+  unless dry? || RELEASE_NOTES
+    answer = ask %{No release notes file given, proceed with "#{MAGENTA}#{RELEASE_NOTES_TEXT}#{RESET}"?}
+    exit 1 if answer == 'n'
+  end
+
+  if VERSION.match /^0\.0\.0/
+    puts "\n#{BOLD}Prepared version #{VERSION} for testing, won't release.#{RESET}\n\n"
+    exit 0
+  end
+
+  put "Tagging ... "
+  run "git tag #{NAME}-#{VERSION}"
+  puts OK
+
+  put "Pushing ... "
+  run "git push 2> /dev/null"
+  run "git push --tags 2> /dev/null"
   puts OK
 end
 
 desc "delete the build directory"
 task :clean do
   put "Cleaning ... "
-  run "rm -rf #{DIRECTORY}"
+  run "rm -Rf #{DIRECTORY}"
   puts OK
 end
 
@@ -275,8 +327,8 @@ def replace(file_path, pattern, replacement)
   save file_path, string
 end
 
-def gem?(name)
-  if `gem list #{name}`.strip.length > 0 then name else nil end
+def available?(name)
+  `gem list #{name}`.strip.length > 0
 end
 
 def command?(name)
@@ -285,6 +337,14 @@ end
 
 def dirty?
   `git status --porcelain`.length > 0
+end
+
+def dry?
+  VERSION.match /^(0\.0\.0)(\D.*)?/
+end
+
+def connected?
+  status = system "ping -c 1 -q -o google.com 2> /dev/null"
 end
 
 # ---------------------------------------------------------- Custom Tasks ------

@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef TEST_H
-#define TEST_H
+#ifndef ML_TEST_H
+#define ML_TEST_H
 
 #include <metal/metal.h>
 #include <assert.h>

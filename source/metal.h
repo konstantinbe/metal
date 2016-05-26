@@ -19,105 +19,105 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef METAL_H
-#define METAL_H
+#ifndef ML_METAL_H
+#define ML_METAL_H
 
 #include <float.h>
 #include <setjmp.h>
 #include <limits.h>
 #include <stdbool.h>
 
-#define ZERO (void*)0ul
-#define MORE (void*)ULLONG_MAX
+#define ML_METAL_VERSION "x.x.x"
 
-#define zero (var)0ul
-#define more (var)ULLONG_MAX
+#define MLZero (void*)0ul
+#define MLMore (void*)ULLONG_MAX
 
-#define metalHelperJoinJoin(x, y) x ## y
-#define metalHelperJoin(x, y) metalHelperJoinJoin(x, y)
-#define metalHelperStringify(x) (((char*)(#x))[0] == '"' ? String(x) : (x))
+#define MLMetalHelperJoinJoin(x, y) x ## y
+#define MLMetalHelperJoin(x, y) MLMetalHelperJoinJoin(x, y)
+#define MLMetalHelperStringify(x) (((char*)(#x))[0] == '"' ? MLString(x) : (x))
 
-#define load __attribute__((constructor(255))) static void metalHelperJoin(__MetalLoadBlock, __COUNTER__)()
+#define MLLoad __attribute__((constructor(255))) static void MLMetalHelperJoin(__MetalLoadBlock, __COUNTER__)()
+#define MLCollect for (void* collectBlock = MLCollectBlockPush(); collectBlock != MLZero; collectBlock = MLCollectBlockPop(collectBlock))
 
-#define collect for (void* collectBlock = CollectBlockPush(); collectBlock != ZERO; collectBlock = CollectBlockPop(collectBlock))
-#define try for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; tryCatchBlock = TryCatchBlockPop(tryCatchBlock)) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
-#define catch else for (var exception = TryCatchBlockCatch(tryCatchBlock); exception != null; exception = null)
+#define MLPerform for (void* performHandleBlock = MLPerformHandleBlockPush(); performHandleBlock != MLZero; performHandleBlock = MLPerformHandleBlockPop(performHandleBlock)) if (!setjmp(MLPerformHandleBlockPerform(performHandleBlock)))
+#define MLHandle else for (MLVariable exception = MLPerformHandleBlockHandle(performHandleBlock); exception != MLNull; exception = MLNull)
 
-#define send(self, command, ...) ({var const selfToSend = (self); var const commandToSend = metalHelperStringify(command); var superToSend = zero; Code const codeToCall = lookup(self, commandToSend, &superToSend); codeToCall(selfToSend, superToSend, commandToSend, ## __VA_ARGS__, zero);})
-#define super(self, command, ...) ({var const selfToSend = (self); var const commandToSend = metalHelperStringify(command); var superToSend = zero; Code const codeToCall = lookup(super, commandToSend, &superToSend); codeToCall(selfToSend, superToSend, commandToSend, ## __VA_ARGS__, zero);})
+#define MLSend(self, command, ...) ({MLVariable const selfToSend = (self); MLVariable const commandToSend = MLMetalHelperStringify(command); MLVariable superToSend = MLZero; MLCode const codeToCall = MLLookup(self, commandToSend, &superToSend); codeToCall(selfToSend, superToSend, commandToSend, ## __VA_ARGS__, MLZero);})
+#define MLSuper(self, command, ...) ({MLVariable const selfToSend = (self); MLVariable const commandToSend = MLMetalHelperStringify(command); MLVariable superToSend = MLZero; MLCode const codeToCall = MLLookup(super, commandToSend, &superToSend); codeToCall(selfToSend, superToSend, commandToSend, ## __VA_ARGS__, MLZero);})
 
-#define option(name, initial) ({ var nameAsString = metalHelperStringify(name); va_list list; va_start(list, options); var key = options; var value = zero; while (key != zero && key != (nameAsString)) { value = va_arg(list, var); key = va_arg(list, var); } va_end(list); key ? va_arg(list, var) : (initial); });
-#define options(...) __VA_ARGS__
+#define MLOption(name, initial) ({ MLVariable nameAsString = MLMetalHelperStringify(name); va_list list; va_start(list, options); MLVariable key = options; MLVariable value = MLZero; while (key != MLZero && key != (nameAsString)) { value = va_arg(list, MLVariable); key = va_arg(list, MLVariable); } va_end(list); key ? va_arg(list, MLVariable) : (initial); });
+#define MLOptions(...) __VA_ARGS__
 
-#define Boolean(boolean) ((boolean) ? yes : no)
-#define Number(number) CollectBlockAdd(NUMBER(number))
-#define Block(code) CollectBlockAdd(BLOCK(code))
-#define Data(data) CollectBlockAdd(DATA(data))
-#define Array(...) CollectBlockAdd(ARRAY(__VA_ARGS__))
-#define String(string) CollectBlockAdd(STRING(string))
-#define Dictionary(...) CollectBlockAdd(DICTIONARY(__VA_ARGS__))
+#define MLBoolean(boolean) ((boolean) ? MLYes : MLNo)
+#define MLNumber(number) MLCollectBlockAdd(MLNumberUncollected(number))
+#define MLBlock(code) MLCollectBlockAdd(MLBlockUncollected(code))
+#define MLData(data) MLCollectBlockAdd(MLDataUncollected(data))
+#define MLArray(...) MLCollectBlockAdd(MLArrayUncollected(__VA_ARGS__))
+#define MLString(string) MLCollectBlockAdd(MLStringUncollected(string))
+#define MLDictionary(...) MLCollectBlockAdd(MLDictionaryUncollected(__VA_ARGS__))
 
-#define NUMBER(number) NumberMake((decimal)(number))
-#define BLOCK(code) BlockMake((void*)(code))
-#define DATA(data) DataMake(sizeof(data), (void*)(data))
-#define ARRAY(...) ArrayMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero)
-#define STRING(string) StringMake(sizeof(string), (string))
-#define DICTIONARY(...) DictionaryMake((sizeof((var[]){zero, ## __VA_ARGS__}) / sizeof(var)) - 1, ## __VA_ARGS__, zero)
+#define MLNumberUncollected(number) MLNumberMake((MLDecimal)(number))
+#define MLBlockUncollected(code) MLBlockMake((void*)(code))
+#define MLDataUncollected(data) MLDataMake(sizeof(data), (void*)(data))
+#define MLArrayUncollected(...) MLArrayMake((sizeof((MLVariable[]){MLZero, ## __VA_ARGS__}) / sizeof(MLVariable)) - 1, ## __VA_ARGS__, MLZero)
+#define MLStringUncollected(string) MLStringMake(sizeof(string), (string))
+#define MLDictionaryUncollected(...) MLDictionaryMake((sizeof((MLVariable[]){MLZero, ## __VA_ARGS__}) / sizeof(MLVariable)) - 1, ## __VA_ARGS__, MLZero)
 
-#define INTEGER_MAX ((integer)LONG_MAX)
-#define INTEGER_MIN ((integer)LONG_MIN)
+#define MLIntegerMax ((MLInteger)LONG_MAX)
+#define MLIntegerMin ((MLInteger)LONG_MIN)
 
-#define NATURAL_MAX ((natural)ULONG_MAX)
-#define NATURAL_MIN ((natural)0ul)
+#define MLNaturalMax ((MLNatural)ULONG_MAX)
+#define MLNaturalMin ((MLNatural)0ul)
 
-#define DECIMAL_MAX ((decimal)DBL_MAX)
-#define DECIMAL_MIN ((decimal)DBL_MIN)
+#define MLDecimalMax ((MLDecimal)DBL_MAX)
+#define MLDecimalMin ((MLDecimal)DBL_MIN)
 
-typedef void* var;
-typedef long integer;
-typedef unsigned long natural;
-typedef double decimal;
+typedef void* MLVariable;
+typedef long MLInteger;
+typedef unsigned long MLNatural;
+typedef double MLDecimal;
+typedef MLVariable (*MLCode)(MLVariable, MLVariable, ...);
 
-typedef var (*Code)(var, var, ...);
+extern MLVariable const MLObject;
+extern MLVariable const MLBoolean;
+extern MLVariable const MLNumber;
+extern MLVariable const MLBlock;
+extern MLVariable const MLData;
+extern MLVariable const MLArray;
+extern MLVariable const MLString;
+extern MLVariable const MLDictionary;
+extern MLVariable const MLException;
 
-extern var const Object;
-extern var const Boolean;
-extern var const Number;
-extern var const Block;
-extern var const Data;
-extern var const Array;
-extern var const String;
-extern var const Dictionary;
+extern MLVariable const MLNull;
+extern MLVariable const MLYes;
+extern MLVariable const MLNo;
 
-extern var const null;
-extern var const yes;
-extern var const no;
+MLVariable MLBooleanMake(long boolean);
+MLVariable MLNumberMake(double number);
+MLVariable MLBlockMake(void* code);
+MLVariable MLDataMake(long count, const void* bytes);
+MLVariable MLArrayMake(long count, ...);
+MLVariable MLStringMake(long length, const char* characters);
+MLVariable MLDictionaryMake(long count, ...);
 
-var BooleanMake(long boolean);
-var NumberMake(double number);
-var BlockMake(void* code);
-var DataMake(long count, const void* bytes);
-var ArrayMake(long count, ...);
-var StringMake(long length, const char* characters);
-var DictionaryMake(long count, ...);
+MLInteger MLIntegerFrom(MLVariable number);
+MLNatural MLNaturalFrom(MLVariable number);
+MLDecimal MLDecimalFrom(MLVariable number);
 
-integer IntegerFrom(var number);
-natural NaturalFrom(var number);
-decimal DecimalFrom(var number);
+void* MLCollectBlockPush();
+void* MLCollectBlockPop(void* collectBlock);
+MLVariable MLCollectBlockAdd(MLVariable object);
 
-void* CollectBlockPush();
-void* CollectBlockPop(void* collectBlock);
-var CollectBlockAdd(var object);
+void* MLPerformHandleBlockPush();
+void* MLPerformHandleBlockPop(void* performHandleBlock);
+void* MLPerformHandleBlockPerform(void* performHandleBlock);
+MLVariable MLPerformHandleBlockHandle(void* performHandleBlock);
 
-void* TryCatchBlockPush();
-void* TryCatchBlockPop(void* tryCatchBlock);
-void* TryCatchBlockTry(void* tryCatchBlock);
-var TryCatchBlockCatch(void* tryCatchBlock);
+MLVariable MLImport(const char* name);
+MLVariable MLExport(const char* name, void* code);
 
-var import(const char* name);
-var export(const char* name, void* code);
-void* lookup(var object, var command, var* super);
-void throw(var exception);
-void inspect(var object);
+void* MLLookup(MLVariable object, MLVariable command, MLVariable* super);
+void MLRaise(MLVariable exception);
+void MLLog(MLVariable object);
 
 #endif

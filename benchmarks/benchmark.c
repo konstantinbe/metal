@@ -21,7 +21,6 @@
 
 #include "benchmark.h"
 
-
 int main(int argumentsCount, char const* arguments[]) {
     // TODO: add benchmarks.
     return 0;

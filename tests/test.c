@@ -25,22 +25,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 // --------------------------------------------------- Constants & Macros ------
 
-
-#define AssertThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNotNull(TryCatchBlockCatch(tryCatchBlock), message); true; }) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
-#define AssertNotThrows(message) for (void* tryCatchBlock = TryCatchBlockPush(); tryCatchBlock != ZERO; ({ AssertNull(TryCatchBlockCatch(tryCatchBlock), message); true; }) && (tryCatchBlock = TryCatchBlockPop(tryCatchBlock))) if (!setjmp(TryCatchBlockTry(tryCatchBlock)))
-
+#define AssertRaises(message) for (void* performHandleBlock = MLPerformHandleBlockPush(); performHandleBlock != MLZero; ({ AssertNotNull(MLPerformHandleBlockHandle(performHandleBlock), message); true; }) && (performHandleBlock = MLPerformHandleBlockPop(performHandleBlock))) if (!setjmp(MLPerformHandleBlockPerform(performHandleBlock)))
+#define AssertNotRaises(message) for (void* performHandleBlock = MLPerformHandleBlockPush(); performHandleBlock != MLZero; ({ AssertNull(MLPerformHandleBlockHandle(performHandleBlock), message); true; }) && (performHandleBlock = MLPerformHandleBlockPop(performHandleBlock))) if (!setjmp(MLPerformHandleBlockPerform(performHandleBlock)))
 
 static const char* const WHITE = "\x1B[0;97m";
 static const char* const RED = "\x1B[0;31m";
 static const char* const GREEN = "\x1B[0;32m";
 static const char* const RESET = "\x1B[0m";
 
-
 // ------------------------------------------------------------ Variables ------
-
 
 static long TotalNumberOfExamples = 0;
 static long NumberOfFailedExamples = 0;
@@ -48,139 +43,112 @@ static char* FailedExamples[1000000];
 static double TestBeganAt = 0;
 static double TestEndedAt = 0;
 
-
 // ---------------------------------------------------- Helper Functions -------
-
 
 static void TestBegin();
 static void TestEnd();
 
-
 // --------------------------------------------------- Matcher Functions -------
 
-
-static void AssertYes(var object, const char* message);
-static void AssertNo(var object, const char* message);
-static void AssertNull(var object, const char* message);
-static void AssertNotNull(var object, const char* message);
-static void AssertEquals(var subject, var actual, const char* message);
-static void AssertNotEqual(var subject, var actual, const char* message);
-static void AssertIdentical(var subject, var actual, const char* message);
-static void AssertNotIdentical(var subject, var actual, const char* message);
-
+static void AssertYes(MLVariable object, const char* message);
+static void AssertNo(MLVariable object, const char* message);
+static void AssertNull(MLVariable object, const char* message);
+static void AssertNotNull(MLVariable object, const char* message);
+static void AssertEquals(MLVariable subject, MLVariable actual, const char* message);
+static void AssertNotEqual(MLVariable subject, MLVariable actual, const char* message);
+static void AssertIdentical(MLVariable subject, MLVariable actual, const char* message);
+static void AssertNotIdentical(MLVariable subject, MLVariable actual, const char* message);
 
 // --------------------------------------------------------- Object Tests ------
 
-
 static void TestObjectCreate() {
-    var object = send(Object, "create");
+    MLVariable object = MLSend(MLObject, "create");
     AssertNotNull(object, "Object create calls allocate and returns the newly allocated object");
 }
-
 
 static void TestObjectDestroy() {
     // Destroy can't be properly tested because created objects are autoreleased.
 }
 
-
 static void TestObjectIsKindOf() {
-    var object = send(Object, "create");
-    var number = Number(5);
-    AssertYes(send(Object, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking Object whether it is a kind of itself");
-    AssertYes(send(object, "is-kind-of*", object), "Object is-kind-of* returns yes when asking an object whether it is a kind of itself");
-    AssertYes(send(Number, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking Number whether it is a kind of Object");
-    AssertYes(send(object, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking an object whether it is a kind of Object");
-    AssertYes(send(number, "is-kind-of*", Number), "Object is-kind-of* returns yes when asking a number whether it is a kind of Number");
-    AssertYes(send(number, "is-kind-of*", Object), "Object is-kind-of* returns yes when asking a number whether it is a kind of Object");
-    AssertNo(send(Object, "is-kind-of*", object), "Object is-kind-of* returns no when asking Object whether it is a kind of an object");
-    AssertNo(send(object, "is-kind-of*", Number), "Object is-kind-of* returns no when asking an object whether it is a kind of Number");
-    AssertNo(send(number, "is-kind-of*", object), "Object is-kind-of* returns no when asking a number whether it is a kind of object");
+    MLVariable object = MLSend(MLObject, "create");
+    MLVariable number = MLNumber(5);
+    AssertYes(MLSend(MLObject, "is-kind-of*", MLObject), "Object is-kind-of* returns yes when asking Object whether it is a kind of itself");
+    AssertYes(MLSend(object, "is-kind-of*", object), "Object is-kind-of* returns yes when asking an object whether it is a kind of itself");
+    AssertYes(MLSend(MLNumber, "is-kind-of*", MLObject), "Object is-kind-of* returns yes when asking Number whether it is a kind of Object");
+    AssertYes(MLSend(object, "is-kind-of*", MLObject), "Object is-kind-of* returns yes when asking an object whether it is a kind of Object");
+    AssertYes(MLSend(number, "is-kind-of*", MLNumber), "Object is-kind-of* returns yes when asking a number whether it is a kind of Number");
+    AssertYes(MLSend(number, "is-kind-of*", MLObject), "Object is-kind-of* returns yes when asking a number whether it is a kind of Object");
+    AssertNo(MLSend(MLObject, "is-kind-of*", object), "Object is-kind-of* returns mo when asking Object whether it is a kind of an object");
+    AssertNo(MLSend(object, "is-kind-of*", MLNumber), "Object is-kind-of* returns no when asking an object whether it is a kind of Number");
+    AssertNo(MLSend(number, "is-kind-of*", object), "Object is-kind-of* returns no when asking a number whether it is a kind of object");
 }
-
 
 static void TestObjectIsMutable() {
-    var object1 = send(Object, "create");
-    var object2 = send(Object, "create", String("mutable"), no);
-    var object3 = send(Object, "create", String("mutable"), yes);
-    AssertNo(send(object1, "is-mutable"), "Object is-mutable returns no (all objects are not mutable by default)");
-    AssertNo(send(object2, "is-mutable"), "Object is-mutable returns no if option mutable = no was passed to create");
-    AssertYes(send(object3, "is-mutable"), "Object is-mutable returns yes if option mutable = yes was passed to create");
+    MLVariable object1 = MLSend(MLObject, "create");
+    MLVariable object2 = MLSend(MLObject, "create", MLString("mutable"), MLNo);
+    MLVariable object3 = MLSend(MLObject, "create", MLString("mutable"), MLYes);
+    AssertNo(MLSend(object1, "is-mutable"), "Object is-mutable returns MLNo (all objects are not mutable by default)");
+    AssertNo(MLSend(object2, "is-mutable"), "Object is-mutable returns MLNo if option mutable = MLNo was passed to create");
+    AssertYes(MLSend(object3, "is-mutable"), "Object is-mutable returns MLYes if option mutable = MLYes was passed to create");
 }
-
 
 static void TestObjectRespondsTo() {
-    AssertYes(send(Object, "responds-to*", String("equals*")), "Object responds-to* returns yes for an existing method");
-    // TODO: enable this test after fully implementing the lookup() function.
-    // AssertNo(send(Object, "responds-to*", String("winni-puh")), "Object responds-to* returns no for a non-existing method");
+    AssertYes(MLSend(MLObject, "responds-to*", MLString("equals*")), "Object responds-to* returns MLYes for an existing method");
+    // TODO: enable this test after fully implementing the MLLookup() function.
+    // AssertNo(MLSend(MLObject, "responds-to*", MLString("winni-puh")), "Object responds-to* returns MLNo for a non-existing method");
 }
-
 
 static void TestObjectAsString() {
-    var object = send(Object, "create");
-    AssertEquals(send(Object, "as-string"), String("Object"), "Object as-string returns 'Object' for Object");
-    AssertEquals(send(object, "as-string"), String("<Object XXX>"), "Object as-string returns '<Object XXX>' for any direct instance of Object");
+    MLVariable object = MLSend(MLObject, "create");
+    AssertEquals(MLSend(MLObject, "as-string"), MLString("Object"), "Object as-string returns 'Object' for Object");
+    AssertEquals(MLSend(object, "as-string"), MLString("<Object XXX>"), "Object as-string returns '<Object XXX>' for any direct instance of Object");
 }
-
 
 static void TestObjectHash() {
-    var object = send(Object, "create");
-    AssertEquals(send(object, "hash"), Number((natural)object), "Object hash returns its address as a number");
+    MLVariable object = MLSend(MLObject, "create");
+    AssertEquals(MLSend(object, "hash"), MLNumber((MLNatural)object), "Object hash returns its address as a number");
 }
-
 
 static void TestObjectEquals() {
-    var object1 = send(Object, "create");
-    var object2 = send(Object, "create");
-    AssertYes(send(object1, "equals*", object1), "Object equals* returns yes for identical objects");
-    AssertNo(send(object1, "equals*", object2), "Object equals* returns no when objects are not identical");
+    MLVariable object1 = MLSend(MLObject, "create");
+    MLVariable object2 = MLSend(MLObject, "create");
+    AssertYes(MLSend(object1, "equals*", object1), "Object equals* returns MLYes for identical objects");
+    AssertNo(MLSend(object1, "equals*", object2), "Object equals* returns MLNo when objects are not identical");
 }
-
 
 static void TestObjectSelf() {
-    var object = send(Object, "create");
-    AssertIdentical(object, send(object, "self"), "Object self returns itself");
+    MLVariable object = MLSend(MLObject, "create");
+    AssertIdentical(object, MLSend(object, "self"), "Object self returns itself");
 }
-
 
 static void TestObjectAddMethodBlock() {
     // TODO: implement.
 }
 
-
 static void TestObjectRemoveMethod() {
     // TODO: implement.
 }
-
 
 static void TestObjectProto() {
     // TODO: implement.
 }
 
-
 static void TestObjectSetProto() {
     // TODO: implement.
 }
 
-
-static void TestObjectInfo() {
+static void TestObjectWarn() {
     // TODO: implement.
 }
 
-
-static void TestObjectWarning() {
+static void TestObjectFail() {
     // TODO: implement.
 }
-
-
-static void TestObjectError() {
-    // TODO: implement.
-}
-
 
 static void TestObjectDebug() {
     // TODO: implement.
 }
-
 
 static void TestObject() {
     TestObjectCreate();
@@ -195,70 +163,60 @@ static void TestObject() {
     TestObjectRemoveMethod();
     TestObjectProto();
     TestObjectSetProto();
-    TestObjectInfo();
-    TestObjectWarning();
-    TestObjectError();
+    TestObjectWarn();
+    TestObjectFail();
     TestObjectDebug();
 }
 
-
 // -------------------------------------------------------- Boolean Tests ------
 
-
 static void TestBooleanCreate() {
-    AssertThrows("Boolean create throws an exception, initializing booleans is not allowed") send(Boolean, "create");
+    AssertRaises("Boolean create raises an exception, initializing booleans is not allowed") MLSend(MLBoolean, "create");
 }
-
 
 static void TestBooleanDestroy() {
-    AssertThrows("Boolean destroy throws an exception, destroying booleans is not allowed") send(Boolean, "destroy");
+    AssertRaises("Boolean destroy raises an exception, destroying booleans is not allowed") MLSend(MLBoolean, "destroy");
 }
-
 
 static void TestBooleanAsString() {
-    AssertEquals(send(Boolean, "as-string"), String("Boolean"), "Boolean as-string returns 'Boolean' for Boolean");
-    AssertEquals(send(yes, "as-string"), String("yes"), "Boolean as-string returns 'yes' for yes");
-    AssertEquals(send(no, "as-string"), String("no"), "Boolean as-string returns 'no' for no");
+    AssertEquals(MLSend(MLBoolean, "as-string"), MLString("Boolean"), "Boolean as-string returns 'Boolean' for Boolean");
+    AssertEquals(MLSend(MLYes, "as-string"), MLString("yes"), "Boolean as-string returns 'MLYes' for MLYes");
+    AssertEquals(MLSend(MLNo, "as-string"), MLString("no"), "Boolean as-string returns 'MLNo' for MLNo");
 }
-
 
 static void TestBooleanIsMutable() {
-    AssertNo(send(Boolean, "is-mutable"), "Boolean is-mutable returns no for Boolean itself");
-    AssertNo(send(yes, "is-mutable"), "Boolean is-mutable returns no for yes");
-    AssertNo(send(no, "is-mutable"), "Boolean is-mutable returns no for no");
+    AssertNo(MLSend(MLBoolean, "is-mutable"), "Boolean is-mutable returns MLNo for Boolean itself");
+    AssertNo(MLSend(MLYes, "is-mutable"), "Boolean is-mutable returns MLNo for MLYes");
+    AssertNo(MLSend(MLNo, "is-mutable"), "Boolean is-mutable returns MLNo for MLNo");
 }
-
 
 static void TestBooleanEquals() {
-     AssertYes(send(no, "equals*", no), "Boolean equals* returns yes when comparing no to no");
-     AssertYes(send(yes,"equals*", yes), "Boolean equals* returns yes when comparing yes to yes");
-     AssertNo(send(no,"equals*", yes), "Boolean equals* returns no when comparing no to yes");
-     AssertNo(send(yes,"equals*", no), "Boolean equals* returns no when comparing yes to no");
-     AssertNo(send(yes,"equals*", Number(1)), "Boolean equals* returns no when comparing a boolean to comparing to any other non-boolean object");
+     AssertYes(MLSend(MLNo, "equals*", MLNo), "Boolean equals* returns MLYes when comparing MLNo to MLNo");
+     AssertYes(MLSend(MLYes,"equals*", MLYes), "Boolean equals* returns MLYes when comparing MLYes to MLYes");
+     AssertNo(MLSend(MLNo,"equals*", MLYes), "Boolean equals* returns MLNo when comparing MLNo to MLYes");
+     AssertNo(MLSend(MLYes,"equals*", MLNo), "Boolean equals* returns MLNo when comparing MLYes to MLNo");
+     AssertNo(MLSend(MLYes,"equals*", MLNumber(1)), "Boolean equals* returns MLNo when comparing a boolean to comparing to any other non-boolean object");
 }
-
 
 static void TestBooleanCompare() {
-    AssertEquals(send(no, "compare*", no), Number(0), "Boolean compare* returns 0 when comparing no to no");
-    AssertEquals(send(no, "compare*", yes), Number(-1), "Boolean compare* returns -1 when comparing no to yes");
-    AssertEquals(send(yes, "compare*", no), Number(+1), "Boolean compare* returns +1 when comparing yes to no");
-    AssertEquals(send(yes, "compare*", yes), Number(0), "Boolean compare* returns 0 when comparing yes to yes");
-    AssertNull(send(Boolean, "compare*", no), "Boolean compare* returns null when comparing Boolean to no");
-    AssertNull(send(Boolean, "compare*", yes), "Boolean compare* returns null when comparing Boolean to yes");
-    AssertNull(send(Boolean, "compare*", Number(0)), "Boolean compare* returns null when comparing Boolean to anything (here a number)");
-    AssertNull(send(no, "compare*", Boolean), "Boolean compare* returns null when comparing no to Boolean");
-    AssertNull(send(yes, "compare*", Boolean), "Boolean compare* returns null when comparing yes to Boolean");
-    AssertNull(send(no, "compare*", Number(0)), "Boolean compare* returns null when comparing no to anything (here a number)");
-    AssertNull(send(yes, "compare*", Number(0)), "Boolean compare* returns null when comparing yes to anything (here a number)");
+    AssertEquals(MLSend(MLNo, "compare*", MLNo), MLNumber(0), "Boolean compare* returns 0 when comparing MLNo to MLNo");
+    AssertEquals(MLSend(MLNo, "compare*", MLYes), MLNumber(-1), "Boolean compare* returns -1 when comparing MLNo to MLYes");
+    AssertEquals(MLSend(MLYes, "compare*", MLNo), MLNumber(+1), "Boolean compare* returns +1 when comparing MLYes to MLNo");
+    AssertEquals(MLSend(MLYes, "compare*", MLYes), MLNumber(0), "Boolean compare* returns 0 when comparing MLYes to MLYes");
+    AssertNull(MLSend(MLBoolean, "compare*", MLNo), "Boolean compare* returns MLNull when comparing Boolean to MLNo");
+    AssertNull(MLSend(MLBoolean, "compare*", MLYes), "Boolean compare* returns MLNull when comparing Boolean to MLYes");
+    AssertNull(MLSend(MLBoolean, "compare*", MLNumber(0)), "Boolean compare* returns MLNull when comparing Boolean to anything (here a number)");
+    AssertNull(MLSend(MLNo, "compare*", MLBoolean), "Boolean compare* returns MLNull when comparing MLNo to Boolean");
+    AssertNull(MLSend(MLYes, "compare*", MLBoolean), "Boolean compare* returns MLNull when comparing MLYes to Boolean");
+    AssertNull(MLSend(MLNo, "compare*", MLNumber(0)), "Boolean compare* returns MLNull when comparing MLNo to anything (here a number)");
+    AssertNull(MLSend(MLYes, "compare*", MLNumber(0)), "Boolean compare* returns MLNull when comparing MLYes to anything (here a number)");
 }
-
 
 static void TestBooleanCopy() {
-    AssertIdentical(send(no, "copy"), no, "Boolean copy returns the exact same instance (here: no)");
-    AssertIdentical(send(yes, "copy"), yes, "Boolean copy returns the exact same instance (here: yes)");
-    AssertIdentical(send(Boolean, "copy"), Boolean, "Boolean copy returns the exact same instance (here: Boolean)");
+    AssertIdentical(MLSend(MLNo, "copy"), MLNo, "Boolean copy returns the exact same instance (here: MLNo)");
+    AssertIdentical(MLSend(MLYes, "copy"), MLYes, "Boolean copy returns the exact same instance (here: MLYes)");
+    AssertIdentical(MLSend(MLBoolean, "copy"), MLBoolean, "Boolean copy returns the exact same instance (here: Boolean)");
 }
-
 
 static void TestBoolean() {
     TestBooleanCreate();
@@ -270,52 +228,42 @@ static void TestBoolean() {
     TestBooleanCopy();
 }
 
-
 // --------------------------------------------------------- Number Tests ------
-
 
 static void TestNumberCreate() {
     // TODO: implement.
 }
 
-
 static void TestNumberDestroy() {
     // TODO: implement.
 }
-
 
 static void TestNumberAsString() {
     // TODO: implement.
 }
 
-
 static void TestNumberIsMutable() {
     // TODO: implement.
 }
-
 
 static void TestNumberHash() {
     // TODO: implement.
 }
 
-
 static void TestNumberEquals() {
-    AssertYes(send(Number(1), "equals*", Number(1)), "Number equals* returns yes for same integer numbers");
-    AssertNo(send(Number(1), "equals*", Number(2)), "Number equals* returns no for different numbers");
-    AssertYes(send(Number(1.1111), "equals*", Number(1.1111)), "Number equals* returns yes for same decimal numbers");
-    AssertNo(send(Number(1.1112), "equals*", Number(1.1111)), "Number equals* returns no for decimal numbers differing only by a fraction");
+    AssertYes(MLSend(MLNumber(1), "equals*", MLNumber(1)), "Number equals* returns MLYes for same MLInteger numbers");
+    AssertNo(MLSend(MLNumber(1), "equals*", MLNumber(2)), "Number equals* returns MLNo for different numbers");
+    AssertYes(MLSend(MLNumber(1.1111), "equals*", MLNumber(1.1111)), "Number equals* returns MLYes for same MLDecimal numbers");
+    AssertNo(MLSend(MLNumber(1.1112), "equals*", MLNumber(1.1111)), "Number equals* returns MLNo for MLDecimal numbers differing only by a fraction");
 }
-
 
 static void TestNumberCompare() {
     // TODO: implement.
 }
 
-
 static void TestNumberCopy() {
     // TODO: implement.
 }
-
 
 static void TestNumber() {
     TestNumberDestroy();
@@ -327,86 +275,75 @@ static void TestNumber() {
     TestNumberCopy();
 }
 
-
 // ---------------------------------------------------------- Block Tests ------
-
 
 static void TestBlockEquals() {
     // TODO: implement.
 }
 
-
 static void TestBlock() {
     TestBlockEquals();
 }
 
-
 // ----------------------------------------------------------- Data Tests ------
 
-
 static void TestDataEquals() {
-    var data1 = Data("12345");
-    var data2 = Data("12345");
-    var data3 = Data("12346");
-    var data4 = Data("123456");
-    var string = String("12345");
-    AssertYes(send(data1, "equals*", data1), "Data equals* returns yes when comparing identical data objects");
-    AssertYes(send(data1, "equals*", data2), "Data equals* returns yes when comparing equal data objects");
-    AssertNo(send(data1, "equals*", data3), "Data equals* returns no when comparing data objects with equal length but different content");
-    AssertNo(send(data1, "equals*", data4), "Data equals* returns no when comparing data objects with different length and different content");
-    AssertNo(send(data1, "equals*", string), "Data equals* returns no when comparing a data object with a string containing the same data");
-    AssertNo(send(data1, "equals*", yes), "Data equals* returns no when comparing a data object to a boolean (here: yes)");
-    AssertNo(send(data1, "equals*", no), "Data equals* returns no when comparing a data object to a boolean (here: no)");
-    AssertNo(send(data1, "equals*", Number(9)), "Data equals* returns no when comparing a data object to a number (here: 9)");
+    MLVariable data1 = MLData("12345");
+    MLVariable data2 = MLData("12345");
+    MLVariable data3 = MLData("12346");
+    MLVariable data4 = MLData("123456");
+    MLVariable string = MLString("12345");
+    AssertYes(MLSend(data1, "equals*", data1), "Data equals* returns MLYes when comparing identical data objects");
+    AssertYes(MLSend(data1, "equals*", data2), "Data equals* returns MLYes when comparing equal data objects");
+    AssertNo(MLSend(data1, "equals*", data3), "Data equals* returns MLNo when comparing data objects with equal length but different content");
+    AssertNo(MLSend(data1, "equals*", data4), "Data equals* returns MLNo when comparing data objects with different length and different content");
+    AssertNo(MLSend(data1, "equals*", string), "Data equals* returns MLNo when comparing a data object with a string containing the same data");
+    AssertNo(MLSend(data1, "equals*", MLYes), "Data equals* returns MLNo when comparing a data object to a boolean (here: MLYes)");
+    AssertNo(MLSend(data1, "equals*", MLNo), "Data equals* returns MLNo when comparing a data object to a boolean (here: MLNo)");
+    AssertNo(MLSend(data1, "equals*", MLNumber(9)), "Data equals* returns MLNo when comparing a data object to a number (here: 9)");
 }
-
 
 static void TestData() {
     TestDataEquals();
     // TODO: add more tests.
 }
 
-
 // ---------------------------------------------------------- Array Tests ------
 
-
 static void TestArrayEquals () {
-    var array1 = Array(Number(1), Number(2), Number(3));
-    var array2 = Array(Number(1), Number(2), Number(3));
-    var array3 = Array(Number(1), Number(2), Number(4));
-    var array4 = Array(Number(1), Number(2), Number(3), Number(4));
-    AssertYes(send(array1, "equals*", array1), "Array equals* returns yes when comparing identical arrays");
-    AssertYes(send(array1, "equals*", array2), "Array equals* returns yes when comparing arrays containing the same objects");
-    AssertNo(send(array1, "equals*", array3), "Array equals* returns no when comparing arrays with equal length but different objects");
-    AssertNo(send(array1, "equals*", array4), "Array equals* returns no when comparing arrays with different length and different objects");
-    AssertNo(send(array1, "equals*", String("1, 2, 3")), "Array equals* returns no when comparing a array object with a string (here: '1, 2, 3')");
-    AssertNo(send(array1, "equals*", yes), "Array equals* returns no when comparing a array object to a boolean (here: yes)");
-    AssertNo(send(array1, "equals*", no), "Array equals* returns no when comparing a array object to a boolean (here: no)");
-    AssertNo(send(array1, "equals*", Number(9)), "Array equals* returns no when comparing a array object to a number (here: 9)");
+    MLVariable array1 = MLArray(MLNumber(1), MLNumber(2), MLNumber(3));
+    MLVariable array2 = MLArray(MLNumber(1), MLNumber(2), MLNumber(3));
+    MLVariable array3 = MLArray(MLNumber(1), MLNumber(2), MLNumber(4));
+    MLVariable array4 = MLArray(MLNumber(1), MLNumber(2), MLNumber(3), MLNumber(4));
+    AssertYes(MLSend(array1, "equals*", array1), "Array equals* returns MLYes when comparing identical arrays");
+    AssertYes(MLSend(array1, "equals*", array2), "Array equals* returns MLYes when comparing arrays containing the same objects");
+    AssertNo(MLSend(array1, "equals*", array3), "Array equals* returns MLNo when comparing arrays with equal length but different objects");
+    AssertNo(MLSend(array1, "equals*", array4), "Array equals* returns MLNo when comparing arrays with different length and different objects");
+    AssertNo(MLSend(array1, "equals*", MLString("1, 2, 3")), "Array equals* returns MLNo when comparing a array object with a string (here: '1, 2, 3')");
+    AssertNo(MLSend(array1, "equals*", MLYes), "Array equals* returns MLNo when comparing a array object to a boolean (here: MLYes)");
+    AssertNo(MLSend(array1, "equals*", MLNo), "Array equals* returns MLNo when comparing a array object to a boolean (here: MLNo)");
+    AssertNo(MLSend(array1, "equals*", MLNumber(9)), "Array equals* returns MLNo when comparing a array object to a number (here: 9)");
 }
-
 
 static void TestArrayCount() {
-    var array1 = Array();
-    var array2 = Array(Number(1));
-    var array3 = Array(Number(1), Number(2), Number(3));
-    AssertEquals(send(array1, "count"), Number(0), "Array count returns X for an array with X objects (here: X = 0)");
-    AssertEquals(send(array2, "count"), Number(1), "Array count returns X for an array with X objects (here: X = 1)");
-    AssertEquals(send(array3, "count"), Number(3), "Array count returns X for an array with X objects (here: X = 3)");
+    MLVariable array1 = MLArray();
+    MLVariable array2 = MLArray(MLNumber(1));
+    MLVariable array3 = MLArray(MLNumber(1), MLNumber(2), MLNumber(3));
+    AssertEquals(MLSend(array1, "count"), MLNumber(0), "Array count returns X for an array with X objects (here: X = 0)");
+    AssertEquals(MLSend(array2, "count"), MLNumber(1), "Array count returns X for an array with X objects (here: X = 1)");
+    AssertEquals(MLSend(array3, "count"), MLNumber(3), "Array count returns X for an array with X objects (here: X = 3)");
 }
-
 
 static void TestArrayReplaceAtCountWith() {
-    var array1 = Array(Number(1), Number(2), Number(3), Number(4), more);
-    var array2 = Array(more);
-    var array3 = Array(Number(3), Number(4), Number(5), more);
-    var array4 = Array(Number(6), Number(7), Number(8), Number(9), more);
+    MLVariable array1 = MLArray(MLNumber(1), MLNumber(2), MLNumber(3), MLNumber(4), MLMore);
+    MLVariable array2 = MLArray(MLMore);
+    MLVariable array3 = MLArray(MLNumber(3), MLNumber(4), MLNumber(5), MLMore);
+    MLVariable array4 = MLArray(MLNumber(6), MLNumber(7), MLNumber(8), MLNumber(9), MLMore);
 
-    AssertEquals(send(array1, "replace-at*count*with*", Number(1), Number(2), Array(Number(5), Number(6), Number(7))), Array(Number(1), Number(5), Number(6), Number(7), Number(4)), "Array replace-at*count*with* replaces `count` objects starting at `index` with `objects`");
-    AssertEquals(send(array2, "replace-at*count*with*", Number(0), Number(0), Array()), Array(), "Array replace-at*count*with* doesn't change the array when `count` is 0 and `index` is valid");
-    // TODO: check that non-mutable arrays throw an exception when trying to mutate.
+    AssertEquals(MLSend(array1, "replace-at*count*with*", MLNumber(1), MLNumber(2), MLArray(MLNumber(5), MLNumber(6), MLNumber(7))), MLArray(MLNumber(1), MLNumber(5), MLNumber(6), MLNumber(7), MLNumber(4)), "Array replace-at*count*with* replaces `count` objects starting at `index` with `objects`");
+    AssertEquals(MLSend(array2, "replace-at*count*with*", MLNumber(0), MLNumber(0), MLArray()), MLArray(), "Array replace-at*count*with* doesn't change the array when `count` is 0 and `index` is valid");
+    // TODO: check that non-mutable arrays raise an exception when trying to mutate.
 }
-
 
 static void TestArray() {
     TestArrayEquals();
@@ -415,75 +352,65 @@ static void TestArray() {
     // TODO: add more tests.
 }
 
-
 // --------------------------------------------------------- String Tests ------
 
-
 static void TestStringEquals() {
-    var string1 = String("12345");
-    var string2 = String("12345");
-    var string3 = String("12346");
-    var string4 = String("123456");
-    AssertYes(send(string1, "equals*", string1), "String equals* returns yes when comparing identical strings");
-    AssertYes(send(string1, "equals*", string2), "String equals* returns yes when comparing equal strings");
-    AssertNo(send(string1, "equals*", string3), "String equals* returns no when comparing strings with equal length but different content");
-    AssertNo(send(string1, "equals*", string4), "String equals* returns no when comparing strings with different length and different content");
-    AssertNo(send(string1, "equals*", Data("12345")), "String equals* returns no when comparing a string with a data object containing the same data");
-    AssertNo(send(string1, "equals*", yes), "String equals* returns no when comparing a string object to a boolean (here: yes)");
-    AssertNo(send(string1, "equals*", no), "String equals* returns no when comparing a string object to a boolean (here: no)");
-    AssertNo(send(string1, "equals*", Number(9)), "String equals* returns no when comparing a string object to a number (here: 9)");
+    MLVariable string1 = MLString("12345");
+    MLVariable string2 = MLString("12345");
+    MLVariable string3 = MLString("12346");
+    MLVariable string4 = MLString("123456");
+    AssertYes(MLSend(string1, "equals*", string1), "String equals* returns MLYes when comparing identical strings");
+    AssertYes(MLSend(string1, "equals*", string2), "String equals* returns MLYes when comparing equal strings");
+    AssertNo(MLSend(string1, "equals*", string3), "String equals* returns MLNo when comparing strings with equal length but different content");
+    AssertNo(MLSend(string1, "equals*", string4), "String equals* returns MLNo when comparing strings with different length and different content");
+    AssertNo(MLSend(string1, "equals*", MLData("12345")), "String equals* returns MLNo when comparing a string with a data object containing the same data");
+    AssertNo(MLSend(string1, "equals*", MLYes), "String equals* returns MLNo when comparing a string object to a boolean (here: MLYes)");
+    AssertNo(MLSend(string1, "equals*", MLNo), "String equals* returns MLNo when comparing a string object to a boolean (here: MLNo)");
+    AssertNo(MLSend(string1, "equals*", MLNumber(9)), "String equals* returns MLNo when comparing a string object to a number (here: 9)");
 }
-
 
 static void TestString() {
     TestStringEquals();
     // TODO: add more tests.
 }
 
-
 // ----------------------------------------------------- Dictionary Tests ------
 
-
 static void TestDictionaryEquals() {
-    var dictionary1 = Dictionary(String("one"), Number(1), String("two"), Number(2));
-    var dictionary2 = Dictionary(String("one"), Number(1), String("two"), Number(2));
-    var dictionary3 = Dictionary(String("one"), Number(1), String("three"), Number(3));
+    MLVariable dictionary1 = MLDictionary(MLString("one"), MLNumber(1), MLString("two"), MLNumber(2));
+    MLVariable dictionary2 = MLDictionary(MLString("one"), MLNumber(1), MLString("two"), MLNumber(2));
+    MLVariable dictionary3 = MLDictionary(MLString("one"), MLNumber(1), MLString("three"), MLNumber(3));
 }
-
 
 static void TestDictionaryCount() {
-    var dictionary1 = Dictionary();
-    var dictionary2 = Dictionary(String("one"), Number(1));
-    var dictionary3 = Dictionary(String("one"), Number(1), String("two"), Number(2), String("three"), Number(3));
-    AssertEquals(send(dictionary1, "count"), Number(0), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 0)");
-    AssertEquals(send(dictionary2, "count"), Number(1), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 1)");
-    AssertEquals(send(dictionary3, "count"), Number(3), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 3)");
+    MLVariable dictionary1 = MLDictionary();
+    MLVariable dictionary2 = MLDictionary(MLString("one"), MLNumber(1));
+    MLVariable dictionary3 = MLDictionary(MLString("one"), MLNumber(1), MLString("two"), MLNumber(2), MLString("three"), MLNumber(3));
+    AssertEquals(MLSend(dictionary1, "count"), MLNumber(0), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 0)");
+    AssertEquals(MLSend(dictionary2, "count"), MLNumber(1), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 1)");
+    AssertEquals(MLSend(dictionary3, "count"), MLNumber(3), "Dictionary count returns X for a dictionary with X key/value pairs (here: X = 3)");
 }
-
 
 static void TestDictionaryGet() {
-    var dictionary = Dictionary(String("one"), Number(1), String("two"), Number(2));
-    AssertEquals(send(dictionary, "get*", String("one")), Number(1), "Dictionary get* returns the value for the given key (here: key = 'one', value = 1)");
-    AssertEquals(send(dictionary, "get*", String("two")), Number(2), "Dictionary get* returns the value for the given key (here: key = 'two', value = 2)");
-    AssertNull(send(dictionary, "get*", String("three")), "Dictionary get* returns null if the given key is not in the dictionary (here: key = 'three')");
+    MLVariable dictionary = MLDictionary(MLString("one"), MLNumber(1), MLString("two"), MLNumber(2));
+    AssertEquals(MLSend(dictionary, "get*", MLString("one")), MLNumber(1), "Dictionary get* returns the value for the given key (here: key = 'one', value = 1)");
+    AssertEquals(MLSend(dictionary, "get*", MLString("two")), MLNumber(2), "Dictionary get* returns the value for the given key (here: key = 'two', value = 2)");
+    AssertNull(MLSend(dictionary, "get*", MLString("three")), "Dictionary get* returns MLNull if the given key is not in the dictionary (here: key = 'three')");
 }
-
 
 static void TestDictionarySetTo() {
-    var dictionary = Dictionary(more);
-    send(dictionary, "set*to*", String("one"), Number(1));
-    AssertEquals(send(dictionary, "get*", String("one")), Number(1), "Dictionary set*to* sets the entry for `key` to the passed `value` (here: key = 'one', value = 1)");
-    // TODO: check that non-mutable dictionaries throw an exception when trying to mutate.
+    MLVariable dictionary = MLDictionary(MLMore);
+    MLSend(dictionary, "set*to*", MLString("one"), MLNumber(1));
+    AssertEquals(MLSend(dictionary, "get*", MLString("one")), MLNumber(1), "Dictionary set*to* sets the entry for `key` to the passed `value` (here: key = 'one', value = 1)");
+    // TODO: check that non-mutable dictionaries raise an exception when trying to mutate.
 }
-
 
 static void TestDictionaryRemove() {
-    var dictionary = Dictionary(String("one"), Number(1), String("two"), Number(2), more);
-    send(dictionary, "remove*", String("one"));
-    AssertNull(send(dictionary, "get*", String("one")), "Dictionary remove* removes the entry for `key` (here: key = 'one', value = 1)");
-    // TODO: check that non-mutable dictionaries throw an exception when trying to mutate.
+    MLVariable dictionary = MLDictionary(MLString("one"), MLNumber(1), MLString("two"), MLNumber(2), MLMore);
+    MLSend(dictionary, "remove*", MLString("one"));
+    AssertNull(MLSend(dictionary, "get*", MLString("one")), "Dictionary remove* removes the entry for `key` (here: key = 'one', value = 1)");
+    // TODO: check that non-mutable dictionaries raise an exception when trying to mutate.
 }
-
 
 static void TestDictionary() {
     TestDictionaryEquals();
@@ -494,29 +421,24 @@ static void TestDictionary() {
     // TODO: add more tests.
 }
 
-
 // ----------------------------------------------------------- Null Tests ------
 
-
 static void TestNullEquals() {
-    AssertYes(send(null, "equals*", null), "Null equals* returns yes when comparing null to null");
-    AssertNo(send(null, "equals*", yes), "Null equals* returns no when comparing null to any other object (here: yes)");
-    AssertNo(send(null, "equals*", no), "Null equals* returns no when comparing null to any other object (here: no)");
-    AssertNo(send(null, "equals*", Number(9)), "Null equals* returns no when comparing null to any other object (here: 9)");
+    AssertYes(MLSend(MLNull, "equals*", MLNull), "Null equals* returns MLYes when comparing MLNull to MLNull");
+    AssertNo(MLSend(MLNull, "equals*", MLYes), "Null equals* returns MLNo when comparing MLNull to any other object (here: MLYes)");
+    AssertNo(MLSend(MLNull, "equals*", MLNo), "Null equals* returns MLNo when comparing MLNull to any other object (here: MLNo)");
+    AssertNo(MLSend(MLNull, "equals*", MLNumber(9)), "Null equals* returns MLNo when comparing MLNull to any other object (here: 9)");
 }
-
 
 static void TestNull() {
     TestNullEquals();
     // TODO: add more tests.
 }
 
-
 // ---------------------------------------------------------------- Main -------
 
-
 int main(int argumentsCount, char const* arguments[]) {
-    collect {
+    MLCollect {
         TestBegin();
         TestObject();
         TestBoolean();
@@ -532,15 +454,12 @@ int main(int argumentsCount, char const* arguments[]) {
     return NumberOfFailedExamples > 0 ? 1 : 0;
 }
 
-
 // ------------------------------------------------------------- Private -------
-
 
 static void TestBegin() {
     printf("\n");
     TestBeganAt = (double)clock();
 }
-
 
 static void TestEnd() {
     const char* color = RESET;
@@ -560,10 +479,9 @@ static void TestEnd() {
     printf("%ld examples, %s%ld failures%s\n\n", TotalNumberOfExamples, color, NumberOfFailedExamples,  RESET);
 }
 
-
-static void AssertYes(var object, const char* message) {
+static void AssertYes(MLVariable object, const char* message) {
     TotalNumberOfExamples += 1;
-    if (object == yes) {
+    if (object == MLYes) {
          printf(".");
     }
     else {
@@ -576,39 +494,32 @@ static void AssertYes(var object, const char* message) {
     if (TotalNumberOfExamples % 50 == 0) printf("\n");
 }
 
-
-static void AssertNo(var object, const char* message) {
-    if (object == no) return AssertYes(yes, message);
-    if (object == yes) return AssertYes(no, message);
+static void AssertNo(MLVariable object, const char* message) {
+    if (object == MLNo) return AssertYes(MLYes, message);
+    if (object == MLYes) return AssertYes(MLNo, message);
     AssertYes(object, message);
 }
 
-
-static void AssertNull(var object, const char* message) {
-    AssertYes(object == null ? yes : no, message);
+static void AssertNull(MLVariable object, const char* message) {
+    AssertYes(object == MLNull ? MLYes : MLNo, message);
 }
 
-
-static void AssertNotNull(var object, const char* message) {
-    AssertNo(object == null ? yes : no, message);
+static void AssertNotNull(MLVariable object, const char* message) {
+    AssertNo(object == MLNull ? MLYes : MLNo, message);
 }
 
-
-static void AssertEquals(var subject, var actual, const char* message) {
-    AssertYes(send(subject, "equals*", actual), message);
+static void AssertEquals(MLVariable subject, MLVariable actual, const char* message) {
+    AssertYes(MLSend(subject, "equals*", actual), message);
 }
 
-
-static void AssertNotEqual(var subject, var actual, const char* message) {
-    AssertNo(send(subject, "equals*", actual), message);
+static void AssertNotEqual(MLVariable subject, MLVariable actual, const char* message) {
+    AssertNo(MLSend(subject, "equals*", actual), message);
 }
 
-
-static void AssertIdentical(var subject, var actual, const char* message) {
-    AssertYes(Boolean(subject == actual), message);
+static void AssertIdentical(MLVariable subject, MLVariable actual, const char* message) {
+    AssertYes(MLBoolean(subject == actual), message);
 }
 
-
-static void AssertNotIdentical(var subject, var actual, const char* message) {
-    AssertNo(Boolean(subject == actual), message);
+static void AssertNotIdentical(MLVariable subject, MLVariable actual, const char* message) {
+    AssertNo(MLBoolean(subject == actual), message);
 }
